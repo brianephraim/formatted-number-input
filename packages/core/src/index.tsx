@@ -1,6 +1,84 @@
 import * as React from 'react';
 import { Platform, StyleSheet, TextInput, type TextInputProps, View } from 'react-native';
 
+type StyleObject = Record<string, any>;
+
+function omitUndefined<T extends StyleObject>(obj: T): Partial<T> {
+  const next: StyleObject = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v !== undefined) next[k] = v;
+  }
+  return next as Partial<T>;
+}
+
+function splitNumberInputStyle(style: TextInputProps['style']): {
+  containerStyle: StyleObject;
+  inputTextStyle: StyleObject;
+} {
+  const flat = (StyleSheet.flatten(style) ?? {}) as StyleObject;
+
+  // Text + padding-related styles that must match between TypingInput and DisplayInput
+  // so the overlay is pixel-identical.
+  const {
+    // typography
+    color,
+    fontSize,
+    fontFamily,
+    fontWeight,
+    fontStyle,
+    fontVariant,
+    letterSpacing,
+    lineHeight,
+    textAlign,
+    textAlignVertical,
+    textDecorationColor,
+    textDecorationLine,
+    textDecorationStyle,
+    textTransform,
+    includeFontPadding,
+
+    // padding (keep on inputs so overlay text aligns without needing inset math)
+    padding,
+    paddingTop,
+    paddingRight,
+    paddingBottom,
+    paddingLeft,
+    paddingHorizontal,
+    paddingVertical,
+
+    // NOTE: everything else (border/background/margin/layout/etc.) becomes container style.
+    ...containerStyle
+  } = flat;
+
+  const inputTextStyle = omitUndefined({
+    color,
+    fontSize,
+    fontFamily,
+    fontWeight,
+    fontStyle,
+    fontVariant,
+    letterSpacing,
+    lineHeight,
+    textAlign,
+    textAlignVertical,
+    textDecorationColor,
+    textDecorationLine,
+    textDecorationStyle,
+    textTransform,
+    includeFontPadding,
+
+    padding,
+    paddingTop,
+    paddingRight,
+    paddingBottom,
+    paddingLeft,
+    paddingHorizontal,
+    paddingVertical
+  });
+
+  return { containerStyle, inputTextStyle };
+}
+
 export type NumberInputProps = Omit<
   TextInputProps,
   'value' | 'defaultValue' | 'onChangeText' | 'keyboardType' | 'inputMode'
@@ -44,6 +122,7 @@ export function NumberInput({
   onBlur,
   ...rest
 }: NumberInputProps) {
+  const { containerStyle, inputTextStyle } = splitNumberInputStyle(style);
   const [isFocused, setIsFocused] = React.useState(false);
   const [focusCount, setFocusCount] = React.useState(0);
   const [blurCount, setBlurCount] = React.useState(0);
@@ -54,7 +133,7 @@ export function NumberInput({
   const formattedValueText = formatDisplay(value);
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, containerStyle]}>
       {/*
         TypingInput: uncontrolled editor.
         It stays mounted beneath the overlay, but we remount it on focus/blur to resync defaultValue.
@@ -83,7 +162,7 @@ export function NumberInput({
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
         inputMode={Platform.OS === 'web' ? 'numeric' : undefined}
-        style={[styles.input, style, !isFocused && styles.typingInputHiddenText]}
+        style={[styles.inputBase, inputTextStyle, !isFocused && styles.typingInputHiddenText]}
         caretHidden={!isFocused}
         {...rest}
       />
@@ -94,7 +173,11 @@ export function NumberInput({
       */}
       {!isFocused ? (
         <View pointerEvents="none" style={styles.displayOverlay}>
-          <TextInput value={formattedValueText} editable={false} style={[styles.input, style]} />
+          <TextInput
+            value={formattedValueText}
+            editable={false}
+            style={[styles.inputBase, styles.displayInputFill, inputTextStyle]}
+          />
         </View>
       ) : null}
     </View>
@@ -104,16 +187,27 @@ export function NumberInput({
 const styles = StyleSheet.create({
   root: {
     width: '100%',
-    position: 'relative'
-  },
-  input: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    position: 'relative',
+
+    // Defaults to mimic a plain React Native TextInput box.
     borderWidth: 1,
     borderColor: '#999',
     borderRadius: 8,
-    fontSize: 16
+    backgroundColor: 'transparent'
   },
+
+  // Base input styles that should apply to BOTH the typing input and display overlay.
+  // Visual box styles (border/background/radius/margins/layout) are handled by the wrapper.
+  inputBase: {
+    width: '100%',
+
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+
+    fontSize: 16,
+    backgroundColor: 'transparent'
+  },
+
   displayOverlay: {
     position: 'absolute',
     left: 0,
@@ -121,6 +215,13 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0
   },
+
+  displayInputFill: {
+    // Ensures the overlay TextInput fills the overlay View.
+    width: '100%',
+    height: '100%'
+  },
+
   typingInputHiddenText: {
     // Prevent double-rendered text when the display overlay is visible.
     color: 'transparent'
