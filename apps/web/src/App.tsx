@@ -11,6 +11,22 @@ function Row({ title, children }: { title: string; children: React.ReactNode }) 
   );
 }
 
+function Controls({ value, setValue }: { value: number; setValue: (n: number) => void }) {
+  return (
+    <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 8 }}>
+      <button
+        onClick={() => setValue(1234.987654321)}
+        style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #444', background: '#222', color: '#eee' }}
+      >
+        set to 1234.987654321
+      </button>
+      <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace', fontSize: 12, opacity: 0.9 }}>
+        value: {JSON.stringify(value)}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [valueA, setValueA] = useState(1234);
   const [valueB, setValueB] = useState(12345678);
@@ -34,9 +50,7 @@ export default function App() {
           autoComplete="off"
           formatDisplay={(n: number) => n.toLocaleString('en-US')}
         />
-        <pre style={{ marginTop: 8, background: '#111', color: '#eee', padding: 12, borderRadius: 8 }}>
-          value: {JSON.stringify(valueA)}
-        </pre>
+        <Controls value={valueA} setValue={setValueA} />
       </Row>
 
       <Row title="Bigger text + more padding + thicker border + rounded">
@@ -55,9 +69,7 @@ export default function App() {
             borderRadius: 14
           }}
         />
-        <pre style={{ marginTop: 8, background: '#111', color: '#eee', padding: 12, borderRadius: 8 }}>
-          value: {JSON.stringify(valueB)}
-        </pre>
+        <Controls value={valueB} setValue={setValueB} />
       </Row>
 
       <Row title="Dark theme (background + text color)">
@@ -76,9 +88,7 @@ export default function App() {
             paddingHorizontal: 16
           }}
         />
-        <pre style={{ marginTop: 8, background: '#111', color: '#eee', padding: 12, borderRadius: 8 }}>
-          value: {JSON.stringify(valueC)}
-        </pre>
+        <Controls value={valueC} setValue={setValueC} />
       </Row>
 
       <Row title="Layout/container styles via style: fixed width + margin (applies to wrapper)">
@@ -90,9 +100,7 @@ export default function App() {
           formatDisplay={(n: number) => n.toLocaleString('en-US')}
           style={{ width: 320, marginLeft: 'auto', marginRight: 'auto', textAlign: 'right' }}
         />
-        <pre style={{ marginTop: 8, background: '#111', color: '#eee', padding: 12, borderRadius: 8 }}>
-          value: {JSON.stringify(valueD)}
-        </pre>
+        <Controls value={valueD} setValue={setValueD} />
       </Row>
 
       <Row title="Decimals + maxDecimalPlaces=2 (rounding)">
@@ -102,12 +110,12 @@ export default function App() {
           placeholder="Decimals"
           autoComplete="off"
           maxDecimalPlaces={2}
-          formatDisplay={(n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          formatDisplay={(n: number) =>
+            n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          }
           style={{ textAlign: 'right' }}
         />
-        <pre style={{ marginTop: 8, background: '#111', color: '#eee', padding: 12, borderRadius: 8 }}>
-          value: {JSON.stringify(valueE)}
-        </pre>
+        <Controls value={valueE} setValue={setValueE} />
       </Row>
     </div>
   );

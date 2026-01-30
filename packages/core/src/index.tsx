@@ -163,15 +163,6 @@ export function NumberInput({
   const normalizedValue =
     typeof maxDecimalPlaces === 'number' ? roundToPlaces(value, maxDecimalPlaces) : value;
 
-  // If the parent provides a value with too many decimal places, normalize it by emitting
-  // a rounded value back out.
-  React.useEffect(() => {
-    if (typeof maxDecimalPlaces !== 'number') return;
-    if (Number.isNaN(value)) return;
-    if (normalizedValue !== value) onChangeNumber(normalizedValue);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, maxDecimalPlaces]);
-
   const rawValueText = String(normalizedValue);
   const formattedValueText = formatDisplay(normalizedValue);
 
