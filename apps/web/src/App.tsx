@@ -16,6 +16,7 @@ export default function App() {
   const [valueB, setValueB] = useState(12345678);
   const [valueC, setValueC] = useState(4200);
   const [valueD, setValueD] = useState(900719);
+  const [valueE, setValueE] = useState(1234.56789);
 
   return (
     <div style={{ maxWidth: 720, margin: '48px auto', padding: 16 }}>
@@ -91,6 +92,21 @@ export default function App() {
         />
         <pre style={{ marginTop: 8, background: '#111', color: '#eee', padding: 12, borderRadius: 8 }}>
           value: {JSON.stringify(valueD)}
+        </pre>
+      </Row>
+
+      <Row title="Decimals + maxDecimalPlaces=2 (rounding)">
+        <NumberInput
+          value={valueE}
+          onChangeNumber={setValueE}
+          placeholder="Decimals"
+          autoComplete="off"
+          maxDecimalPlaces={2}
+          formatDisplay={(n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          style={{ textAlign: 'right' }}
+        />
+        <pre style={{ marginTop: 8, background: '#111', color: '#eee', padding: 12, borderRadius: 8 }}>
+          value: {JSON.stringify(valueE)}
         </pre>
       </Row>
     </div>

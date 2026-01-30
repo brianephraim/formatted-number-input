@@ -94,6 +94,12 @@ export type NumberInputProps = Omit<
   onChangeNumber: (next: number) => void;
 
   /**
+   * Max number of digits allowed after the decimal point.
+   * If provided, values will be rounded to this precision.
+   */
+  maxDecimalPlaces?: number;
+
+  /**
    * Format the controlled `value` for display while NOT focused.
    *
    * Example: (n) => n.toLocaleString('en-US')
@@ -106,6 +112,30 @@ function defaultFormatDisplay(value: number) {
   return value.toLocaleString('en-US');
 }
 
+function roundToPlaces(value: number, places: number) {
+  if (!Number.isFinite(value)) return value;
+  const p = Math.max(0, Math.floor(places));
+  const factor = 10 ** p;
+  return Math.round(value * factor) / factor;
+}
+
+function sanitizeNumericText(text: string) {
+  // Keep digits, dot, minus; then enforce:
+  // - at most one leading '-'
+  // - at most one '.'
+  const keep = text.replace(/[^0-9.-]/g, '');
+
+  const negative = keep.startsWith('-');
+  const noMinus = keep.replace(/-/g, '');
+
+  const [intPartRaw, ...decimalParts] = noMinus.split('.');
+  const intPart = intPartRaw ?? '';
+  const decimalPart = decimalParts.join(''); // collapse extra dots
+
+  const rebuilt = `${negative ? '-' : ''}${intPart}${decimalParts.length ? '.' : ''}${decimalPart}`;
+  return rebuilt;
+}
+
 /**
  * Fancy number input with a display overlay.
  *
@@ -116,6 +146,7 @@ function defaultFormatDisplay(value: number) {
 export function NumberInput({
   value,
   onChangeNumber,
+  maxDecimalPlaces,
   formatDisplay = defaultFormatDisplay,
   style,
   onFocus,
@@ -129,8 +160,20 @@ export function NumberInput({
 
   const typingKey = `${focusCount}_${blurCount}`;
 
-  const rawValueText = String(value);
-  const formattedValueText = formatDisplay(value);
+  const normalizedValue =
+    typeof maxDecimalPlaces === 'number' ? roundToPlaces(value, maxDecimalPlaces) : value;
+
+  // If the parent provides a value with too many decimal places, normalize it by emitting
+  // a rounded value back out.
+  React.useEffect(() => {
+    if (typeof maxDecimalPlaces !== 'number') return;
+    if (Number.isNaN(value)) return;
+    if (normalizedValue !== value) onChangeNumber(normalizedValue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, maxDecimalPlaces]);
+
+  const rawValueText = String(normalizedValue);
+  const formattedValueText = formatDisplay(normalizedValue);
 
   return (
     <View style={[styles.root, containerStyle]}>
@@ -142,10 +185,17 @@ export function NumberInput({
         key={typingKey}
         defaultValue={rawValueText}
         onChangeText={(text) => {
-          // Edge cases later; for now, parse aggressively.
-          const cleaned = text.replace(/[^0-9.-]/g, '');
+          // Edge cases later; for now:
+          // - allow decimals
+          // - if multiple '.', keep the first and collapse the rest into the decimal portion
+          // - optional rounding via maxDecimalPlaces
+          const cleaned = sanitizeNumericText(text);
           const next = Number(cleaned);
-          if (!Number.isNaN(next)) onChangeNumber(next);
+          if (Number.isNaN(next)) return;
+
+          const rounded =
+            typeof maxDecimalPlaces === 'number' ? roundToPlaces(next, maxDecimalPlaces) : next;
+          onChangeNumber(rounded);
         }}
         onFocus={(e) => {
           // Remount on first focus so defaultValue is re-applied at the start of an edit session.
