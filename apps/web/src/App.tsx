@@ -3,7 +3,7 @@ import { NumberInput } from '@rn-number-input/core';
 import './App.css';
 
 export default function App() {
-  const [value, setValue] = useState('1234');
+  const [value, setValue] = useState(1234);
 
   return (
     <div style={{ maxWidth: 520, margin: '48px auto', padding: 16 }}>
@@ -16,9 +16,10 @@ export default function App() {
       <div style={{ marginTop: 16 }}>
         <NumberInput
           value={value}
-          onChangeValue={setValue}
+          onChangeNumber={setValue}
           placeholder="Enter a number"
           autoComplete="off"
+          formatDisplay={(n: number) => n.toLocaleString('en-US')}
         />
       </div>
 
