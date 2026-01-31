@@ -33,6 +33,9 @@ export default function App() {
   const [valueC, setValueC] = useState(4200);
   const [valueD, setValueD] = useState(900719);
   const [valueE, setValueE] = useState(1234.56789);
+  const [valueF, setValueF] = useState(1234.987654321);
+  const [valueG, setValueG] = useState(1234.987654321);
+  const [valueH, setValueH] = useState(1234567890.1234);
 
   return (
     <div style={{ maxWidth: 720, margin: '48px auto', padding: 16 }}>
@@ -42,14 +45,8 @@ export default function App() {
         Developing the component against <code>react-native-web</code>, no emulators.
       </p>
 
-      <Row title="Default (formatDisplay + default border/padding)">
-        <NumberInput
-          value={valueA}
-          onChangeNumber={setValueA}
-          placeholder="Enter a number"
-          autoComplete="off"
-          formatDisplay={(n: number) => n.toLocaleString('en-US')}
-        />
+      <Row title="Default (default toLocaleString formatting)">
+        <NumberInput value={valueA} onChangeNumber={setValueA} placeholder="Enter a number" autoComplete="off" />
         <Controls value={valueA} setValue={setValueA} />
       </Row>
 
@@ -59,7 +56,6 @@ export default function App() {
           onChangeNumber={setValueB}
           placeholder="Big input"
           autoComplete="off"
-          formatDisplay={(n: number) => n.toLocaleString('en-US')}
           style={{
             fontSize: 22,
             paddingVertical: 16,
@@ -78,7 +74,6 @@ export default function App() {
           onChangeNumber={setValueC}
           placeholder="Dark"
           autoComplete="off"
-          formatDisplay={(n: number) => n.toLocaleString('en-US')}
           style={{
             backgroundColor: '#0b1020',
             color: '#e6edf3',
@@ -97,25 +92,62 @@ export default function App() {
           onChangeNumber={setValueD}
           placeholder="Fixed width"
           autoComplete="off"
-          formatDisplay={(n: number) => n.toLocaleString('en-US')}
           style={{ width: 320, marginLeft: 'auto', marginRight: 'auto', textAlign: 'right' }}
         />
         <Controls value={valueD} setValue={setValueD} />
       </Row>
 
-      <Row title="Decimals + maxDecimalPlaces=2 (rounding)">
+      <Row title="Decimals + maxDecimalPlaces=2 (rounding) — default mode (displayAndOutput)">
         <NumberInput
           value={valueE}
           onChangeNumber={setValueE}
           placeholder="Decimals"
           autoComplete="off"
           maxDecimalPlaces={2}
-          formatDisplay={(n: number) =>
-            n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-          }
           style={{ textAlign: 'right' }}
         />
         <Controls value={valueE} setValue={setValueE} />
+      </Row>
+
+      <Row title="decimalRoundingMode=displayOnly + maxDecimalPlaces=2 (display rounds, output does not)">
+        <NumberInput
+          value={valueF}
+          onChangeNumber={setValueF}
+          placeholder="displayOnly"
+          autoComplete="off"
+          maxDecimalPlaces={2}
+          decimalRoundingMode="displayOnly"
+          style={{ textAlign: 'right' }}
+        />
+        <Controls value={valueF} setValue={setValueF} />
+      </Row>
+
+      <Row title="decimalRoundingMode=displayAndOutput + maxDecimalPlaces=2 (both round)">
+        <NumberInput
+          value={valueG}
+          onChangeNumber={setValueG}
+          placeholder="displayAndOutput"
+          autoComplete="off"
+          maxDecimalPlaces={2}
+          decimalRoundingMode="displayAndOutput"
+          style={{ textAlign: 'right' }}
+        />
+        <Controls value={valueG} setValue={setValueG} />
+      </Row>
+
+      <Row title="Custom formatDisplay (emoji separators)">
+        <NumberInput
+          value={valueH}
+          onChangeNumber={setValueH}
+          placeholder="Emoji format"
+          autoComplete="off"
+          maxDecimalPlaces={4}
+          formatDisplay={(n: number) => {
+            // replace grouping commas with an emoji
+            return n.toLocaleString('en-US', { maximumFractionDigits: 4 }).replace(/,/g, '🍌');
+          }}
+        />
+        <Controls value={valueH} setValue={setValueH} />
       </Row>
     </div>
   );

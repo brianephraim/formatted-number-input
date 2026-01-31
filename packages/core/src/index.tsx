@@ -95,9 +95,15 @@ export type NumberInputProps = Omit<
 
   /**
    * Max number of digits allowed after the decimal point.
-   * If provided, values will be rounded to this precision.
    */
   maxDecimalPlaces?: number;
+
+  /**
+   * How maxDecimalPlaces should be applied.
+   * - displayAndOutput: rounds the outgoing value (onChangeNumber) AND the display overlay
+   * - displayOnly: rounds only the display overlay; outgoing value remains unrounded
+   */
+  decimalRoundingMode?: 'displayAndOutput' | 'displayOnly';
 
   /**
    * Format the controlled `value` for display while NOT focused.
@@ -107,9 +113,12 @@ export type NumberInputProps = Omit<
   formatDisplay?: (value: number) => string;
 };
 
-function defaultFormatDisplay(value: number) {
+function defaultFormatDisplay(value: number, maxDecimalPlaces: number | undefined) {
   // Keep it conservative: avoid locale surprises in tests.
-  return value.toLocaleString('en-US');
+  // Note: Intl/NumberFormat will clamp maximumFractionDigits internally.
+  return value.toLocaleString('en-US', {
+    maximumFractionDigits: maxDecimalPlaces ?? 100
+  });
 }
 
 function roundToPlaces(value: number, places: number) {
@@ -147,7 +156,8 @@ export function NumberInput({
   value,
   onChangeNumber,
   maxDecimalPlaces,
-  formatDisplay = defaultFormatDisplay,
+  decimalRoundingMode = 'displayAndOutput',
+  formatDisplay,
   style,
   onFocus,
   onBlur,
@@ -160,11 +170,14 @@ export function NumberInput({
 
   const typingKey = `${focusCount}_${blurCount}`;
 
-  const normalizedValue =
+  const displayValue =
     typeof maxDecimalPlaces === 'number' ? roundToPlaces(value, maxDecimalPlaces) : value;
 
-  const rawValueText = String(normalizedValue);
-  const formattedValueText = formatDisplay(normalizedValue);
+  const rawValueText = String(decimalRoundingMode === 'displayOnly' ? value : displayValue);
+
+  const formattedValueText = formatDisplay
+    ? formatDisplay(displayValue)
+    : defaultFormatDisplay(displayValue, maxDecimalPlaces);
 
   return (
     <View style={[styles.root, containerStyle]}>
@@ -176,17 +189,18 @@ export function NumberInput({
         key={typingKey}
         defaultValue={rawValueText}
         onChangeText={(text) => {
-          // Edge cases later; for now:
           // - allow decimals
           // - if multiple '.', keep the first and collapse the rest into the decimal portion
-          // - optional rounding via maxDecimalPlaces
           const cleaned = sanitizeNumericText(text);
           const next = Number(cleaned);
           if (Number.isNaN(next)) return;
 
-          const rounded =
-            typeof maxDecimalPlaces === 'number' ? roundToPlaces(next, maxDecimalPlaces) : next;
-          onChangeNumber(rounded);
+          if (typeof maxDecimalPlaces === 'number' && decimalRoundingMode === 'displayAndOutput') {
+            onChangeNumber(roundToPlaces(next, maxDecimalPlaces));
+            return;
+          }
+
+          onChangeNumber(next);
         }}
         onFocus={(e) => {
           // Remount on first focus so defaultValue is re-applied at the start of an edit session.
