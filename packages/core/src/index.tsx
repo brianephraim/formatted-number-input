@@ -165,15 +165,27 @@ export function NumberInput({
 }: NumberInputProps) {
   const { containerStyle, inputTextStyle } = splitNumberInputStyle(style);
   const [isFocused, setIsFocused] = React.useState(false);
-  const [focusCount, setFocusCount] = React.useState(0);
-  const [blurCount, setBlurCount] = React.useState(0);
-
-  const typingKey = `${focusCount}_${blurCount}`;
 
   const displayValue =
     typeof maxDecimalPlaces === 'number' ? roundToPlaces(value, maxDecimalPlaces) : value;
 
-  const rawValueText = String(decimalRoundingMode === 'displayOnly' ? value : displayValue);
+  // What should be injected into TypingInput.defaultValue (when it remounts).
+  // In displayAndOutput mode, we want the DOM value to match the rounded value.
+  const seedValueForTypingInput = decimalRoundingMode === 'displayAndOutput' ? displayValue : value;
+
+  const [remountKeyForTypingInput, setRemountKeyForTypingInput] = React.useState(0);
+  const lastSeedValueForTypingInputRef = React.useRef(seedValueForTypingInput);
+
+  // Only bump the remount key while blurred.
+  // This preserves click-to-position caret behavior and prevents remounts while typing.
+  React.useEffect(() => {
+    if (isFocused) return;
+    if (Object.is(lastSeedValueForTypingInputRef.current, seedValueForTypingInput)) return;
+    lastSeedValueForTypingInputRef.current = seedValueForTypingInput;
+    setRemountKeyForTypingInput((k) => k + 1);
+  }, [isFocused, seedValueForTypingInput]);
+
+  const rawValueText = String(seedValueForTypingInput);
 
   const formattedValueText = formatDisplay
     ? formatDisplay(displayValue)
@@ -186,7 +198,7 @@ export function NumberInput({
         It stays mounted beneath the overlay, but we remount it on focus/blur to resync defaultValue.
       */}
       <TextInput
-        key={typingKey}
+        key={remountKeyForTypingInput}
         defaultValue={rawValueText}
         onChangeText={(text) => {
           // - allow decimals
@@ -203,16 +215,11 @@ export function NumberInput({
           onChangeNumber(next);
         }}
         onFocus={(e) => {
-          // Remount on first focus so defaultValue is re-applied at the start of an edit session.
-          // Guard: after remount, the new input will focus again; don't increment focusCount twice.
-          if (!isFocused) setFocusCount((c) => c + 1);
           setIsFocused(true);
           onFocus?.(e);
         }}
-        autoFocus={isFocused}
         onBlur={(e) => {
           setIsFocused(false);
-          setBlurCount((c) => c + 1);
           onBlur?.(e);
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
