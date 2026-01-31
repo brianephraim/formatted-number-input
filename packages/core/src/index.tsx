@@ -128,6 +128,20 @@ function roundToPlaces(value: number, places: number) {
   return Math.round(value * factor) / factor;
 }
 
+function formattedIndexToRawIndex(formattedText: string, formattedIndex: number) {
+  // Best-effort mapping for formatted display strings that introduce separators
+  // like commas/spaces/emoji. We count only the characters that also exist in the
+  // raw numeric string (digits, '.', '-').
+  let rawIndex = 0;
+  const end = Math.max(0, Math.min(formattedIndex, formattedText.length));
+  for (let i = 0; i < end; i++) {
+    const ch = formattedText[i];
+    if (ch >= '0' && ch <= '9') rawIndex++;
+    else if (ch === '.' || ch === '-') rawIndex++;
+  }
+  return rawIndex;
+}
+
 function sanitizeNumericText(text: string) {
   // Keep digits, dot, minus; then enforce:
   // - at most one leading '-'
@@ -166,6 +180,10 @@ export function NumberInput({
   const { containerStyle, inputTextStyle } = splitNumberInputStyle(style);
   const [isFocused, setIsFocused] = React.useState(false);
 
+  const isWeb = Platform.OS === 'web';
+  const typingInputRef = React.useRef<any>(null);
+  const displayInputRef = React.useRef<any>(null);
+
   const displayValue =
     typeof maxDecimalPlaces === 'number' ? roundToPlaces(value, maxDecimalPlaces) : value;
 
@@ -198,6 +216,7 @@ export function NumberInput({
         It stays mounted beneath the overlay, but we remount it on focus/blur to resync defaultValue.
       */}
       <TextInput
+        ref={typingInputRef}
         key={remountKeyForTypingInput}
         defaultValue={rawValueText}
         onChangeText={(text) => {
@@ -244,11 +263,44 @@ export function NumberInput({
         Hidden while focused so the user edits the raw value without formatting/caret issues.
       */}
       {!isFocused ? (
-        <View pointerEvents="none" style={styles.displayOverlay}>
+        <View pointerEvents={isWeb ? 'auto' : 'none'} style={styles.displayOverlay}>
           <TextInput
+            ref={displayInputRef}
             value={formattedValueText}
-            editable={false}
-            style={[styles.inputBase, styles.displayInputFill, inputTextStyle]}
+            // On web we allow focus so we can read selectionStart and forward it.
+            // On native we keep it non-interactive.
+            editable={isWeb}
+            onFocus={() => {
+              if (!isWeb) return;
+
+              // Let the browser compute the caret position in the formatted string,
+              // then transfer focus + mapped caret to the real TypingInput.
+              requestAnimationFrame(() => {
+                const displayEl = displayInputRef.current as any;
+                const formattedIndex =
+                  typeof displayEl?.selectionStart === 'number'
+                    ? displayEl.selectionStart
+                    : formattedValueText.length;
+
+                const desiredRawIndex = formattedIndexToRawIndex(formattedValueText, formattedIndex);
+                const clampedRawIndex = Math.max(0, Math.min(desiredRawIndex, rawValueText.length));
+
+                const typingEl = typingInputRef.current as any;
+                typingEl?.focus?.();
+
+                requestAnimationFrame(() => {
+                  try {
+                    typingEl?.setSelectionRange?.(clampedRawIndex, clampedRawIndex);
+                  } catch {
+                    // best-effort; some environments may not support selection APIs
+                  }
+                });
+              });
+            }}
+            onChangeText={() => {
+              // no-op: this field is display-only; focus will be forwarded immediately on web.
+            }}
+            style={[styles.inputBase, styles.displayInputFill, inputTextStyle, styles.displayInputWebCaretHidden]}
           />
         </View>
       ) : null}
@@ -293,6 +345,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%'
   },
+
+  // Web-only style. `caretColor` isn't in RN types, but react-native-web supports it.
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  displayInputWebCaretHidden: ({ caretColor: 'transparent' } as any),
 
   typingInputHiddenText: {
     // Prevent double-rendered text when the display overlay is visible.
