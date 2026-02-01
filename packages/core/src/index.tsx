@@ -134,6 +134,26 @@ type InputComponent = React.ElementType;
 
 type WrapperComponent = React.ComponentType<WrapperProps>;
 
+function toDomInputMode(
+  inputMode: TextInputProps['inputMode']
+): React.HTMLAttributes<HTMLInputElement>['inputMode'] | undefined {
+  // RN and DOM inputMode strings mostly line up; we only pass through known DOM values.
+  if (typeof inputMode !== 'string') return undefined;
+  switch (inputMode) {
+    case 'none':
+    case 'text':
+    case 'tel':
+    case 'url':
+    case 'email':
+    case 'numeric':
+    case 'decimal':
+    case 'search':
+      return inputMode;
+    default:
+      return undefined;
+  }
+}
+
 const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function HtmlInput(
   { onChangeText, editable = true, style, caretHidden, inputMode, value, defaultValue, ...rest },
   ref
@@ -173,7 +193,7 @@ const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function HtmlIn
       value={value}
       defaultValue={defaultValue}
       placeholder={rest.placeholder}
-      inputMode={inputMode as unknown as React.HTMLAttributes<HTMLInputElement>['inputMode']}
+      inputMode={toDomInputMode(inputMode)}
       readOnly={!editable}
       style={css}
       onInput={(e: React.FormEvent<HTMLInputElement>) => onChangeText?.(e.currentTarget.value)}
