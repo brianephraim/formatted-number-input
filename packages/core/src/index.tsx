@@ -395,7 +395,7 @@ export function NumberInput({
 
   const isWeb = Platform.OS === 'web';
   const typingInputRef = React.useRef<InputHandle | null>(null);
-  const displayInputRef = React.useRef<any>(null);
+  const displayInputRef = React.useRef<InputHandle | null>(null);
 
   const displayValue =
     typeof maxDecimalPlaces === 'number' ? roundToPlaces(value, maxDecimalPlaces) : value;
