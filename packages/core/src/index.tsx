@@ -7,7 +7,7 @@ import { Platform, StyleSheet, type TextInputProps } from 'react-native';
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-type StyleObject = Record<string, any>;
+type StyleObject = Record<string, unknown>;
 
 function toPx(n: unknown): string | undefined {
   if (typeof n === 'number') return `${n}px`;
@@ -28,7 +28,9 @@ function translateRnStyleToCss(style: StyleObject): React.CSSProperties {
   if (style.minHeight != null) css.minHeight = toPx(style.minHeight);
   if (style.maxHeight != null) css.maxHeight = toPx(style.maxHeight);
 
-  if (style.position != null) css.position = style.position;
+  if (typeof style.position === 'string') {
+    css.position = style.position as React.CSSProperties['position'];
+  }
   if (style.top != null) css.top = toPx(style.top);
   if (style.right != null) css.right = toPx(style.right);
   if (style.bottom != null) css.bottom = toPx(style.bottom);
@@ -48,28 +50,43 @@ function translateRnStyleToCss(style: StyleObject): React.CSSProperties {
 
   // border
   if (style.borderWidth != null) {
-    css.borderStyle = style.borderStyle ?? 'solid';
+    if (typeof style.borderStyle === 'string') {
+      css.borderStyle = style.borderStyle as React.CSSProperties['borderStyle'];
+    } else {
+      css.borderStyle = 'solid';
+    }
+
     css.borderWidth = toPx(style.borderWidth);
   }
-  if (style.borderColor != null) css.borderColor = style.borderColor;
+  if (typeof style.borderColor === 'string') {
+    css.borderColor = style.borderColor;
+  }
   if (style.borderRadius != null) css.borderRadius = toPx(style.borderRadius);
 
   // background
-  if (style.backgroundColor != null) css.backgroundColor = style.backgroundColor;
+  if (typeof style.backgroundColor === 'string') css.backgroundColor = style.backgroundColor;
 
   // text
-  if (style.color != null) css.color = style.color;
+  if (typeof style.color === 'string') css.color = style.color;
   if (style.fontSize != null) css.fontSize = toPx(style.fontSize);
-  if (style.fontFamily != null) css.fontFamily = style.fontFamily;
-  if (style.fontWeight != null) css.fontWeight = style.fontWeight;
-  if (style.fontStyle != null) css.fontStyle = style.fontStyle;
+  if (typeof style.fontFamily === 'string') css.fontFamily = style.fontFamily;
+  if (typeof style.fontWeight === 'string') {
+    css.fontWeight = style.fontWeight as React.CSSProperties['fontWeight'];
+  }
+  if (typeof style.fontStyle === 'string') {
+    css.fontStyle = style.fontStyle as React.CSSProperties['fontStyle'];
+  }
   if (style.letterSpacing != null) css.letterSpacing = toPx(style.letterSpacing);
   if (style.lineHeight != null) css.lineHeight = toPx(style.lineHeight);
-  if (style.textAlign != null) css.textAlign = style.textAlign;
+  if (typeof style.textAlign === 'string') {
+    css.textAlign = style.textAlign as React.CSSProperties['textAlign'];
+  }
 
   // misc
-  if (style.opacity != null) css.opacity = style.opacity;
-  if (style.overflow != null) css.overflow = style.overflow;
+  if (typeof style.opacity === 'number') css.opacity = style.opacity;
+  if (typeof style.overflow === 'string') {
+    css.overflow = style.overflow as React.CSSProperties['overflow'];
+  }
 
   return css;
 }
