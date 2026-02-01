@@ -125,7 +125,7 @@ const HtmlInput = React.forwardRef<any, RNishInputProps>(function HtmlInput(
   React.useImperativeHandle(ref, () => elRef.current);
 
   const flat = (StyleSheet.flatten(style) ?? {}) as StyleObject;
-  const css = {
+  const css: React.CSSProperties = {
     // Reset browser defaults so styling matches RN TextInput expectations.
     border: 'none',
     outline: 'none',
@@ -136,7 +136,7 @@ const HtmlInput = React.forwardRef<any, RNishInputProps>(function HtmlInput(
     fontWeight: 'inherit',
     fontStyle: 'inherit',
     ...translateRnStyleToCss(flat)
-  } as any;
+  };
 
   // Avoid caret flash when we intentionally hide caret.
   if (caretHidden) css.caretColor = 'transparent';
