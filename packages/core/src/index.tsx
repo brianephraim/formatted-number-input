@@ -415,7 +415,7 @@ export function NumberInput({
         It stays mounted beneath the overlay, but we remount it on focus/blur to resync defaultValue.
       */}
       <Input
-        ref={typingInputRef as any}
+        ref={typingInputRef}
         key={remountKeyForTypingInput}
         defaultValue={rawValueText}
         onChangeText={(text: string) => {
