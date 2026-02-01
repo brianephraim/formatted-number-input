@@ -147,7 +147,7 @@ const HtmlInput = React.forwardRef<any, RNishInputProps>(function HtmlInput(
       value={value}
       defaultValue={defaultValue}
       placeholder={rest.placeholder}
-      inputMode={inputMode as any}
+      inputMode={inputMode as unknown as React.HTMLAttributes<HTMLInputElement>['inputMode']}
       readOnly={!editable}
       style={css}
       onInput={(e: React.FormEvent<HTMLInputElement>) => onChangeText?.(e.currentTarget.value)}
