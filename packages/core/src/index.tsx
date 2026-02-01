@@ -18,7 +18,7 @@ function toPx(n: unknown): string | undefined {
 function translateRnStyleToCss(style: StyleObject): React.CSSProperties {
   // Best-effort RN-style-object → CSSProperties mapping for react-native-web demo.
   // This is intentionally incomplete; add keys as needed.
-  const css: any = {};
+  const css: React.CSSProperties = {};
 
   // layout/box
   if (style.width != null) css.width = toPx(style.width);
@@ -70,9 +70,6 @@ function translateRnStyleToCss(style: StyleObject): React.CSSProperties {
   // misc
   if (style.opacity != null) css.opacity = style.opacity;
   if (style.overflow != null) css.overflow = style.overflow;
-
-  // RN pointerEvents on View maps to CSS pointer-events.
-  if (style.pointerEvents != null) css.pointerEvents = style.pointerEvents;
 
   return css;
 }
