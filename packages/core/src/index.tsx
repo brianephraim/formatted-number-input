@@ -498,7 +498,7 @@ export function NumberInput({
                 const desiredRawIndex = formattedIndexToRawIndex(formattedValueText, formattedIndex);
                 const clampedRawIndex = Math.max(0, Math.min(desiredRawIndex, rawValueText.length));
 
-                const typingEl = typingInputRef.current as any;
+                const typingEl = typingInputRef.current;
                 typingEl?.focus?.();
 
                 requestAnimationFrame(() => {
