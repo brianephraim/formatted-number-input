@@ -409,7 +409,7 @@ export function NumberInput({
     : defaultFormatDisplay(displayValue, maxDecimalPlaces);
 
   return (
-    <Wrapper style={[styles.root, containerStyle] as any}>
+    <Wrapper style={[styles.root, containerStyle]}>
       {/*
         TypingInput: uncontrolled editor.
         It stays mounted beneath the overlay, but we remount it on focus/blur to resync defaultValue.
