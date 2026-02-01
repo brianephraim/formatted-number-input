@@ -178,8 +178,8 @@ const DivWrapper: WrapperComponent = ({
   pointerEvents
 }: {
   children?: React.ReactNode;
-  style?: any;
-  pointerEvents?: any;
+  style?: TextInputProps['style'];
+  pointerEvents?: RNPointerEvents;
 }) => {
   const flat = (StyleSheet.flatten(style) ?? {}) as StyleObject;
   const css = translateRnStyleToCss(flat);
