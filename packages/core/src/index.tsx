@@ -144,7 +144,11 @@ const HtmlInput = React.forwardRef<any, RNishInputProps>(function HtmlInput(
   );
 });
 
-function mapPointerEvents(pointerEvents: any): React.CSSProperties['pointerEvents'] {
+type RNPointerEvents = 'auto' | 'none' | 'box-none' | 'box-only';
+
+function mapPointerEvents(
+  pointerEvents: RNPointerEvents | undefined
+): React.CSSProperties['pointerEvents'] {
   if (pointerEvents === 'none') return 'none';
   // RN's box-none/box-only aren't directly representable in CSS without extra wrappers.
   return 'auto';
