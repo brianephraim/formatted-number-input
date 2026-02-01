@@ -489,7 +489,7 @@ export function NumberInput({
               // Let the browser compute the caret position in the formatted string,
               // then transfer focus + mapped caret to the real TypingInput.
               requestAnimationFrame(() => {
-                const displayEl = displayInputRef.current as any;
+                const displayEl = displayInputRef.current;
                 const formattedIndex =
                   typeof displayEl?.selectionStart === 'number'
                     ? displayEl.selectionStart
