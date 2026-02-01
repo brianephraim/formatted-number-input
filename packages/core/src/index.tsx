@@ -116,13 +116,27 @@ type InputComponent = any;
 
 type WrapperComponent = any;
 
-const HtmlInput = React.forwardRef<any, RNishInputProps>(function HtmlInput(
+type InputHandle = {
+  focus?: () => void;
+  setSelectionRange?: (start: number, end: number) => void;
+  selectionStart?: number | null;
+};
+
+const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function HtmlInput(
   { onChangeText, editable = true, style, caretHidden, inputMode, value, defaultValue, ...rest },
   ref
 ) {
   const elRef = React.useRef<HTMLInputElement | null>(null);
 
-  React.useImperativeHandle(ref, () => elRef.current);
+  React.useImperativeHandle(
+    ref,
+    () => ({
+      focus: () => elRef.current?.focus(),
+      setSelectionRange: (start: number, end: number) => elRef.current?.setSelectionRange(start, end),
+      selectionStart: elRef.current?.selectionStart ?? null
+    }),
+    []
+  );
 
   const flat = (StyleSheet.flatten(style) ?? {}) as StyleObject;
   const css: React.CSSProperties = {
