@@ -452,7 +452,7 @@ export function NumberInput({
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
         inputMode={Platform.OS === 'web' ? 'numeric' : undefined}
-        style={[styles.inputBase, inputTextStyle, !isFocused && styles.typingInputHiddenText] as any}
+        style={[styles.inputBase, inputTextStyle, !isFocused && styles.typingInputHiddenText]}
         caretHidden={!isFocused}
         {...rest}
       />
