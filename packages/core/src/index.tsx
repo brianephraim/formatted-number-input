@@ -5,7 +5,6 @@ import { Platform, StyleSheet, type TextInputProps } from 'react-native';
  * This file intentionally contains a small, best-effort RN→Web adapter.
  * Keeping it permissive avoids fighting cross-platform typings.
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 type StyleObject = Record<string, unknown>;
 
@@ -112,15 +111,23 @@ type RNishInputProps = Pick<
 // Note: We intentionally allow `ref` to be passed through to the underlying component.
 // `react-native` components support refs, while HTML adapters use forwardRef.
 // Typing these perfectly across both worlds is tricky, so we keep this loose.
-type InputComponent = any;
-
-type WrapperComponent = any;
-
 type InputHandle = {
   focus?: () => void;
   setSelectionRange?: (start: number, end: number) => void;
   selectionStart?: number | null;
 };
+
+type RNPointerEvents = 'auto' | 'none' | 'box-none' | 'box-only';
+
+type WrapperProps = {
+  children?: React.ReactNode;
+  style?: TextInputProps['style'];
+  pointerEvents?: RNPointerEvents;
+};
+
+type InputComponent = React.ElementType;
+
+type WrapperComponent = React.ComponentType<WrapperProps>;
 
 const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function HtmlInput(
   { onChangeText, editable = true, style, caretHidden, inputMode, value, defaultValue, ...rest },
@@ -176,8 +183,6 @@ const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function HtmlIn
   );
 });
 
-type RNPointerEvents = 'auto' | 'none' | 'box-none' | 'box-only';
-
 function mapPointerEvents(
   pointerEvents: RNPointerEvents | undefined
 ): React.CSSProperties['pointerEvents'] {
@@ -186,15 +191,7 @@ function mapPointerEvents(
   return 'auto';
 }
 
-const DivWrapper: WrapperComponent = ({
-  children,
-  style,
-  pointerEvents
-}: {
-  children?: React.ReactNode;
-  style?: TextInputProps['style'];
-  pointerEvents?: RNPointerEvents;
-}) => {
+const DivWrapper: WrapperComponent = ({ children, style, pointerEvents }: WrapperProps) => {
   const flat = (StyleSheet.flatten(style) ?? {}) as StyleObject;
   const css = translateRnStyleToCss(flat);
   if (pointerEvents != null) css.pointerEvents = mapPointerEvents(pointerEvents);
