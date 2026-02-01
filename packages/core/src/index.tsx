@@ -94,9 +94,14 @@ type AutoCompleteProp = TextInputProps extends { autoComplete?: infer T } ? T : 
 
 type RNishInputProps = Pick<
   TextInputProps,
-  'value' | 'defaultValue' | 'placeholder' | 'editable' | 'style' | 'onFocus' | 'onBlur' | 'inputMode'
+  'value' | 'defaultValue' | 'placeholder' | 'editable' | 'style' | 'inputMode'
 > & {
   onChangeText?: (text: string) => void;
+
+  // Cross-platform focus/blur events are not type-compatible (DOM vs RN).
+  // We accept unknown and forward it through.
+  onFocus?: (e: unknown) => void;
+  onBlur?: (e: unknown) => void;
 
   // react-native-web supports this; RN native ignores.
   caretHidden?: boolean;
@@ -172,12 +177,8 @@ const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function HtmlIn
       readOnly={!editable}
       style={css}
       onInput={(e: React.FormEvent<HTMLInputElement>) => onChangeText?.(e.currentTarget.value)}
-      onFocus={(e: React.FocusEvent<HTMLInputElement>) =>
-        rest.onFocus?.(e as unknown as Parameters<NonNullable<TextInputProps['onFocus']>>[0])
-      }
-      onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
-        rest.onBlur?.(e as unknown as Parameters<NonNullable<TextInputProps['onBlur']>>[0])
-      }
+      onFocus={(e: React.FocusEvent<HTMLInputElement>) => rest.onFocus?.(e)}
+      onBlur={(e: React.FocusEvent<HTMLInputElement>) => rest.onBlur?.(e)}
       autoComplete={rest.autoComplete as unknown as string | undefined}
     />
   );
@@ -276,7 +277,7 @@ function splitNumberInputStyle(style: TextInputProps['style']): {
 
 export type NumberInputProps = Omit<
   TextInputProps,
-  'value' | 'defaultValue' | 'onChangeText' | 'keyboardType' | 'inputMode'
+  'value' | 'defaultValue' | 'onChangeText' | 'keyboardType' | 'inputMode' | 'onFocus' | 'onBlur'
 > & {
   /**
    * Controlled numeric value from the parent.
@@ -300,6 +301,13 @@ export type NumberInputProps = Omit<
    * Wrapper component (View-like). Defaults to an adapted <div>.
    */
   wrapperComponent?: WrapperComponent;
+
+  /**
+   * Cross-platform focus/blur events are not type-compatible (DOM vs RN).
+   * If you need a specific event type, use platform-specific props on your inputComponent.
+   */
+  onFocus?: (e: unknown) => void;
+  onBlur?: (e: unknown) => void;
 
   /**
    * Max number of digits allowed after the decimal point.
@@ -445,7 +453,7 @@ export function NumberInput({
         }}
         onFocus={(e: unknown) => {
           setIsFocused(true);
-          onFocus?.(e as Parameters<NonNullable<TextInputProps['onFocus']>>[0]);
+          onFocus?.(e);
         }}
         onBlur={(e: unknown) => {
           setIsFocused(false);
@@ -459,7 +467,7 @@ export function NumberInput({
             setRemountKeyForTypingInput((k) => k + 1);
           }
 
-          onBlur?.(e as Parameters<NonNullable<TextInputProps['onBlur']>>[0]);
+          onBlur?.(e);
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
         inputMode={Platform.OS === 'web' ? 'numeric' : undefined}
