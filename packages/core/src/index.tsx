@@ -157,7 +157,7 @@ const HtmlInput = React.forwardRef<any, RNishInputProps>(function HtmlInput(
       onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
         rest.onBlur?.(e as unknown as Parameters<NonNullable<TextInputProps['onBlur']>>[0])
       }
-      autoComplete={rest.autoComplete as any}
+      autoComplete={rest.autoComplete as unknown as string | undefined}
     />
   );
 });
