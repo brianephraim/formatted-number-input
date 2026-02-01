@@ -462,7 +462,7 @@ export function NumberInput({
         Hidden while focused so the user edits the raw value without formatting/caret issues.
       */}
       {!isFocused ? (
-        <Wrapper pointerEvents={isWeb ? 'auto' : 'none'} style={styles.displayOverlay as any}>
+        <Wrapper pointerEvents={isWeb ? 'auto' : 'none'} style={styles.displayOverlay}>
           <Input
             ref={displayInputRef as any}
             value={formattedValueText}
