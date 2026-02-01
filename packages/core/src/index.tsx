@@ -504,7 +504,7 @@ export function NumberInput({
               styles.displayInputFill,
               inputTextStyle,
               styles.displayInputWebCaretHidden
-            ] as any}
+            ]}
           />
         </Wrapper>
       ) : null}
