@@ -397,7 +397,7 @@ export function NumberInput({
         ref={typingInputRef as any}
         key={remountKeyForTypingInput}
         defaultValue={rawValueText as any}
-        onChangeText={(text: any) => {
+        onChangeText={(text: string) => {
           // - allow decimals
           // - if multiple '.', keep the first and collapse the rest into the decimal portion
           const cleaned = sanitizeNumericText(String(text));
