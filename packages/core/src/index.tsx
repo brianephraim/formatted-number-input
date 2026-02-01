@@ -150,9 +150,7 @@ const HtmlInput = React.forwardRef<any, RNishInputProps>(function HtmlInput(
       inputMode={inputMode as any}
       readOnly={!editable}
       style={css}
-      onInput={(e: React.FormEvent<HTMLInputElement>) =>
-        onChangeText?.((e.currentTarget as HTMLInputElement).value)
-      }
+      onInput={(e: React.FormEvent<HTMLInputElement>) => onChangeText?.(e.currentTarget.value)}
       onFocus={(e: React.FocusEvent<HTMLInputElement>) =>
         rest.onFocus?.(e as unknown as Parameters<NonNullable<TextInputProps['onFocus']>>[0])
       }
