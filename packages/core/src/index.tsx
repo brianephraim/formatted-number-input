@@ -74,6 +74,8 @@ function translateRnStyleToCss(style: StyleObject): React.CSSProperties {
   return css;
 }
 
+type AutoCompleteProp = TextInputProps extends { autoComplete?: infer T } ? T : string;
+
 type RNishInputProps = Pick<
   TextInputProps,
   'value' | 'defaultValue' | 'placeholder' | 'editable' | 'style' | 'onFocus' | 'onBlur' | 'inputMode'
@@ -84,10 +86,10 @@ type RNishInputProps = Pick<
   caretHidden?: boolean;
 
   // Accept but ignore on web adapter.
-  keyboardType?: any;
+  keyboardType?: TextInputProps['keyboardType'];
 
   // Allow consuming code to pass through.
-  autoComplete?: any;
+  autoComplete?: AutoCompleteProp;
 };
 
 // Note: We intentionally allow `ref` to be passed through to the underlying component.
