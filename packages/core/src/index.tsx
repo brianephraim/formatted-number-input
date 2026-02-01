@@ -1,7 +1,165 @@
 import * as React from 'react';
-import { Platform, StyleSheet, TextInput, type TextInputProps, View } from 'react-native';
+import { Platform, StyleSheet, type TextInputProps } from 'react-native';
+
+/*
+ * This file intentionally contains a small, best-effort RN→Web adapter.
+ * Keeping it permissive avoids fighting cross-platform typings.
+ */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 type StyleObject = Record<string, any>;
+
+function toPx(n: any) {
+  return typeof n === 'number' ? `${n}px` : n;
+}
+
+function translateRnStyleToCss(style: StyleObject): React.CSSProperties {
+  // Best-effort RN-style-object → CSSProperties mapping for react-native-web demo.
+  // This is intentionally incomplete; add keys as needed.
+  const css: any = {};
+
+  // layout/box
+  if (style.width != null) css.width = toPx(style.width);
+  if (style.height != null) css.height = toPx(style.height);
+  if (style.minWidth != null) css.minWidth = toPx(style.minWidth);
+  if (style.maxWidth != null) css.maxWidth = toPx(style.maxWidth);
+  if (style.minHeight != null) css.minHeight = toPx(style.minHeight);
+  if (style.maxHeight != null) css.maxHeight = toPx(style.maxHeight);
+
+  if (style.position != null) css.position = style.position;
+  if (style.top != null) css.top = toPx(style.top);
+  if (style.right != null) css.right = toPx(style.right);
+  if (style.bottom != null) css.bottom = toPx(style.bottom);
+  if (style.left != null) css.left = toPx(style.left);
+
+  if (style.padding != null) css.padding = toPx(style.padding);
+  if (style.paddingTop != null) css.paddingTop = toPx(style.paddingTop);
+  if (style.paddingRight != null) css.paddingRight = toPx(style.paddingRight);
+  if (style.paddingBottom != null) css.paddingBottom = toPx(style.paddingBottom);
+  if (style.paddingLeft != null) css.paddingLeft = toPx(style.paddingLeft);
+
+  if (style.margin != null) css.margin = toPx(style.margin);
+  if (style.marginTop != null) css.marginTop = toPx(style.marginTop);
+  if (style.marginRight != null) css.marginRight = toPx(style.marginRight);
+  if (style.marginBottom != null) css.marginBottom = toPx(style.marginBottom);
+  if (style.marginLeft != null) css.marginLeft = toPx(style.marginLeft);
+
+  // border
+  if (style.borderWidth != null) {
+    css.borderStyle = style.borderStyle ?? 'solid';
+    css.borderWidth = toPx(style.borderWidth);
+  }
+  if (style.borderColor != null) css.borderColor = style.borderColor;
+  if (style.borderRadius != null) css.borderRadius = toPx(style.borderRadius);
+
+  // background
+  if (style.backgroundColor != null) css.backgroundColor = style.backgroundColor;
+
+  // text
+  if (style.color != null) css.color = style.color;
+  if (style.fontSize != null) css.fontSize = toPx(style.fontSize);
+  if (style.fontFamily != null) css.fontFamily = style.fontFamily;
+  if (style.fontWeight != null) css.fontWeight = style.fontWeight;
+  if (style.fontStyle != null) css.fontStyle = style.fontStyle;
+  if (style.letterSpacing != null) css.letterSpacing = toPx(style.letterSpacing);
+  if (style.lineHeight != null) css.lineHeight = toPx(style.lineHeight);
+  if (style.textAlign != null) css.textAlign = style.textAlign;
+
+  // misc
+  if (style.opacity != null) css.opacity = style.opacity;
+  if (style.overflow != null) css.overflow = style.overflow;
+
+  // RN pointerEvents on View maps to CSS pointer-events.
+  if (style.pointerEvents != null) css.pointerEvents = style.pointerEvents;
+
+  return css;
+}
+
+type RNishInputProps = Pick<
+  TextInputProps,
+  'value' | 'defaultValue' | 'placeholder' | 'editable' | 'style' | 'onFocus' | 'onBlur' | 'inputMode'
+> & {
+  onChangeText?: (text: string) => void;
+
+  // react-native-web supports this; RN native ignores.
+  caretHidden?: boolean;
+
+  // Accept but ignore on web adapter.
+  keyboardType?: any;
+
+  // Allow consuming code to pass through.
+  autoComplete?: any;
+};
+
+// Note: We intentionally allow `ref` to be passed through to the underlying component.
+// `react-native` components support refs, while HTML adapters use forwardRef.
+// Typing these perfectly across both worlds is tricky, so we keep this loose.
+type InputComponent = any;
+
+type WrapperComponent = any;
+
+const HtmlInput = React.forwardRef<any, RNishInputProps>(function HtmlInput(
+  { onChangeText, editable = true, style, caretHidden, inputMode, value, defaultValue, ...rest },
+  ref
+) {
+  const elRef = React.useRef<HTMLInputElement | null>(null);
+
+  React.useImperativeHandle(ref, () => elRef.current);
+
+  const flat = (StyleSheet.flatten(style) ?? {}) as StyleObject;
+  const css = {
+    // Reset browser defaults so styling matches RN TextInput expectations.
+    border: 'none',
+    outline: 'none',
+    backgroundColor: 'transparent',
+    boxSizing: 'border-box',
+    width: '100%',
+    fontFamily: 'inherit',
+    fontWeight: 'inherit',
+    fontStyle: 'inherit',
+    ...translateRnStyleToCss(flat)
+  } as any;
+
+  // Avoid caret flash when we intentionally hide caret.
+  if (caretHidden) css.caretColor = 'transparent';
+
+  return (
+    <input
+      ref={elRef}
+      value={value as any}
+      defaultValue={defaultValue as any}
+      placeholder={rest.placeholder as any}
+      inputMode={inputMode as any}
+      readOnly={!editable}
+      style={css}
+      onInput={(e: any) => onChangeText?.((e.currentTarget as HTMLInputElement).value)}
+      onFocus={(e: any) => rest.onFocus?.(e as any)}
+      onBlur={(e: any) => rest.onBlur?.(e as any)}
+      autoComplete={rest.autoComplete as any}
+    />
+  );
+});
+
+function mapPointerEvents(pointerEvents: any): React.CSSProperties['pointerEvents'] {
+  if (pointerEvents === 'none') return 'none';
+  // RN's box-none/box-only aren't directly representable in CSS without extra wrappers.
+  return 'auto';
+}
+
+const DivWrapper: WrapperComponent = ({
+  children,
+  style,
+  pointerEvents
+}: {
+  children?: React.ReactNode;
+  style?: any;
+  pointerEvents?: any;
+}) => {
+  const flat = (StyleSheet.flatten(style) ?? {}) as StyleObject;
+  const css = translateRnStyleToCss(flat);
+  if (pointerEvents != null) css.pointerEvents = mapPointerEvents(pointerEvents);
+  return <div style={css}>{children}</div>;
+};
 
 function omitUndefined<T extends StyleObject>(obj: T): Partial<T> {
   const next: StyleObject = {};
@@ -94,6 +252,19 @@ export type NumberInputProps = Omit<
   onChangeNumber: (next: number) => void;
 
   /**
+   * Underlying input component used for TypingInput and DisplayInput.
+   *
+   * - Should be compatible with react-native TextInput props (not DOM input props).
+   * - Defaults to a small HTML <input> adapter that supports onChangeText and selection APIs on web.
+   */
+  inputComponent?: InputComponent;
+
+  /**
+   * Wrapper component (View-like). Defaults to an adapted <div>.
+   */
+  wrapperComponent?: WrapperComponent;
+
+  /**
    * Max number of digits allowed after the decimal point.
    */
   maxDecimalPlaces?: number;
@@ -169,6 +340,8 @@ function sanitizeNumericText(text: string) {
 export function NumberInput({
   value,
   onChangeNumber,
+  inputComponent: Input = HtmlInput,
+  wrapperComponent: Wrapper = DivWrapper,
   maxDecimalPlaces,
   decimalRoundingMode = 'displayAndOutput',
   formatDisplay,
@@ -210,19 +383,19 @@ export function NumberInput({
     : defaultFormatDisplay(displayValue, maxDecimalPlaces);
 
   return (
-    <View style={[styles.root, containerStyle]}>
+    <Wrapper style={[styles.root, containerStyle] as any}>
       {/*
         TypingInput: uncontrolled editor.
         It stays mounted beneath the overlay, but we remount it on focus/blur to resync defaultValue.
       */}
-      <TextInput
-        ref={typingInputRef}
+      <Input
+        ref={typingInputRef as any}
         key={remountKeyForTypingInput}
-        defaultValue={rawValueText}
-        onChangeText={(text) => {
+        defaultValue={rawValueText as any}
+        onChangeText={(text: any) => {
           // - allow decimals
           // - if multiple '.', keep the first and collapse the rest into the decimal portion
-          const cleaned = sanitizeNumericText(text);
+          const cleaned = sanitizeNumericText(String(text));
           const next = Number(cleaned);
           if (Number.isNaN(next)) return;
 
@@ -233,11 +406,11 @@ export function NumberInput({
 
           onChangeNumber(next);
         }}
-        onFocus={(e) => {
+        onFocus={(e: any) => {
           setIsFocused(true);
           onFocus?.(e);
         }}
-        onBlur={(e) => {
+        onBlur={(e: any) => {
           setIsFocused(false);
 
           // In displayAndOutput mode, the user can type extra decimals that round to the same
@@ -253,9 +426,9 @@ export function NumberInput({
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
         inputMode={Platform.OS === 'web' ? 'numeric' : undefined}
-        style={[styles.inputBase, inputTextStyle, !isFocused && styles.typingInputHiddenText]}
+        style={[styles.inputBase, inputTextStyle, !isFocused && styles.typingInputHiddenText] as any}
         caretHidden={!isFocused}
-        {...rest}
+        {...(rest as any)}
       />
 
       {/*
@@ -263,10 +436,10 @@ export function NumberInput({
         Hidden while focused so the user edits the raw value without formatting/caret issues.
       */}
       {!isFocused ? (
-        <View pointerEvents={isWeb ? 'auto' : 'none'} style={styles.displayOverlay}>
-          <TextInput
-            ref={displayInputRef}
-            value={formattedValueText}
+        <Wrapper pointerEvents={isWeb ? 'auto' : 'none'} style={styles.displayOverlay as any}>
+          <Input
+            ref={displayInputRef as any}
+            value={formattedValueText as any}
             // On web we allow focus so we can read selectionStart and forward it.
             // On native we keep it non-interactive.
             editable={isWeb}
@@ -300,11 +473,16 @@ export function NumberInput({
             onChangeText={() => {
               // no-op: this field is display-only; focus will be forwarded immediately on web.
             }}
-            style={[styles.inputBase, styles.displayInputFill, inputTextStyle, styles.displayInputWebCaretHidden]}
+            style={[
+              styles.inputBase,
+              styles.displayInputFill,
+              inputTextStyle,
+              styles.displayInputWebCaretHidden
+            ] as any}
           />
-        </View>
+        </Wrapper>
       ) : null}
-    </View>
+    </Wrapper>
   );
 }
 
@@ -347,7 +525,6 @@ const styles = StyleSheet.create({
   },
 
   // Web-only style. `caretColor` isn't in RN types, but react-native-web supports it.
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   displayInputWebCaretHidden: ({ caretColor: 'transparent' } as any),
 
   typingInputHiddenText: {

@@ -16,6 +16,13 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Workspace path aliases (so TS can resolve the local package without building dist/) */
+    "baseUrl": ".",
+    "paths": {
+      "@rn-number-input/core": ["../../packages/core/src/index.tsx"],
+      "@rn-number-input/core/*": ["../../packages/core/src/*"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

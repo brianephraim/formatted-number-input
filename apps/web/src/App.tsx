@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { NumberInput } from '@rn-number-input/core';
+import { TextInput, View } from 'react-native';
 import './App.css';
 
 function Row({ title, children }: { title: string; children: React.ReactNode }) {
@@ -7,6 +8,21 @@ function Row({ title, children }: { title: string; children: React.ReactNode }) 
     <div style={{ marginTop: 18 }}>
       <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>{title}</div>
       {children}
+    </div>
+  );
+}
+
+function Variants({ children }: { children: (variant: 'html' | 'rn') => React.ReactNode }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
+      <div>
+        <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 6 }}>default (html adapters)</div>
+        {children('html')}
+      </div>
+      <div>
+        <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 6 }}>react-native-web (View + TextInput)</div>
+        {children('rn')}
+      </div>
     </div>
   );
 }
@@ -46,108 +62,185 @@ export default function App() {
       </p>
 
       <Row title="Default (default toLocaleString formatting)">
-        <NumberInput value={valueA} onChangeNumber={setValueA} placeholder="Enter a number" autoComplete="off" />
-        <Controls value={valueA} setValue={setValueA} />
+        <Variants>
+          {(variant) => (
+            <>
+              <NumberInput
+                value={valueA}
+                onChangeNumber={setValueA}
+                placeholder="Enter a number"
+                autoComplete="off"
+                {...(variant === 'rn'
+                  ? { inputComponent: TextInput, wrapperComponent: View }
+                  : null)}
+              />
+              <Controls value={valueA} setValue={setValueA} />
+            </>
+          )}
+        </Variants>
       </Row>
 
       <Row title="Bigger text + more padding + thicker border + rounded">
-        <NumberInput
-          value={valueB}
-          onChangeNumber={setValueB}
-          placeholder="Big input"
-          autoComplete="off"
-          style={{
-            fontSize: 22,
-            paddingVertical: 16,
-            paddingHorizontal: 18,
-            borderWidth: 2,
-            borderColor: '#1f6feb',
-            borderRadius: 14
-          }}
-        />
-        <Controls value={valueB} setValue={setValueB} />
+        <Variants>
+          {(variant) => (
+            <>
+              <NumberInput
+                value={valueB}
+                onChangeNumber={setValueB}
+                placeholder="Big input"
+                autoComplete="off"
+                style={{
+                  fontSize: 22,
+                  paddingVertical: 16,
+                  paddingHorizontal: 18,
+                  borderWidth: 2,
+                  borderColor: '#1f6feb',
+                  borderRadius: 14
+                }}
+                {...(variant === 'rn'
+                  ? { inputComponent: TextInput, wrapperComponent: View }
+                  : null)}
+              />
+              <Controls value={valueB} setValue={setValueB} />
+            </>
+          )}
+        </Variants>
       </Row>
 
       <Row title="Dark theme (background + text color)">
-        <NumberInput
-          value={valueC}
-          onChangeNumber={setValueC}
-          placeholder="Dark"
-          autoComplete="off"
-          style={{
-            backgroundColor: '#0b1020',
-            color: '#e6edf3',
-            borderColor: '#30363d',
-            borderRadius: 12,
-            paddingVertical: 14,
-            paddingHorizontal: 16
-          }}
-        />
-        <Controls value={valueC} setValue={setValueC} />
+        <Variants>
+          {(variant) => (
+            <>
+              <NumberInput
+                value={valueC}
+                onChangeNumber={setValueC}
+                placeholder="Dark"
+                autoComplete="off"
+                style={{
+                  backgroundColor: '#0b1020',
+                  color: '#e6edf3',
+                  borderColor: '#30363d',
+                  borderRadius: 12,
+                  paddingVertical: 14,
+                  paddingHorizontal: 16
+                }}
+                {...(variant === 'rn'
+                  ? { inputComponent: TextInput, wrapperComponent: View }
+                  : null)}
+              />
+              <Controls value={valueC} setValue={setValueC} />
+            </>
+          )}
+        </Variants>
       </Row>
 
       <Row title="Layout/container styles via style: fixed width + margin (applies to wrapper)">
-        <NumberInput
-          value={valueD}
-          onChangeNumber={setValueD}
-          placeholder="Fixed width"
-          autoComplete="off"
-          style={{ width: 320, marginLeft: 'auto', marginRight: 'auto', textAlign: 'right' }}
-        />
-        <Controls value={valueD} setValue={setValueD} />
+        <Variants>
+          {(variant) => (
+            <>
+              <NumberInput
+                value={valueD}
+                onChangeNumber={setValueD}
+                placeholder="Fixed width"
+                autoComplete="off"
+                style={{ width: 320, marginLeft: 'auto', marginRight: 'auto', textAlign: 'right' }}
+                {...(variant === 'rn'
+                  ? { inputComponent: TextInput, wrapperComponent: View }
+                  : null)}
+              />
+              <Controls value={valueD} setValue={setValueD} />
+            </>
+          )}
+        </Variants>
       </Row>
 
       <Row title="Decimals + maxDecimalPlaces=2 (rounding) — default mode (displayAndOutput)">
-        <NumberInput
-          value={valueE}
-          onChangeNumber={setValueE}
-          placeholder="Decimals"
-          autoComplete="off"
-          maxDecimalPlaces={2}
-          style={{ textAlign: 'right' }}
-        />
-        <Controls value={valueE} setValue={setValueE} />
+        <Variants>
+          {(variant) => (
+            <>
+              <NumberInput
+                value={valueE}
+                onChangeNumber={setValueE}
+                placeholder={variant === 'rn' ? 'Decimals (rn)' : 'Decimals'}
+                autoComplete="off"
+                maxDecimalPlaces={2}
+                style={{ textAlign: 'right' }}
+                {...(variant === 'rn'
+                  ? { inputComponent: TextInput, wrapperComponent: View }
+                  : null)}
+              />
+              <Controls value={valueE} setValue={setValueE} />
+            </>
+          )}
+        </Variants>
       </Row>
 
       <Row title="decimalRoundingMode=displayOnly + maxDecimalPlaces=2 (display rounds, output does not)">
-        <NumberInput
-          value={valueF}
-          onChangeNumber={setValueF}
-          placeholder="displayOnly"
-          autoComplete="off"
-          maxDecimalPlaces={2}
-          decimalRoundingMode="displayOnly"
-          style={{ textAlign: 'right' }}
-        />
-        <Controls value={valueF} setValue={setValueF} />
+        <Variants>
+          {(variant) => (
+            <>
+              <NumberInput
+                value={valueF}
+                onChangeNumber={setValueF}
+                placeholder={variant === 'rn' ? 'displayOnly (rn)' : 'displayOnly'}
+                autoComplete="off"
+                maxDecimalPlaces={2}
+                decimalRoundingMode="displayOnly"
+                style={{ textAlign: 'right' }}
+                {...(variant === 'rn'
+                  ? { inputComponent: TextInput, wrapperComponent: View }
+                  : null)}
+              />
+              <Controls value={valueF} setValue={setValueF} />
+            </>
+          )}
+        </Variants>
       </Row>
 
       <Row title="decimalRoundingMode=displayAndOutput + maxDecimalPlaces=2 (both round)">
-        <NumberInput
-          value={valueG}
-          onChangeNumber={setValueG}
-          placeholder="displayAndOutput"
-          autoComplete="off"
-          maxDecimalPlaces={2}
-          decimalRoundingMode="displayAndOutput"
-          style={{ textAlign: 'right' }}
-        />
-        <Controls value={valueG} setValue={setValueG} />
+        <Variants>
+          {(variant) => (
+            <>
+              <NumberInput
+                value={valueG}
+                onChangeNumber={setValueG}
+                placeholder={variant === 'rn' ? 'displayAndOutput (rn)' : 'displayAndOutput'}
+                autoComplete="off"
+                maxDecimalPlaces={2}
+                decimalRoundingMode="displayAndOutput"
+                style={{ textAlign: 'right' }}
+                {...(variant === 'rn'
+                  ? { inputComponent: TextInput, wrapperComponent: View }
+                  : null)}
+              />
+              <Controls value={valueG} setValue={setValueG} />
+            </>
+          )}
+        </Variants>
       </Row>
 
       <Row title="Custom formatDisplay (emoji separators)">
-        <NumberInput
-          value={valueH}
-          onChangeNumber={setValueH}
-          placeholder="Emoji format"
-          autoComplete="off"
-          maxDecimalPlaces={4}
-          formatDisplay={(n: number) => {
-            // replace grouping commas with an emoji
-            return n.toLocaleString('en-US', { maximumFractionDigits: 4 }).replace(/,/g, '🍌');
-          }}
-        />
-        <Controls value={valueH} setValue={setValueH} />
+        <Variants>
+          {(variant) => (
+            <>
+              <NumberInput
+                value={valueH}
+                onChangeNumber={setValueH}
+                placeholder={variant === 'rn' ? 'Emoji format (rn)' : 'Emoji format'}
+                autoComplete="off"
+                maxDecimalPlaces={4}
+                formatDisplay={(n: number) => {
+                  // replace grouping commas with an emoji
+                  return n.toLocaleString('en-US', { maximumFractionDigits: 4 }).replace(/,/g, '🍌');
+                }}
+                {...(variant === 'rn'
+                  ? { inputComponent: TextInput, wrapperComponent: View }
+                  : null)}
+              />
+              <Controls value={valueH} setValue={setValueH} />
+            </>
+          )}
+        </Variants>
       </Row>
     </div>
   );
