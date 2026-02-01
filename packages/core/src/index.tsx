@@ -9,8 +9,10 @@ import { Platform, StyleSheet, type TextInputProps } from 'react-native';
 
 type StyleObject = Record<string, any>;
 
-function toPx(n: any) {
-  return typeof n === 'number' ? `${n}px` : n;
+function toPx(n: unknown): string | undefined {
+  if (typeof n === 'number') return `${n}px`;
+  if (typeof n === 'string') return n;
+  return undefined;
 }
 
 function translateRnStyleToCss(style: StyleObject): React.CSSProperties {
