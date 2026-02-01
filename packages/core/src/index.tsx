@@ -513,12 +513,8 @@ export function NumberInput({
             onChangeText={() => {
               // no-op: this field is display-only; focus will be forwarded immediately on web.
             }}
-            style={[
-              styles.inputBase,
-              styles.displayInputFill,
-              inputTextStyle,
-              styles.displayInputWebCaretHidden
-            ]}
+            caretHidden
+            style={[styles.inputBase, styles.displayInputFill, inputTextStyle]}
           />
         </Wrapper>
       ) : null}
@@ -563,9 +559,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%'
   },
-
-  // Web-only style. `caretColor` isn't in RN types, but react-native-web supports it.
-  displayInputWebCaretHidden: ({ caretColor: 'transparent' } as any),
 
   typingInputHiddenText: {
     // Prevent double-rendered text when the display overlay is visible.
