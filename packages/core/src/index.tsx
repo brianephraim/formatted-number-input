@@ -465,7 +465,7 @@ export function NumberInput({
         <Wrapper pointerEvents={isWeb ? 'auto' : 'none'} style={styles.displayOverlay as any}>
           <Input
             ref={displayInputRef as any}
-            value={formattedValueText as any}
+            value={formattedValueText}
             // On web we allow focus so we can read selectionStart and forward it.
             // On native we keep it non-interactive.
             editable={isWeb}
