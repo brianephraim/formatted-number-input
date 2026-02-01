@@ -153,8 +153,12 @@ const HtmlInput = React.forwardRef<any, RNishInputProps>(function HtmlInput(
       onInput={(e: React.FormEvent<HTMLInputElement>) =>
         onChangeText?.((e.currentTarget as HTMLInputElement).value)
       }
-      onFocus={(e: React.FocusEvent<HTMLInputElement>) => rest.onFocus?.(e as any)}
-      onBlur={(e: React.FocusEvent<HTMLInputElement>) => rest.onBlur?.(e as any)}
+      onFocus={(e: React.FocusEvent<HTMLInputElement>) =>
+        rest.onFocus?.(e as unknown as Parameters<NonNullable<TextInputProps['onFocus']>>[0])
+      }
+      onBlur={(e: React.FocusEvent<HTMLInputElement>) =>
+        rest.onBlur?.(e as unknown as Parameters<NonNullable<TextInputProps['onBlur']>>[0])
+      }
       autoComplete={rest.autoComplete as any}
     />
   );
