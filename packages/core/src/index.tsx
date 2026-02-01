@@ -144,9 +144,9 @@ const HtmlInput = React.forwardRef<any, RNishInputProps>(function HtmlInput(
   return (
     <input
       ref={elRef}
-      value={value as any}
-      defaultValue={defaultValue as any}
-      placeholder={rest.placeholder as any}
+      value={value}
+      defaultValue={defaultValue}
+      placeholder={rest.placeholder}
       inputMode={inputMode as any}
       readOnly={!editable}
       style={css}
