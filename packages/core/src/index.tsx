@@ -394,7 +394,7 @@ export function NumberInput({
   const [isFocused, setIsFocused] = React.useState(false);
 
   const isWeb = Platform.OS === 'web';
-  const typingInputRef = React.useRef<any>(null);
+  const typingInputRef = React.useRef<InputHandle | null>(null);
   const displayInputRef = React.useRef<any>(null);
 
   const displayValue =
