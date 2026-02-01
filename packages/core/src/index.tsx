@@ -411,11 +411,11 @@ export function NumberInput({
 
           onChangeNumber(next);
         }}
-        onFocus={(e: any) => {
+        onFocus={(e: unknown) => {
           setIsFocused(true);
-          onFocus?.(e);
+          onFocus?.(e as Parameters<NonNullable<TextInputProps['onFocus']>>[0]);
         }}
-        onBlur={(e: any) => {
+        onBlur={(e: unknown) => {
           setIsFocused(false);
 
           // In displayAndOutput mode, the user can type extra decimals that round to the same
@@ -427,7 +427,7 @@ export function NumberInput({
             setRemountKeyForTypingInput((k) => k + 1);
           }
 
-          onBlur?.(e);
+          onBlur?.(e as Parameters<NonNullable<TextInputProps['onBlur']>>[0]);
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
         inputMode={Platform.OS === 'web' ? 'numeric' : undefined}
