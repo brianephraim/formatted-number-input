@@ -199,7 +199,7 @@ const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function HtmlIn
       onInput={(e: React.FormEvent<HTMLInputElement>) => onChangeText?.(e.currentTarget.value)}
       onFocus={(e: React.FocusEvent<HTMLInputElement>) => rest.onFocus?.(e)}
       onBlur={(e: React.FocusEvent<HTMLInputElement>) => rest.onBlur?.(e)}
-      autoComplete={rest.autoComplete as unknown as string | undefined}
+      autoComplete={typeof rest.autoComplete === 'string' ? rest.autoComplete : undefined}
     />
   );
 });
