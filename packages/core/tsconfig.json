@@ -11,7 +11,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "lib": ["ES2020", "DOM"],
-    "types": ["react"],
+    "types": ["react", "vitest"],
     "baseUrl": "."
   },
   "include": ["src"]

@@ -25,17 +25,21 @@
     "@eslint/js": "^9.0.0",
     "@types/react": "^18.3.0",
     "@types/react-native": "^0.73.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^9.0.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.0",
     "globals": "^15.0.0",
+    "tsup": "^8.0.0",
     "typescript": "^5.5.0",
     "typescript-eslint": "^8.0.0",
-    "tsup": "^8.0.0"
+    "vitest": "^4.0.18"
   },
   "scripts": {
     "build": "tsup src/index.tsx --format esm,cjs --dts --clean",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest"
   }
 }

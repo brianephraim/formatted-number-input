@@ -1,4 +1,4 @@
-import { StyleSheet, type TextInputProps } from 'react-native';
+import type { TextInputProps } from 'react-native';
 import type { StyleObject } from './adapters/types';
 
 function omitUndefined<T extends StyleObject>(obj: T): Partial<T> {
@@ -9,11 +9,22 @@ function omitUndefined<T extends StyleObject>(obj: T): Partial<T> {
   return next as Partial<T>;
 }
 
+function flattenStyle(style: unknown): StyleObject {
+  // Avoid importing react-native's StyleSheet at runtime so this module stays
+  // unit-test-friendly in Node environments.
+  if (!style) return {};
+  if (Array.isArray(style)) {
+    return style.reduce<StyleObject>((acc, item) => ({ ...acc, ...flattenStyle(item) }), {});
+  }
+  if (typeof style === 'object') return style as StyleObject;
+  return {};
+}
+
 export function splitNumberInputStyle(style: TextInputProps['style']): {
   containerStyle: StyleObject;
   inputTextStyle: StyleObject;
 } {
-  const flat = (StyleSheet.flatten(style) ?? {}) as StyleObject;
+  const flat = flattenStyle(style);
 
   // Text + padding-related styles that must match between TypingInput and DisplayInput
   // so the overlay is pixel-identical.
