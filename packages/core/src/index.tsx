@@ -119,7 +119,7 @@ type RNishInputProps = Pick<
 type InputHandle = {
   focus?: () => void;
   setSelectionRange?: (start: number, end: number) => void;
-  selectionStart?: number | null;
+  getSelectionStart?: () => number | null;
 };
 
 type RNPointerEvents = 'auto' | 'none' | 'box-none' | 'box-only';
@@ -165,7 +165,7 @@ const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function HtmlIn
     () => ({
       focus: () => elRef.current?.focus(),
       setSelectionRange: (start: number, end: number) => elRef.current?.setSelectionRange(start, end),
-      selectionStart: elRef.current?.selectionStart ?? null
+      getSelectionStart: () => elRef.current?.selectionStart ?? null
     }),
     []
   );
@@ -210,6 +210,23 @@ function mapPointerEvents(
   if (pointerEvents === 'none') return 'none';
   // RN's box-none/box-only aren't directly representable in CSS without extra wrappers.
   return 'auto';
+}
+
+function safeFocus(handle: InputHandle | null) {
+  handle?.focus?.();
+}
+
+function safeGetSelectionStart(handle: InputHandle | null): number | null {
+  const v = handle?.getSelectionStart?.();
+  return typeof v === 'number' ? v : null;
+}
+
+function safeSetSelectionRange(handle: InputHandle | null, start: number, end: number) {
+  try {
+    handle?.setSelectionRange?.(start, end);
+  } catch {
+    // best-effort; some environments may not support selection APIs
+  }
 }
 
 const DivWrapper: WrapperComponent = ({ children, style, pointerEvents }: WrapperProps) => {
@@ -514,24 +531,18 @@ export function NumberInput({
               // Let the browser compute the caret position in the formatted string,
               // then transfer focus + mapped caret to the real TypingInput.
               requestAnimationFrame(() => {
-                const displayEl = displayInputRef.current;
+                const displayHandle = displayInputRef.current;
                 const formattedIndex =
-                  typeof displayEl?.selectionStart === 'number'
-                    ? displayEl.selectionStart
-                    : formattedValueText.length;
+                  safeGetSelectionStart(displayHandle) ?? formattedValueText.length;
 
                 const desiredRawIndex = formattedIndexToRawIndex(formattedValueText, formattedIndex);
                 const clampedRawIndex = Math.max(0, Math.min(desiredRawIndex, rawValueText.length));
 
-                const typingEl = typingInputRef.current;
-                typingEl?.focus?.();
+                const typingHandle = typingInputRef.current;
+                safeFocus(typingHandle);
 
                 requestAnimationFrame(() => {
-                  try {
-                    typingEl?.setSelectionRange?.(clampedRawIndex, clampedRawIndex);
-                  } catch {
-                    // best-effort; some environments may not support selection APIs
-                  }
+                  safeSetSelectionRange(typingHandle, clampedRawIndex, clampedRawIndex);
                 });
               });
             }}
