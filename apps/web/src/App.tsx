@@ -27,16 +27,28 @@ function Variants({ children }: { children: (variant: 'html' | 'rn') => React.Re
   );
 }
 
-function Controls({ value, setValue }: { value: number; setValue: (n: number) => void }) {
+function Controls({
+  testIdBase,
+  value,
+  setValue
+}: {
+  testIdBase: string;
+  value: number;
+  setValue: (n: number) => void;
+}) {
   return (
     <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 8 }}>
       <button
+        data-testid={`${testIdBase}__set`}
         onClick={() => setValue(1234.987654321)}
         style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #444', background: '#222', color: '#eee' }}
       >
         set to 1234.987654321
       </button>
-      <div style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace', fontSize: 12, opacity: 0.9 }}>
+      <div
+        data-testid={`${testIdBase}__value`}
+        style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace', fontSize: 12, opacity: 0.9 }}
+      >
         value: {JSON.stringify(value)}
       </div>
     </div>
@@ -63,183 +75,215 @@ export default function App() {
 
       <Row title="Default (default toLocaleString formatting)">
         <Variants>
-          {(variant) => (
-            <>
-              <NumberInput
-                value={valueA}
-                onChangeNumber={setValueA}
-                placeholder="Enter a number"
-                autoComplete="off"
-                {...(variant === 'rn'
-                  ? { inputComponent: TextInput, wrapperComponent: View }
-                  : null)}
-              />
-              <Controls value={valueA} setValue={setValueA} />
-            </>
-          )}
+          {(variant) => {
+            const testIdBase = `number-input-default-${variant}`;
+            return (
+              <>
+                <NumberInput
+                  testID={testIdBase}
+                  value={valueA}
+                  onChangeNumber={setValueA}
+                  placeholder="Enter a number"
+                  autoComplete="off"
+                  {...(variant === 'rn'
+                    ? { inputComponent: TextInput, wrapperComponent: View }
+                    : null)}
+                />
+                <Controls testIdBase={testIdBase} value={valueA} setValue={setValueA} />
+              </>
+            );
+          }}
         </Variants>
       </Row>
 
       <Row title="Bigger text + more padding + thicker border + rounded">
         <Variants>
-          {(variant) => (
-            <>
-              <NumberInput
-                value={valueB}
-                onChangeNumber={setValueB}
-                placeholder="Big input"
-                autoComplete="off"
-                style={{
-                  fontSize: 22,
-                  paddingVertical: 16,
-                  paddingHorizontal: 18,
-                  borderWidth: 2,
-                  borderColor: '#1f6feb',
-                  borderRadius: 14
-                }}
-                {...(variant === 'rn'
-                  ? { inputComponent: TextInput, wrapperComponent: View }
-                  : null)}
-              />
-              <Controls value={valueB} setValue={setValueB} />
-            </>
-          )}
+          {(variant) => {
+            const testIdBase = `number-input-big-${variant}`;
+            return (
+              <>
+                <NumberInput
+                  testID={testIdBase}
+                  value={valueB}
+                  onChangeNumber={setValueB}
+                  placeholder="Big input"
+                  autoComplete="off"
+                  style={{
+                    fontSize: 22,
+                    paddingVertical: 16,
+                    paddingHorizontal: 18,
+                    borderWidth: 2,
+                    borderColor: '#1f6feb',
+                    borderRadius: 14
+                  }}
+                  {...(variant === 'rn'
+                    ? { inputComponent: TextInput, wrapperComponent: View }
+                    : null)}
+                />
+                <Controls testIdBase={testIdBase} value={valueB} setValue={setValueB} />
+              </>
+            );
+          }}
         </Variants>
       </Row>
 
       <Row title="Dark theme (background + text color)">
         <Variants>
-          {(variant) => (
-            <>
-              <NumberInput
-                value={valueC}
-                onChangeNumber={setValueC}
-                placeholder="Dark"
-                autoComplete="off"
-                style={{
-                  backgroundColor: '#0b1020',
-                  color: '#e6edf3',
-                  borderColor: '#30363d',
-                  borderRadius: 12,
-                  paddingVertical: 14,
-                  paddingHorizontal: 16
-                }}
-                {...(variant === 'rn'
-                  ? { inputComponent: TextInput, wrapperComponent: View }
-                  : null)}
-              />
-              <Controls value={valueC} setValue={setValueC} />
-            </>
-          )}
+          {(variant) => {
+            const testIdBase = `number-input-dark-${variant}`;
+            return (
+              <>
+                <NumberInput
+                  testID={testIdBase}
+                  value={valueC}
+                  onChangeNumber={setValueC}
+                  placeholder="Dark"
+                  autoComplete="off"
+                  style={{
+                    backgroundColor: '#0b1020',
+                    color: '#e6edf3',
+                    borderColor: '#30363d',
+                    borderRadius: 12,
+                    paddingVertical: 14,
+                    paddingHorizontal: 16
+                  }}
+                  {...(variant === 'rn'
+                    ? { inputComponent: TextInput, wrapperComponent: View }
+                    : null)}
+                />
+                <Controls testIdBase={testIdBase} value={valueC} setValue={setValueC} />
+              </>
+            );
+          }}
         </Variants>
       </Row>
 
       <Row title="Layout/container styles via style: fixed width + margin (applies to wrapper)">
         <Variants>
-          {(variant) => (
-            <>
-              <NumberInput
-                value={valueD}
-                onChangeNumber={setValueD}
-                placeholder="Fixed width"
-                autoComplete="off"
-                style={{ width: 320, marginLeft: 'auto', marginRight: 'auto', textAlign: 'right' }}
-                {...(variant === 'rn'
-                  ? { inputComponent: TextInput, wrapperComponent: View }
-                  : null)}
-              />
-              <Controls value={valueD} setValue={setValueD} />
-            </>
-          )}
+          {(variant) => {
+            const testIdBase = `number-input-fixedwidth-${variant}`;
+            return (
+              <>
+                <NumberInput
+                  testID={testIdBase}
+                  value={valueD}
+                  onChangeNumber={setValueD}
+                  placeholder="Fixed width"
+                  autoComplete="off"
+                  style={{ width: 320, marginLeft: 'auto', marginRight: 'auto', textAlign: 'right' }}
+                  {...(variant === 'rn'
+                    ? { inputComponent: TextInput, wrapperComponent: View }
+                    : null)}
+                />
+                <Controls testIdBase={testIdBase} value={valueD} setValue={setValueD} />
+              </>
+            );
+          }}
         </Variants>
       </Row>
 
       <Row title="Decimals + maxDecimalPlaces=2 (rounding) — default mode (displayAndOutput)">
         <Variants>
-          {(variant) => (
-            <>
-              <NumberInput
-                value={valueE}
-                onChangeNumber={setValueE}
-                placeholder={variant === 'rn' ? 'Decimals (rn)' : 'Decimals'}
-                autoComplete="off"
-                maxDecimalPlaces={2}
-                style={{ textAlign: 'right' }}
-                {...(variant === 'rn'
-                  ? { inputComponent: TextInput, wrapperComponent: View }
-                  : null)}
-              />
-              <Controls value={valueE} setValue={setValueE} />
-            </>
-          )}
+          {(variant) => {
+            const testIdBase = `number-input-decimals-${variant}`;
+            return (
+              <>
+                <NumberInput
+                  testID={testIdBase}
+                  value={valueE}
+                  onChangeNumber={setValueE}
+                  placeholder={variant === 'rn' ? 'Decimals (rn)' : 'Decimals'}
+                  autoComplete="off"
+                  maxDecimalPlaces={2}
+                  style={{ textAlign: 'right' }}
+                  {...(variant === 'rn'
+                    ? { inputComponent: TextInput, wrapperComponent: View }
+                    : null)}
+                />
+                <Controls testIdBase={testIdBase} value={valueE} setValue={setValueE} />
+              </>
+            );
+          }}
         </Variants>
       </Row>
 
       <Row title="decimalRoundingMode=displayOnly + maxDecimalPlaces=2 (display rounds, output does not)">
         <Variants>
-          {(variant) => (
-            <>
-              <NumberInput
-                value={valueF}
-                onChangeNumber={setValueF}
-                placeholder={variant === 'rn' ? 'displayOnly (rn)' : 'displayOnly'}
-                autoComplete="off"
-                maxDecimalPlaces={2}
-                decimalRoundingMode="displayOnly"
-                style={{ textAlign: 'right' }}
-                {...(variant === 'rn'
-                  ? { inputComponent: TextInput, wrapperComponent: View }
-                  : null)}
-              />
-              <Controls value={valueF} setValue={setValueF} />
-            </>
-          )}
+          {(variant) => {
+            const testIdBase = `number-input-displayonly-${variant}`;
+            return (
+              <>
+                <NumberInput
+                  testID={testIdBase}
+                  value={valueF}
+                  onChangeNumber={setValueF}
+                  placeholder={variant === 'rn' ? 'displayOnly (rn)' : 'displayOnly'}
+                  autoComplete="off"
+                  maxDecimalPlaces={2}
+                  decimalRoundingMode="displayOnly"
+                  style={{ textAlign: 'right' }}
+                  {...(variant === 'rn'
+                    ? { inputComponent: TextInput, wrapperComponent: View }
+                    : null)}
+                />
+                <Controls testIdBase={testIdBase} value={valueF} setValue={setValueF} />
+              </>
+            );
+          }}
         </Variants>
       </Row>
 
       <Row title="decimalRoundingMode=displayAndOutput + maxDecimalPlaces=2 (both round)">
         <Variants>
-          {(variant) => (
-            <>
-              <NumberInput
-                value={valueG}
-                onChangeNumber={setValueG}
-                placeholder={variant === 'rn' ? 'displayAndOutput (rn)' : 'displayAndOutput'}
-                autoComplete="off"
-                maxDecimalPlaces={2}
-                decimalRoundingMode="displayAndOutput"
-                style={{ textAlign: 'right' }}
-                {...(variant === 'rn'
-                  ? { inputComponent: TextInput, wrapperComponent: View }
-                  : null)}
-              />
-              <Controls value={valueG} setValue={setValueG} />
-            </>
-          )}
+          {(variant) => {
+            const testIdBase = `number-input-displayandoutput-${variant}`;
+            return (
+              <>
+                <NumberInput
+                  testID={testIdBase}
+                  value={valueG}
+                  onChangeNumber={setValueG}
+                  placeholder={variant === 'rn' ? 'displayAndOutput (rn)' : 'displayAndOutput'}
+                  autoComplete="off"
+                  maxDecimalPlaces={2}
+                  decimalRoundingMode="displayAndOutput"
+                  style={{ textAlign: 'right' }}
+                  {...(variant === 'rn'
+                    ? { inputComponent: TextInput, wrapperComponent: View }
+                    : null)}
+                />
+                <Controls testIdBase={testIdBase} value={valueG} setValue={setValueG} />
+              </>
+            );
+          }}
         </Variants>
       </Row>
 
       <Row title="Custom formatDisplay (emoji separators)">
         <Variants>
-          {(variant) => (
-            <>
-              <NumberInput
-                value={valueH}
-                onChangeNumber={setValueH}
-                placeholder={variant === 'rn' ? 'Emoji format (rn)' : 'Emoji format'}
-                autoComplete="off"
-                maxDecimalPlaces={4}
-                formatDisplay={(n: number) => {
-                  // replace grouping commas with an emoji
-                  return n.toLocaleString('en-US', { maximumFractionDigits: 4 }).replace(/,/g, '🍌');
-                }}
-                {...(variant === 'rn'
-                  ? { inputComponent: TextInput, wrapperComponent: View }
-                  : null)}
-              />
-              <Controls value={valueH} setValue={setValueH} />
-            </>
-          )}
+          {(variant) => {
+            const testIdBase = `number-input-emoji-${variant}`;
+            return (
+              <>
+                <NumberInput
+                  testID={testIdBase}
+                  value={valueH}
+                  onChangeNumber={setValueH}
+                  placeholder={variant === 'rn' ? 'Emoji format (rn)' : 'Emoji format'}
+                  autoComplete="off"
+                  maxDecimalPlaces={4}
+                  formatDisplay={(n: number) => {
+                    // replace grouping commas with an emoji
+                    return n.toLocaleString('en-US', { maximumFractionDigits: 4 }).replace(/,/g, '🍌');
+                  }}
+                  {...(variant === 'rn'
+                    ? { inputComponent: TextInput, wrapperComponent: View }
+                    : null)}
+                />
+                <Controls testIdBase={testIdBase} value={valueH} setValue={setValueH} />
+              </>
+            );
+          }}
         </Variants>
       </Row>
     </div>

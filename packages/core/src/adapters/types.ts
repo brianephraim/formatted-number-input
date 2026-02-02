@@ -31,7 +31,7 @@ export type AutoCompleteProp = TextInputProps extends { autoComplete?: infer T }
 
 export type RNishInputProps = Pick<
   TextInputProps,
-  'value' | 'defaultValue' | 'placeholder' | 'editable' | 'style' | 'inputMode'
+  'value' | 'defaultValue' | 'placeholder' | 'editable' | 'style' | 'inputMode' | 'testID'
 > & {
   onChangeText?: (text: string) => void;
 

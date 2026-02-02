@@ -64,6 +64,7 @@ export const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function
       placeholder={rest.placeholder}
       inputMode={toDomInputMode(inputMode)}
       readOnly={!editable}
+      data-testid={rest.testID}
       style={css}
       onInput={(e: React.FormEvent<HTMLInputElement>) => onChangeText?.(e.currentTarget.value)}
       onFocus={(e: React.FocusEvent<HTMLInputElement>) => rest.onFocus?.(e)}

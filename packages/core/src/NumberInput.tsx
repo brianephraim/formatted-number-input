@@ -86,6 +86,7 @@ export function NumberInput({
   onBlur,
   ...rest
 }: NumberInputProps) {
+  const baseTestID = (rest as { testID?: string } | undefined)?.testID;
   const { containerStyle, inputTextStyle } = splitNumberInputStyle(style);
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -128,6 +129,7 @@ export function NumberInput({
         ref={typingInputRef}
         key={remountKeyForTypingInput}
         defaultValue={rawValueText}
+        testID={baseTestID}
         onChangeText={(text: string) => {
           // - allow decimals
           // - if multiple '.', keep the first and collapse the rest into the decimal portion
@@ -176,6 +178,7 @@ export function NumberInput({
           <Input
             ref={displayInputRef}
             value={formattedValueText}
+            testID={baseTestID ? `${baseTestID}__display` : undefined}
             // On web we allow focus so we can read selectionStart and forward it.
             // On native we keep it non-interactive.
             editable={isWeb}

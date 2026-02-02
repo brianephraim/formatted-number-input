@@ -12,6 +12,10 @@
     "build": "npm -w @rn-number-input/core run build",
     "typecheck": "npm -w @rn-number-input/core run typecheck && npm -w @demo/web run typecheck",
     "lint": "npm -w @rn-number-input/core run lint && npm -w @demo/web run lint",
-    "test:core": "npm -w @rn-number-input/core run test"
+    "test:core": "npm -w @rn-number-input/core run test",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.1"
   }
 }
