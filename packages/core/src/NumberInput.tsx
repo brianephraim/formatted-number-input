@@ -151,14 +151,10 @@ export function NumberInput({
         onBlur={(e: unknown) => {
           setIsFocused(false);
 
-          // In displayAndOutput mode, the user can type extra decimals that round to the same
-          // numeric value. In that case the controlled value may not change, so our blurred
-          // seed-change effect won't remount. Force a remount on blur so the next focus starts
-          // from the rounded/defaultValue text.
-          if (typeof maxDecimalPlaces === 'number' && decimalRoundingMode === 'displayAndOutput') {
-            lastSeedValueForTypingInputRef.current = seedValueForTypingInput;
-            setRemountKeyForTypingInput((k) => k + 1);
-          }
+          // Always remount on blur so the next focus reseeds from the canonical controlled value.
+          // This prevents "stale" uncontrolled DOM text (e.g. letters) from reappearing.
+          lastSeedValueForTypingInputRef.current = seedValueForTypingInput;
+          setRemountKeyForTypingInput((k) => k + 1);
 
           onBlur?.(e);
         }}
