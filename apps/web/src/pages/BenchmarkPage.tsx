@@ -529,25 +529,46 @@ export default function BenchmarkPage() {
             <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6 }}>Ranking (lower score = better)</div>
             <ol style={{ marginTop: 0 }}>
               {[...suiteResults]
-                .map((r: any) => ({ ...r, __score: score(r) }))
-                .sort((a: any, b: any) => a.__score - b.__score)
+                .map((r: any) => ({ ...r, score: score(r) }))
+                .sort((a: any, b: any) => a.score - b.score)
                 .map((r: any) => (
                   <li key={r.variant}>
-                    <b>{r.variant}</b> — score {r.__score.toFixed(2)}
+                    <b>{r.variant}</b> — <b>score {Number(r.score).toFixed(2)}</b>
                     <div style={{ fontSize: 12, opacity: 0.8 }}>
-                      event→rAF p95: {Number(r.eventToRaf?.p95 ?? 0).toFixed(2)}ms; react p95: {Number(
+                      event→rAF median/p95: {Number(r.eventToRaf?.median ?? 0).toFixed(2)}ms / {Number(
+                        r.eventToRaf?.p95 ?? 0
+                      ).toFixed(2)}ms; react commit median/p95: {Number(r.react?.medianCommitMs ?? 0).toFixed(2)}ms / {Number(
                         r.react?.p95CommitMs ?? 0
                       ).toFixed(2)}ms; longTasks: {r.longTasks}
                     </div>
                   </li>
                 ))}
             </ol>
+
+            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 10, marginBottom: 6 }}>
+              Scores (unsorted)
+            </div>
+            <ul style={{ marginTop: 0 }}>
+              {[...suiteResults]
+                .map((r: any) => ({ variant: r.variant, score: score(r) }))
+                .map((r) => (
+                  <li key={r.variant}>
+                    <code>{r.variant}</code>: <b>{r.score.toFixed(2)}</b>
+                  </li>
+                ))}
+            </ul>
           </div>
         ) : null}
 
         <pre data-testid="bench-results" style={{ whiteSpace: 'pre-wrap', fontSize: 12, opacity: 0.9 }}>
           {suiteResults
-            ? JSON.stringify({ suite: suiteResults }, null, 2)
+            ? JSON.stringify(
+                {
+                  suite: suiteResults.map((r: any) => ({ ...r, score: score(r) }))
+                },
+                null,
+                2
+              )
             : results
               ? JSON.stringify(results, null, 2)
               : 'No results yet.'}
