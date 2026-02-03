@@ -91,12 +91,13 @@ Props: `maxDecimalPlaces=2`, `decimalRoundingMode` default.
 
 1. Focus input.
 2. Type `1.239999999999` (or add many decimals).
-3. Verify readout rounds to 2 places as you type.
+3. While still focused, verify TypingInput can temporarily show extra decimals (no snapping while typing).
 4. Blur.
 5. Refocus.
 
 **Pass:**
-- `onChangeNumber` output is rounded.
+- While focused, TypingInput does **not** snap/round mid-typing.
+- On blur, value is rounded to 2 places.
 - After blur → refocus, TypingInput is reseeded from the rounded value (long decimals should not reappear).
 
 ### 5B) displayOnly mode

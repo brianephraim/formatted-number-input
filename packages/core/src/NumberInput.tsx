@@ -115,6 +115,15 @@ export function NumberInput({
 
   const rawValueText = String(seedValueForTypingInput);
 
+  // Track the last successfully-parsed numeric value from typing.
+  // Used to apply rounding on blur for native TextInput (and to keep behavior consistent with web).
+  const lastParsedNumberRef = React.useRef<number>(seedValueForTypingInput);
+  React.useEffect(() => {
+    // Keep in sync with external updates while blurred.
+    if (isFocused) return;
+    lastParsedNumberRef.current = seedValueForTypingInput;
+  }, [isFocused, seedValueForTypingInput]);
+
   const formattedValueText = formatDisplay
     ? formatDisplay(displayValue)
     : defaultFormatDisplay(displayValue, maxDecimalPlaces);
@@ -137,11 +146,9 @@ export function NumberInput({
           const next = Number(cleaned);
           if (Number.isNaN(next)) return;
 
-          if (typeof maxDecimalPlaces === 'number' && decimalRoundingMode === 'displayAndOutput') {
-            onChangeNumber(roundToPlaces(next, maxDecimalPlaces));
-            return;
-          }
-
+          // While focused, keep the TypingInput "raw" and avoid rounding snaps.
+          // We defer any displayAndOutput rounding until blur.
+          lastParsedNumberRef.current = next;
           onChangeNumber(next);
         }}
         onFocus={(e: unknown) => {
@@ -150,6 +157,15 @@ export function NumberInput({
         }}
         onBlur={(e: unknown) => {
           setIsFocused(false);
+
+          // Apply rounding on blur (commit) for displayAndOutput.
+          // This matches the web behavior where the raw typing string can exceed maxDecimalPlaces while focused.
+          if (typeof maxDecimalPlaces === 'number' && decimalRoundingMode === 'displayAndOutput') {
+            const rounded = roundToPlaces(lastParsedNumberRef.current, maxDecimalPlaces);
+            if (!Object.is(rounded, value)) {
+              onChangeNumber(rounded);
+            }
+          }
 
           // Always remount on blur so the next focus reseeds from the canonical controlled value.
           // This prevents "stale" uncontrolled DOM text (e.g. letters) from reappearing.
