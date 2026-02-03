@@ -14,6 +14,11 @@ config.resolver.nodeModulesPaths = [
 ];
 
 config.resolver.disableHierarchicalLookup = true;
+config.resolver.unstable_enablePackageExports = false;
+// Prefer CommonJS "main" over ESM "module" for Metro compatibility.
+// Some dependencies (e.g. punycode) are imported via `require()` by upstream libs and break when Metro
+// resolves to the ESM entrypoint.
+config.resolver.resolverMainFields = ['react-native', 'browser', 'main', 'module'];
 
 // Resolve the workspace package from source so we can skip a build step.
 config.resolver.extraNodeModules = {

@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "dev:web": "npm -w @demo/web run dev",
-    "dev:expo": "npm -w @demo/expo run start",
+    "dev:expo": "npm -w @demo/expo run start -- -c",
     "build": "npm -w @rn-number-input/core run build",
     "typecheck": "npm -w @rn-number-input/core run typecheck && npm -w @demo/web run typecheck",
     "lint": "npm -w @rn-number-input/core run lint && npm -w @demo/web run lint",

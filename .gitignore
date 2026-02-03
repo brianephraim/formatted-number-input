@@ -26,6 +26,10 @@ apps/web/.vite
 # misc
 *.tsbuildinfo
 
+# Expo
+.expo/
+.metro-health-check*
+
 test-results
 playwright-report
 
