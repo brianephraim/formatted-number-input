@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { NumberInput } from '@rn-number-input/core';
 
 export default function App() {
@@ -7,7 +7,10 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <ScrollView
+        keyboardShouldPersistTaps="never"
+        contentContainerStyle={styles.container}
+      >
         <Text style={styles.title}>RN Number Input</Text>
         <NumberInput
           value={value}
@@ -19,7 +22,7 @@ export default function App() {
           placeholder="Enter a number"
         />
         <Text style={styles.value}>Current value: {value}</Text>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
