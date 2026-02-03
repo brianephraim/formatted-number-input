@@ -194,6 +194,11 @@ export default function BenchmarkPage() {
       },
       startRecording,
       stopRecording,
+      flushRaf: async (count: number = 2) => {
+        for (let i = 0; i < count; i++) {
+          await new Promise((r) => requestAnimationFrame(() => r(null)));
+        }
+      },
       runAutomatedInPage,
       runSuiteInPage,
       getResults: () => results,
@@ -265,11 +270,10 @@ export default function BenchmarkPage() {
       for (const ch of payload) {
         input.value = input.value + ch;
         input.dispatchEvent(new Event('input', { bubbles: true }));
-        await new Promise((r) => requestAnimationFrame(() => r(null)));
       }
     }
 
-    // allow pending rAF measurements to flush
+    // allow pending rAF measurements to flush (important when driving fast)
     await new Promise((r) => requestAnimationFrame(() => r(null)));
     await new Promise((r) => requestAnimationFrame(() => r(null)));
 
