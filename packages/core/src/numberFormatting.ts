@@ -8,8 +8,13 @@ export function roundToPlaces(value: number, places: number) {
 export function defaultFormatDisplay(value: number, maxDecimalPlaces: number | undefined) {
   // Keep it conservative: avoid locale surprises in tests.
   // Note: Intl/NumberFormat will clamp maximumFractionDigits internally.
+  const clampedMax =
+    typeof maxDecimalPlaces === 'number'
+      ? Math.min(20, Math.max(0, Math.floor(maxDecimalPlaces)))
+      : 20;
+
   return value.toLocaleString('en-US', {
-    maximumFractionDigits: maxDecimalPlaces ?? 100
+    maximumFractionDigits: clampedMax
   });
 }
 
