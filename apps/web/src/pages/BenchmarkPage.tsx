@@ -128,6 +128,8 @@ export default function BenchmarkPage() {
   const [iterations, setIterations] = React.useState(10);
   const [active, setActive] = React.useState<Variant>('number-input');
   const [results, setResults] = React.useState<object | null>(null);
+  const [suiteResults, setSuiteResults] = React.useState<object[] | null>(null);
+  const [suiteRunning, setSuiteRunning] = React.useState(false);
 
   // States for each variant (keep separate so switching variants doesn't accidentally reuse state)
   const [htmlText, setHtmlText] = React.useState('');
@@ -150,12 +152,16 @@ export default function BenchmarkPage() {
         setRnNum(0);
         setNumValue(0);
         setResults(null);
+        setSuiteResults(null);
       },
       startRecording,
       stopRecording,
-      getResults: () => results
+      runAutomatedInPage,
+      runSuiteInPage,
+      getResults: () => results,
+      getSuiteResults: () => suiteResults
     };
-  }, [results]);
+  }, [results, suiteResults]);
 
   const onProfilerRender = React.useCallback((actualDuration: number) => {
     collectorRef.current.onReactCommit(actualDuration);
@@ -175,6 +181,7 @@ export default function BenchmarkPage() {
     startedAtRef.current = performance.now();
     setIsRecording(true);
     setResults(null);
+    setSuiteResults(null);
   }
 
   function stopRecording() {
@@ -196,10 +203,12 @@ export default function BenchmarkPage() {
       endedAt
     };
 
-    setResults(summarize(sample));
+    const summary = summarize(sample);
+    setResults(summary);
+    return summary;
   }
 
-  async function runAutomatedInPage() {
+  async function runAutomatedInPage(): Promise<object> {
     // Less-credible helper for quick manual testing.
     const input = document.querySelector<HTMLInputElement>(`[data-testid="bench-input"]`);
     if (!input) throw new Error('bench input not found');
@@ -222,7 +231,53 @@ export default function BenchmarkPage() {
     }
 
     await new Promise((r) => setTimeout(r, 0));
-    stopRecording();
+    return stopRecording();
+  }
+
+  function score(summary: any): number {
+    // Lower is better.
+    // Heuristic: prioritize tail latency and React commit tail.
+    return (
+      (summary?.eventToRaf?.p95 ?? 0) +
+      (summary?.eventToRaf?.median ?? 0) +
+      2 * (summary?.react?.p95CommitMs ?? 0) +
+      (summary?.react?.medianCommitMs ?? 0) +
+      15 * (summary?.longTasks ?? 0)
+    );
+  }
+
+  async function runSuiteInPage() {
+    setSuiteRunning(true);
+    setResults(null);
+    setSuiteResults(null);
+
+    const variants: Variant[] = ['html-controlled-number', 'rn-controlled-number', 'number-input'];
+    const collected: object[] = [];
+
+    for (const v of variants) {
+      setActive(v);
+      // Wait for the component to re-render.
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+
+      // Reset state between variants.
+      setHtmlText('');
+      setHtmlNum(0);
+      setRnText('');
+      setRnNum(0);
+      setNumValue(0);
+
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+
+      // Run the same workload under the same settings.
+      const summary = await runAutomatedInPage();
+      collected.push(summary);
+
+      // brief pause between variants
+      await new Promise((r) => setTimeout(r, 50));
+    }
+
+    setSuiteResults(collected);
+    setSuiteRunning(false);
   }
 
   // Controlled components (render only the active one to keep apples-to-apples)
@@ -432,15 +487,31 @@ export default function BenchmarkPage() {
 
           <button
             data-testid="bench-start"
+            disabled={suiteRunning}
             onClick={() => void runAutomatedInPage()}
             style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #555', background: '#111', color: '#eee' }}
           >
             Run (in-page, less credible)
           </button>
 
-          <div style={{ fontSize: 12, opacity: 0.75, alignSelf: 'center' }}>
-            For credible runs: use Playwright to click <b>Start recording</b>, type payload N times, then click{' '}
-            <b>Stop</b>.
+          <button
+            data-testid="bench-suite-run"
+            disabled={suiteRunning}
+            onClick={() => void runSuiteInPage()}
+            style={{
+              padding: '8px 10px',
+              borderRadius: 8,
+              border: '1px solid #1f6feb',
+              background: suiteRunning ? '#222' : '#0b2a66',
+              color: '#fff'
+            }}
+          >
+            {suiteRunning ? 'Running suite…' : 'Run suite + rank (in-page)'}
+          </button>
+
+          <div style={{ fontSize: 12, opacity: 0.75, alignSelf: 'center', maxWidth: 520 }}>
+            The suite runs variants sequentially under the same load and provides a simple ranking. For credible runs,
+            prefer Playwright (consistent typing patterns).
           </div>
         </div>
       </Section>
@@ -453,8 +524,33 @@ export default function BenchmarkPage() {
       </Section>
 
       <Section title="Results">
+        {suiteResults ? (
+          <div data-testid="bench-suite-results" style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6 }}>Ranking (lower score = better)</div>
+            <ol style={{ marginTop: 0 }}>
+              {[...suiteResults]
+                .map((r: any) => ({ ...r, __score: score(r) }))
+                .sort((a: any, b: any) => a.__score - b.__score)
+                .map((r: any) => (
+                  <li key={r.variant}>
+                    <b>{r.variant}</b> — score {r.__score.toFixed(2)}
+                    <div style={{ fontSize: 12, opacity: 0.8 }}>
+                      event→rAF p95: {Number(r.eventToRaf?.p95 ?? 0).toFixed(2)}ms; react p95: {Number(
+                        r.react?.p95CommitMs ?? 0
+                      ).toFixed(2)}ms; longTasks: {r.longTasks}
+                    </div>
+                  </li>
+                ))}
+            </ol>
+          </div>
+        ) : null}
+
         <pre data-testid="bench-results" style={{ whiteSpace: 'pre-wrap', fontSize: 12, opacity: 0.9 }}>
-          {results ? JSON.stringify(results, null, 2) : 'No results yet.'}
+          {suiteResults
+            ? JSON.stringify({ suite: suiteResults }, null, 2)
+            : results
+              ? JSON.stringify(results, null, 2)
+              : 'No results yet.'}
         </pre>
       </Section>
     </div>
