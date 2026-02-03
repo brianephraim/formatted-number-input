@@ -1,0 +1,21 @@
+{
+  "name": "@demo/expo",
+  "private": true,
+  "version": "0.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@rn-number-input/core": "file:../../packages/core",
+    "expo": "~54.0.0",
+    "react": "19.1.0",
+    "react-native": "0.81.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3"
+  }
+}
