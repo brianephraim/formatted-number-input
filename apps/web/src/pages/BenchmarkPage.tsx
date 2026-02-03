@@ -2,7 +2,20 @@ import * as React from 'react';
 import { NumberInput } from '@rn-number-input/core';
 import { TextInput, View } from 'react-native';
 
-type Variant = 'html-controlled-string' | 'html-controlled-number' | 'rn-controlled-string' | 'rn-controlled-number' | 'number-input';
+type Variant =
+  | 'html-controlled-string'
+  | 'html-controlled-number'
+  | 'rn-controlled-string'
+  | 'rn-controlled-number'
+  | 'number-input';
+
+const VARIANT_LABEL: Record<Variant, string> = {
+  'number-input': 'NumberInput',
+  'html-controlled-number': 'HTML input (controlled number)',
+  'rn-controlled-number': 'RN TextInput (controlled number)',
+  'html-controlled-string': 'HTML input (controlled string)',
+  'rn-controlled-string': 'RN TextInput (controlled string)'
+};
 
 type BenchSample = {
   variant: Variant;
@@ -24,25 +37,50 @@ function p(arr: number[], q: number): number {
   return sorted[idx] ?? 0;
 }
 
+function stats(arr: number[]) {
+  if (arr.length === 0) {
+    return { n: 0, min: 0, max: 0, mean: 0, median: 0, p95: 0 };
+  }
+  const sorted = [...arr].sort((a, b) => a - b);
+  const n = sorted.length;
+  const min = sorted[0] ?? 0;
+  const max = sorted[n - 1] ?? 0;
+  const mean = sorted.reduce((s, v) => s + v, 0) / n;
+  return {
+    n,
+    min,
+    max,
+    mean,
+    median: p(sorted, 0.5),
+    p95: p(sorted, 0.95)
+  };
+}
+
 function summarize(sample: BenchSample) {
   const durationMs = sample.endedAt - sample.startedAt;
+  const keystrokes = sample.payload.length * sample.iterations;
+
   return {
     variant: sample.variant,
+    label: VARIANT_LABEL[sample.variant],
     stress: sample.stress,
     iterations: sample.iterations,
     payloadLen: sample.payload.length,
     durationMs,
-    keystrokes: sample.payload.length * sample.iterations,
-    eventToRaf: {
-      n: sample.eventToRafMs.length,
-      median: p(sample.eventToRafMs, 0.5),
-      p95: p(sample.eventToRafMs, 0.95)
+    keystrokes,
+
+    // Simple, easy-to-compare throughput metric.
+    msPerChar: {
+      mean: keystrokes ? durationMs / keystrokes : 0
     },
-    react: {
+
+    // More granular, but can be noisy; kept for diagnostic value.
+    eventToRaf: stats(sample.eventToRafMs),
+    reactCommit: {
       commits: sample.reactCommits,
-      medianCommitMs: p(sample.reactCommitMs, 0.5),
-      p95CommitMs: p(sample.reactCommitMs, 0.95)
+      ...stats(sample.reactCommitMs)
     },
+
     longTasks: sample.longTasks
   };
 }
@@ -208,8 +246,9 @@ export default function BenchmarkPage() {
     return summary;
   }
 
-  async function runAutomatedInPage(): Promise<object> {
+  async function runAutomatedInPage(variantOverride?: Variant): Promise<any> {
     // Less-credible helper for quick manual testing.
+    // Note: uses programmatic input events; prefer Playwright for credibility.
     const input = document.querySelector<HTMLInputElement>(`[data-testid="bench-input"]`);
     if (!input) throw new Error('bench input not found');
 
@@ -230,18 +269,25 @@ export default function BenchmarkPage() {
       }
     }
 
-    await new Promise((r) => setTimeout(r, 0));
-    return stopRecording();
+    // allow pending rAF measurements to flush
+    await new Promise((r) => requestAnimationFrame(() => r(null)));
+    await new Promise((r) => requestAnimationFrame(() => r(null)));
+
+    const summary = stopRecording() as any;
+    if (variantOverride) {
+      summary.variant = variantOverride;
+      summary.label = VARIANT_LABEL[variantOverride];
+    }
+    return summary;
   }
 
   function score(summary: any): number {
     // Lower is better.
-    // Heuristic: prioritize tail latency and React commit tail.
+    // Heuristic: prioritize tail-ish responsiveness + long tasks.
     return (
+      2 * (summary?.msPerChar?.mean ?? 0) +
       (summary?.eventToRaf?.p95 ?? 0) +
-      (summary?.eventToRaf?.median ?? 0) +
-      2 * (summary?.react?.p95CommitMs ?? 0) +
-      (summary?.react?.medianCommitMs ?? 0) +
+      (summary?.reactCommit?.p95 ?? 0) +
       15 * (summary?.longTasks ?? 0)
     );
   }
@@ -252,7 +298,7 @@ export default function BenchmarkPage() {
     setSuiteResults(null);
 
     const variants: Variant[] = ['html-controlled-number', 'rn-controlled-number', 'number-input'];
-    const collected: object[] = [];
+    const collected: any[] = [];
 
     for (const v of variants) {
       setActive(v);
@@ -269,11 +315,11 @@ export default function BenchmarkPage() {
       await new Promise((r) => requestAnimationFrame(() => r(null)));
 
       // Run the same workload under the same settings.
-      const summary = await runAutomatedInPage();
+      const summary = await runAutomatedInPage(v);
       collected.push(summary);
 
       // brief pause between variants
-      await new Promise((r) => setTimeout(r, 50));
+      await new Promise((r) => setTimeout(r, 75));
     }
 
     setSuiteResults(collected);
@@ -533,27 +579,24 @@ export default function BenchmarkPage() {
                 .sort((a: any, b: any) => a.score - b.score)
                 .map((r: any) => (
                   <li key={r.variant}>
-                    <b>{r.variant}</b> — <b>score {Number(r.score).toFixed(2)}</b>
+                    <b>{r.label ?? r.variant}</b> — <b>score {Number(r.score).toFixed(2)}</b>
                     <div style={{ fontSize: 12, opacity: 0.8 }}>
-                      event→rAF median/p95: {Number(r.eventToRaf?.median ?? 0).toFixed(2)}ms / {Number(
-                        r.eventToRaf?.p95 ?? 0
-                      ).toFixed(2)}ms; react commit median/p95: {Number(r.react?.medianCommitMs ?? 0).toFixed(2)}ms / {Number(
-                        r.react?.p95CommitMs ?? 0
-                      ).toFixed(2)}ms; longTasks: {r.longTasks}
+                      ms/char avg: {Number(r.msPerChar?.mean ?? 0).toFixed(2)}; event→rAF mean/min/max: {Number(
+                        r.eventToRaf?.mean ?? 0
+                      ).toFixed(2)} / {Number(r.eventToRaf?.min ?? 0).toFixed(2)} / {Number(r.eventToRaf?.max ?? 0).toFixed(2)};
+                      react commit p95: {Number(r.reactCommit?.p95 ?? 0).toFixed(2)}; longTasks: {r.longTasks}
                     </div>
                   </li>
                 ))}
             </ol>
 
-            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 10, marginBottom: 6 }}>
-              Scores (unsorted)
-            </div>
+            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 10, marginBottom: 6 }}>Scores (unsorted)</div>
             <ul style={{ marginTop: 0 }}>
               {[...suiteResults]
-                .map((r: any) => ({ variant: r.variant, score: score(r) }))
+                .map((r: any) => ({ label: r.label ?? r.variant, score: score(r) }))
                 .map((r) => (
-                  <li key={r.variant}>
-                    <code>{r.variant}</code>: <b>{r.score.toFixed(2)}</b>
+                  <li key={r.label}>
+                    <code>{r.label}</code>: <b>{r.score.toFixed(2)}</b>
                   </li>
                 ))}
             </ul>
