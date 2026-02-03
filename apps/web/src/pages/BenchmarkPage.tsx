@@ -254,8 +254,8 @@ export default function BenchmarkPage() {
   async function runAutomatedInPage(variantOverride?: Variant): Promise<any> {
     // Less-credible helper for quick manual testing.
     // Note: uses programmatic input events; prefer Playwright for credibility.
-    const input = document.querySelector<HTMLInputElement>(`[data-testid="bench-input"]`);
-    if (!input) throw new Error('bench input not found');
+    const input = getBenchDomInput();
+    if (!input) throw new Error('bench input DOM element not found');
 
     startRecording();
 
@@ -330,6 +330,20 @@ export default function BenchmarkPage() {
     setSuiteRunning(false);
   }
 
+  function getBenchDomInput(): HTMLInputElement | HTMLTextAreaElement | null {
+    // For NumberInput + HTML variants, the element is directly tagged.
+    const direct = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+      `[data-testid="bench-input"]`
+    );
+
+    // For react-native-web TextInput, testID can land on a wrapper. Use a wrapper
+    // testid and query its actual editable element.
+    const wrap = document.querySelector<HTMLElement>(`[data-testid="bench-input-wrap"]`);
+    const nested = wrap?.querySelector<HTMLInputElement | HTMLTextAreaElement>('input,textarea') ?? null;
+
+    return nested ?? direct;
+  }
+
   // Controlled components (render only the active one to keep apples-to-apples)
   const benchInput = (() => {
     const commonStyle = {
@@ -378,35 +392,39 @@ export default function BenchmarkPage() {
 
       case 'rn-controlled-string':
         return (
-          <View>
-            <TextInput
-              testID="bench-input"
-              style={commonStyle as any}
-              value={rnText}
-              onChangeText={(t) => {
-                collectorRef.current.markInputEvent();
-                setRnText(t);
-              }}
-            />
-          </View>
+          <div data-testid="bench-input-wrap">
+            <View>
+              <TextInput
+                testID="bench-input"
+                style={commonStyle as any}
+                value={rnText}
+                onChangeText={(t) => {
+                  collectorRef.current.markInputEvent();
+                  setRnText(t);
+                }}
+              />
+            </View>
+          </div>
         );
 
       case 'rn-controlled-number':
         return (
-          <View>
-            <TextInput
-              testID="bench-input"
-              style={commonStyle as any}
-              value={formatNum(rnNum)}
-              onChangeText={(t) => {
-                collectorRef.current.markInputEvent();
-                const cleaned = t.replace(/[^0-9.-]/g, '');
-                const next = Number(cleaned);
-                if (!Number.isNaN(next)) setRnNum(next);
-                else setRnNum(0);
-              }}
-            />
-          </View>
+          <div data-testid="bench-input-wrap">
+            <View>
+              <TextInput
+                testID="bench-input"
+                style={commonStyle as any}
+                value={formatNum(rnNum)}
+                onChangeText={(t) => {
+                  collectorRef.current.markInputEvent();
+                  const cleaned = t.replace(/[^0-9.-]/g, '');
+                  const next = Number(cleaned);
+                  if (!Number.isNaN(next)) setRnNum(next);
+                  else setRnNum(0);
+                }}
+              />
+            </View>
+          </div>
         );
 
       case 'number-input':

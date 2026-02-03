@@ -8,12 +8,21 @@ type Variant =
   | 'html-controlled-string'
   | 'rn-controlled-string';
 
-async function focusBenchInput(page: any) {
+async function focusBenchInput(page: any, variant: string) {
+  // NumberInput: click overlay to forward focus.
   const display = page.getByTestId('bench-input__display');
   if (await display.count()) {
     await display.click();
-    return page.getByTestId('bench-input');
   }
+
+  // react-native-web TextInput: testID may be applied to a wrapper, so type into
+  // the nested DOM <input>/<textarea>.
+  if (variant.startsWith('rn-')) {
+    const dom = page.getByTestId('bench-input-wrap').locator('input,textarea').first();
+    await dom.click();
+    return dom;
+  }
+
   const input = page.getByTestId('bench-input');
   await input.click();
   return input;
@@ -44,7 +53,7 @@ test('benchmark run (automated): collects metrics for key variants', async ({ pa
     // start recording
     await page.getByTestId('bench-record-start').click();
 
-    const input = await focusBenchInput(page);
+    const input = await focusBenchInput(page, variant);
 
     // Run iterations: clear → type payload
     for (let i = 0; i < iterations; i++) {
@@ -69,6 +78,7 @@ test('benchmark run (automated): collects metrics for key variants', async ({ pa
     expect(parsed.variant).toBe(variant);
     expect(parsed.label).toBeTruthy();
     expect(Number(parsed?.msPerChar?.mean ?? 0)).toBeGreaterThan(0);
+    // If this is 0, we didn't actually trigger/observe the input pipeline.
     expect(Number(parsed?.eventToRaf?.n ?? 0)).toBeGreaterThan(0);
 
     outputs.push(parsed);
