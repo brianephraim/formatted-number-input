@@ -115,8 +115,18 @@ export function NumberInput({
 
   const rawValueText = String(seedValueForTypingInput);
 
+  // IMPORTANT: React Native TextInput may treat `defaultValue` as an updatable prop (not purely initial),
+  // which can cause the typing text to "snap" to the controlled/rounded value while focused.
+  // We freeze the defaultValue for the lifetime of each TypingInput mount, and only update it when we
+  // intentionally remount via `remountKeyForTypingInput`.
+  const defaultValueForTypingInput = React.useMemo(
+    () => String(seedValueForTypingInput),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [remountKeyForTypingInput]
+  );
+
   // Track the last successfully-parsed numeric value from typing.
-  // Used to apply rounding on blur for native TextInput (and to keep behavior consistent with web).
+  // Used for blur-time commit logic and debugging parity across platforms.
   const lastParsedNumberRef = React.useRef<number>(seedValueForTypingInput);
   React.useEffect(() => {
     // Keep in sync with external updates while blurred.
@@ -137,7 +147,7 @@ export function NumberInput({
       <Input
         ref={typingInputRef}
         key={remountKeyForTypingInput}
-        defaultValue={rawValueText}
+        defaultValue={defaultValueForTypingInput}
         testID={baseTestID}
         onChangeText={(text: string) => {
           // - allow decimals
@@ -146,9 +156,15 @@ export function NumberInput({
           const next = Number(cleaned);
           if (Number.isNaN(next)) return;
 
-          // While focused, keep the TypingInput "raw" and avoid rounding snaps.
-          // We defer any displayAndOutput rounding until blur.
           lastParsedNumberRef.current = next;
+
+          // In displayAndOutput mode, the *output value* should be rounded as the user types.
+          // The TypingInput text remains "raw" (unrounded) because it is uncontrolled.
+          if (typeof maxDecimalPlaces === 'number' && decimalRoundingMode === 'displayAndOutput') {
+            onChangeNumber(roundToPlaces(next, maxDecimalPlaces));
+            return;
+          }
+
           onChangeNumber(next);
         }}
         onFocus={(e: unknown) => {
@@ -158,14 +174,8 @@ export function NumberInput({
         onBlur={(e: unknown) => {
           setIsFocused(false);
 
-          // Apply rounding on blur (commit) for displayAndOutput.
-          // This matches the web behavior where the raw typing string can exceed maxDecimalPlaces while focused.
-          if (typeof maxDecimalPlaces === 'number' && decimalRoundingMode === 'displayAndOutput') {
-            const rounded = roundToPlaces(lastParsedNumberRef.current, maxDecimalPlaces);
-            if (!Object.is(rounded, value)) {
-              onChangeNumber(rounded);
-            }
-          }
+          // No-op for rounding here: in displayAndOutput mode we already emit rounded values as the user types.
+          // We keep this hook for symmetry and for potential future "commit on blur" behaviors.
 
           // Always remount on blur so the next focus reseeds from the canonical controlled value.
           // This prevents "stale" uncontrolled DOM text (e.g. letters) from reappearing.
