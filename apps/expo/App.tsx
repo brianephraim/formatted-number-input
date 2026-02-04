@@ -53,15 +53,37 @@ export default function App() {
     Keyboard.dismiss();
   }, []);
 
+  const blurFocusedInputOnTapCapture = React.useCallback(
+    (e: any) => {
+      // Capture-phase hook so we can blur even when the tap is handled by a child Pressable/Button.
+      //
+      // IMPORTANT: Don’t blur when the user is tapping *inside* the focused input (caret placement).
+      const focused = (TextInput as any).State?.currentlyFocusedInput?.();
+      const focusedTag = focused?._nativeTag;
+      if (focused && focusedTag != null && e?.target === focusedTag) {
+        return false;
+      }
+
+      blurFocusedInput();
+      setBgPressCount((c) => c + 1);
+      return false; // don’t steal responder; allow children (buttons, scroll) to work normally
+    },
+    [blurFocusedInput]
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
-        <Pressable
-          onPress={() => {
-            blurFocusedInput();
-            setBgPressCount((c) => c + 1);
-          }}
-        >
+        <View onStartShouldSetResponderCapture={blurFocusedInputOnTapCapture}>
+          <Pressable
+            onPress={() => {
+              console.log("pressed button");
+            }}
+            style={{ padding: 10, backgroundColor: 'red' }}
+          >
+            <Text>Tapping this SHOULD blur the focused input</Text>
+          </Pressable>
+
           <Text style={styles.title}>RN Number Input {bgPressCount}</Text>
           <Text style={styles.subtitle}>Tap into a field, type, blur, and compare behavior.</Text>
 
@@ -79,7 +101,7 @@ export default function App() {
             maxDecimalPlaces={2}
             formatDisplay={(n) => n.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           />
-        </Pressable>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
