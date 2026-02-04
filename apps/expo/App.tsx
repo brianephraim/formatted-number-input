@@ -1,6 +1,9 @@
 import * as React from 'react';
-import { Keyboard, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
 import { NumberInput } from '@rn-number-input/core';
+import { BlurOnTapCapture } from './components/BlurOnTapCapture';
+import { DemoScreenShell } from './components/DemoScreenShell';
+import { DemoScreenScroll } from './components/DemoScreenScroll';
 
 type DemoBlockProps = {
   label: string;
@@ -41,45 +44,15 @@ function DemoBlock({
 
 export default function App() {
   const [bgPressCount, setBgPressCount] = React.useState(0);
-
-  const blurFocusedInput = React.useCallback(() => {
-    // Works even when a hardware keyboard is connected (Keyboard.dismiss alone may do nothing).
-    //
-    // React Native tracks "currently focused TextInput" globally via an internal focus manager.
-    // It’s exposed (somewhat oddly) as a static `TextInput.State.currentlyFocusedInput()` API.
-    // We use it here to blur the active input without manually wiring refs everywhere.
-    const focused = (TextInput as any).State?.currentlyFocusedInput?.();
-    focused?.blur?.();
-    Keyboard.dismiss();
-  }, []);
-
-  const blurFocusedInputOnTapCapture = React.useCallback(
-    (e: any) => {
-      // Capture-phase hook so we can blur even when the tap is handled by a child Pressable/Button.
-      //
-      // IMPORTANT: Don’t blur when the user is tapping *inside* the focused input (caret placement).
-      const focused = (TextInput as any).State?.currentlyFocusedInput?.();
-      const focusedTag = focused?._nativeTag;
-      if (focused && focusedTag != null && e?.target === focusedTag) {
-        return false;
-      }
-
-      blurFocusedInput();
-      setBgPressCount((c) => c + 1);
-      return false; // don’t steal responder; allow children (buttons, scroll) to work normally
-    },
-    [blurFocusedInput]
-  );
-
   const [noopPressCount, setNoopPressCount] = React.useState(0);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
-        <View onStartShouldSetResponderCapture={blurFocusedInputOnTapCapture}>
+    <DemoScreenShell>
+      <DemoScreenScroll contentContainerStyle={styles.container}>
+        <BlurOnTapCapture onBlurTap={() => setBgPressCount((c) => c + 1)}>
           <Pressable
             onPress={() => {
-              console.log("pressed button");
+              console.log('pressed button');
               setNoopPressCount((c) => c + 1);
             }}
             style={{ padding: 10, backgroundColor: 'red' }}
@@ -104,9 +77,9 @@ export default function App() {
             maxDecimalPlaces={2}
             formatDisplay={(n) => n.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </BlurOnTapCapture>
+      </DemoScreenScroll>
+    </DemoScreenShell>
   );
 }
 
