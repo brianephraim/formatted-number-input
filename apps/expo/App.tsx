@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
 import { NumberInput } from '@rn-number-input/core';
-import { BlurOnTapCapture } from './components/BlurOnTapCapture';
-import { DemoScreenShell } from './components/DemoScreenShell';
-import { DemoScreenScroll } from './components/DemoScreenScroll';
+import { DemoScreen } from './components/DemoScreen';
 
 type DemoBlockProps = {
   label: string;
@@ -47,39 +45,38 @@ export default function App() {
   const [noopPressCount, setNoopPressCount] = React.useState(0);
 
   return (
-    <DemoScreenShell>
-      <DemoScreenScroll contentContainerStyle={styles.container}>
-        <BlurOnTapCapture onBlurTap={() => setBgPressCount((c) => c + 1)}>
-          <Pressable
-            onPress={() => {
-              console.log('pressed button');
-              setNoopPressCount((c) => c + 1);
-            }}
-            style={{ padding: 10, backgroundColor: 'red' }}
-          >
-            <Text>Tapping this SHOULD blur the focused input {noopPressCount}</Text>
-          </Pressable>
+    <DemoScreen
+      contentContainerStyle={styles.container}
+      onBackgroundTap={() => setBgPressCount((c) => c + 1)}
+    >
+      <Pressable
+        onPress={() => {
+          console.log('pressed button');
+          setNoopPressCount((c) => c + 1);
+        }}
+        style={{ padding: 10, backgroundColor: 'red' }}
+      >
+        <Text>Tapping this SHOULD blur the focused input {noopPressCount}</Text>
+      </Pressable>
 
-          <Text style={styles.title}>RN Number Input {bgPressCount}</Text>
-          <Text style={styles.subtitle}>Tap into a field, type, blur, and compare behavior.</Text>
+      <Text style={styles.title}>RN Number Input {bgPressCount}</Text>
+      <Text style={styles.subtitle}>Tap into a field, type, blur, and compare behavior.</Text>
 
-          <DemoBlock label="No rounding" initialValue={123.48} />
-          <DemoBlock label="maxDecimalPlaces=2 (displayAndOutput)" initialValue={123.48} maxDecimalPlaces={2} />
-          <DemoBlock
-            label="maxDecimalPlaces=2 (displayOnly)"
-            initialValue={123.48}
-            maxDecimalPlaces={2}
-            decimalRoundingMode="displayOnly"
-          />
-          <DemoBlock
-            label="Custom formatDisplay"
-            initialValue={1234.56}
-            maxDecimalPlaces={2}
-            formatDisplay={(n) => n.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-          />
-        </BlurOnTapCapture>
-      </DemoScreenScroll>
-    </DemoScreenShell>
+      <DemoBlock label="No rounding" initialValue={123.48} />
+      <DemoBlock label="maxDecimalPlaces=2 (displayAndOutput)" initialValue={123.48} maxDecimalPlaces={2} />
+      <DemoBlock
+        label="maxDecimalPlaces=2 (displayOnly)"
+        initialValue={123.48}
+        maxDecimalPlaces={2}
+        decimalRoundingMode="displayOnly"
+      />
+      <DemoBlock
+        label="Custom formatDisplay"
+        initialValue={1234.56}
+        maxDecimalPlaces={2}
+        formatDisplay={(n) => n.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+      />
+    </DemoScreen>
   );
 }
 
