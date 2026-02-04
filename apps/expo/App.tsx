@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Keyboard, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
 import { NumberInput } from '@rn-number-input/core';
 
 type DemoBlockProps = {
@@ -40,26 +40,43 @@ function DemoBlock({
 }
 
 export default function App() {
+  const [bgPressCount, setBgPressCount] = React.useState(0);
+
+  const blurFocusedInput = React.useCallback(() => {
+    // Works even when a hardware keyboard is connected (Keyboard.dismiss alone may do nothing).
+    // This intentionally blurs whichever TextInput is currently focused.
+    const focused = (TextInput as any).State?.currentlyFocusedInput?.();
+    focused?.blur?.();
+    Keyboard.dismiss();
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView keyboardShouldPersistTaps="never" contentContainerStyle={styles.container}>
-        <Text style={styles.title}>RN Number Input</Text>
-        <Text style={styles.subtitle}>Tap into a field, type, blur, and compare behavior.</Text>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
+        <Pressable
+          onPress={() => {
+            blurFocusedInput();
+            setBgPressCount((c) => c + 1);
+          }}
+        >
+          <Text style={styles.title}>RN Number Input {bgPressCount}</Text>
+          <Text style={styles.subtitle}>Tap into a field, type, blur, and compare behavior.</Text>
 
-        <DemoBlock label="No rounding" initialValue={123.48} />
-        <DemoBlock label="maxDecimalPlaces=2 (displayAndOutput)" initialValue={123.48} maxDecimalPlaces={2} />
-        <DemoBlock
-          label="maxDecimalPlaces=2 (displayOnly)"
-          initialValue={123.48}
-          maxDecimalPlaces={2}
-          decimalRoundingMode="displayOnly"
-        />
-        <DemoBlock
-          label="Custom formatDisplay"
-          initialValue={1234.56}
-          maxDecimalPlaces={2}
-          formatDisplay={(n) => n.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-        />
+          <DemoBlock label="No rounding" initialValue={123.48} />
+          <DemoBlock label="maxDecimalPlaces=2 (displayAndOutput)" initialValue={123.48} maxDecimalPlaces={2} />
+          <DemoBlock
+            label="maxDecimalPlaces=2 (displayOnly)"
+            initialValue={123.48}
+            maxDecimalPlaces={2}
+            decimalRoundingMode="displayOnly"
+          />
+          <DemoBlock
+            label="Custom formatDisplay"
+            initialValue={1234.56}
+            maxDecimalPlaces={2}
+            formatDisplay={(n) => n.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          />
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
