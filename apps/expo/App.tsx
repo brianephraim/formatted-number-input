@@ -71,6 +71,8 @@ export default function App() {
     [blurFocusedInput]
   );
 
+  const [noopPressCount, setNoopPressCount] = React.useState(0);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.container}>
@@ -78,10 +80,11 @@ export default function App() {
           <Pressable
             onPress={() => {
               console.log("pressed button");
+              setNoopPressCount((c) => c + 1);
             }}
             style={{ padding: 10, backgroundColor: 'red' }}
           >
-            <Text>Tapping this SHOULD blur the focused input</Text>
+            <Text>Tapping this SHOULD blur the focused input {noopPressCount}</Text>
           </Pressable>
 
           <Text style={styles.title}>RN Number Input {bgPressCount}</Text>
