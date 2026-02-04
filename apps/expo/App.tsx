@@ -44,7 +44,10 @@ export default function App() {
 
   const blurFocusedInput = React.useCallback(() => {
     // Works even when a hardware keyboard is connected (Keyboard.dismiss alone may do nothing).
-    // This intentionally blurs whichever TextInput is currently focused.
+    //
+    // React Native tracks "currently focused TextInput" globally via an internal focus manager.
+    // It’s exposed (somewhat oddly) as a static `TextInput.State.currentlyFocusedInput()` API.
+    // We use it here to blur the active input without manually wiring refs everywhere.
     const focused = (TextInput as any).State?.currentlyFocusedInput?.();
     focused?.blur?.();
     Keyboard.dismiss();
