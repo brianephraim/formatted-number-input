@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NumberInput } from '@rn-number-input/core';
+import { NumberInput, NumberInputHtmlLike } from '@rn-number-input/core';
 import { TextInput, View } from 'react-native';
 import '../App.css';
 
@@ -279,6 +279,33 @@ export default function HomePage() {
             );
           }}
         </Variants>
+      </Row>
+
+      <Row title="NumberInputHtmlLike (HTML-like props: name, id, className, disabled)">
+        <div>
+          <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 6 }}>
+            HTML-native props — inspect the DOM to see name, id, className on the input
+          </div>
+          <NumberInputHtmlLike
+            value={valueA}
+            onChangeNumber={setValueA}
+            placeholder="HTML-like input"
+            name="amount"
+            id="amount-field"
+            className="my-custom-class"
+            autoComplete="off"
+          />
+          <div style={{ marginTop: 8 }}>
+            <NumberInputHtmlLike
+              value={valueA}
+              onChangeNumber={setValueA}
+              placeholder="Disabled"
+              disabled
+              name="amount-disabled"
+            />
+          </div>
+          <Controls testIdBase="number-input-htmllike" value={valueA} setValue={setValueA} />
+        </div>
       </Row>
 
       <Row title="Custom formatDisplay (emoji separators)">

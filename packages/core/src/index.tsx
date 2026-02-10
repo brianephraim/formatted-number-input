@@ -1,5 +1,7 @@
 export { NumberInput } from './NumberInput';
 export type { NumberInputProps } from './NumberInput';
+export { NumberInputHtmlLike } from './NumberInputHtmlLike';
+export type { NumberInputHtmlLikeProps } from './NumberInputHtmlLike';
 
 // Optional exports (useful for advanced consumers / debugging)
 export { HtmlInput } from './adapters/HtmlInput';
