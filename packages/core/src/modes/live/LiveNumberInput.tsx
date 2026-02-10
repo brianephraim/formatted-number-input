@@ -124,6 +124,16 @@ export function LiveNumberInput({
     [formattedText]
   );
 
+  const handleCopy = React.useCallback((e: unknown) => {
+    const event = e as ClipboardEvent;
+    const selection = (event.target as HTMLInputElement)?.ownerDocument?.getSelection?.();
+    const text = selection?.toString() ?? '';
+    if (text && event.clipboardData) {
+      event.preventDefault();
+      event.clipboardData.setData('text/plain', text.replace(/,/g, ''));
+    }
+  }, []);
+
   const handleChangeText = React.useCallback(
     (text: string) => {
       // Normal typing or paste — the browser has already applied the keystroke.
@@ -148,6 +158,7 @@ export function LiveNumberInput({
         testID={baseTestID}
         onChangeText={handleChangeText}
         onKeyDown={handleKeyDown}
+        onCopy={handleCopy}
         onFocus={(e: unknown) => {
           setIsFocused(true);
           setFormattedText(format(displayValue));

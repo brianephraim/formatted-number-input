@@ -51,4 +51,7 @@ export type RNishInputProps = Pick<
 
   // Key event handler for live-formatting mode (comma-skipping backspace/delete).
   onKeyDown?: (e: unknown) => void;
+
+  // Copy event handler for live-formatting mode (strip commas from clipboard).
+  onCopy?: (e: unknown) => void;
 };
