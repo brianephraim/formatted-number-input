@@ -48,4 +48,7 @@ export type RNishInputProps = Pick<
 
   // Allow consuming code to pass through.
   autoComplete?: AutoCompleteProp;
+
+  // Key event handler for live-formatting mode (comma-skipping backspace/delete).
+  onKeyDown?: (e: unknown) => void;
 };

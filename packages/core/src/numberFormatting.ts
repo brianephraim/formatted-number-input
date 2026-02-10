@@ -32,6 +32,50 @@ export function formattedIndexToRawIndex(formattedText: string, formattedIndex: 
   return rawIndex;
 }
 
+function isSignificantChar(ch: string) {
+  return (ch >= '0' && ch <= '9') || ch === '.' || ch === '-';
+}
+
+export function digitsToRightOfCursor(text: string, cursorPos: number): number {
+  let count = 0;
+  for (let i = cursorPos; i < text.length; i++) {
+    if (isSignificantChar(text[i])) count++;
+  }
+  return count;
+}
+
+export function cursorPosForDigitsFromRight(text: string, digitsFromRight: number): number {
+  if (digitsFromRight <= 0) return text.length;
+
+  // Scan from the right, counting significant chars.
+  // Returns the cursor position right before the Nth significant char from the end.
+  let count = 0;
+  for (let i = text.length - 1; i >= 0; i--) {
+    if (isSignificantChar(text[i])) {
+      count++;
+      if (count === digitsFromRight) return i;
+    }
+  }
+  return 0;
+}
+
+export function findDigitToDelete(
+  text: string,
+  cursorPos: number,
+  direction: 'back' | 'forward'
+): number {
+  if (direction === 'back') {
+    for (let i = cursorPos - 1; i >= 0; i--) {
+      if (isSignificantChar(text[i])) return i;
+    }
+  } else {
+    for (let i = cursorPos; i < text.length; i++) {
+      if (isSignificantChar(text[i])) return i;
+    }
+  }
+  return -1;
+}
+
 export function sanitizeNumericText(text: string) {
   // Keep digits, dot, minus; then enforce:
   // - at most one leading '-'

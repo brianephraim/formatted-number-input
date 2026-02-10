@@ -24,7 +24,7 @@ function toDomInputMode(
 }
 
 export const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function HtmlInput(
-  { onChangeText, editable = true, style, caretHidden, inputMode, value, defaultValue, ...rest },
+  { onChangeText, editable = true, style, caretHidden, inputMode, value, defaultValue, onKeyDown, ...rest },
   ref
 ) {
   const elRef = React.useRef<HTMLInputElement | null>(null);
@@ -67,6 +67,7 @@ export const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function
       data-testid={rest.testID}
       style={css}
       onInput={(e: React.FormEvent<HTMLInputElement>) => onChangeText?.(e.currentTarget.value)}
+      onKeyDown={onKeyDown as React.KeyboardEventHandler<HTMLInputElement>}
       onFocus={(e: React.FocusEvent<HTMLInputElement>) => rest.onFocus?.(e)}
       onBlur={(e: React.FocusEvent<HTMLInputElement>) => rest.onBlur?.(e)}
       autoComplete={typeof rest.autoComplete === 'string' ? rest.autoComplete : undefined}

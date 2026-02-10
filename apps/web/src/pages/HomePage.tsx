@@ -77,6 +77,7 @@ export default function HomePage() {
   const [valueF, setValueF] = useState(1234.987654321);
   const [valueG, setValueG] = useState(1234.987654321);
   const [valueH, setValueH] = useState(1234567890.1234);
+  const [valueI, setValueI] = useState(1234567890);
 
   return (
     <div>
@@ -252,6 +253,28 @@ export default function HomePage() {
                   {...(variant === 'rn' ? { inputComponent: TextInput, wrapperComponent: View } : null)}
                 />
                 <Controls testIdBase={testIdBase} value={valueG} setValue={setValueG} />
+              </>
+            );
+          }}
+        </Variants>
+      </Row>
+
+      <Row title="showCommasWhileEditing (live formatting with commas while typing)">
+        <Variants>
+          {(variant) => {
+            const testIdBase = `number-input-livecommas-${variant}`;
+            return (
+              <>
+                <NumberInput
+                  testID={testIdBase}
+                  value={valueI}
+                  onChangeNumber={setValueI}
+                  placeholder={variant === 'rn' ? 'Live commas (rn)' : 'Live commas'}
+                  autoComplete="off"
+                  showCommasWhileEditing
+                  {...(variant === 'rn' ? { inputComponent: TextInput, wrapperComponent: View } : null)}
+                />
+                <Controls testIdBase={testIdBase} value={valueI} setValue={setValueI} />
               </>
             );
           }}

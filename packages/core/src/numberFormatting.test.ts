@@ -4,7 +4,10 @@ import {
   formattedIndexToRawIndex,
   roundToPlaces,
   sanitizeNumericText,
-  defaultFormatDisplay
+  defaultFormatDisplay,
+  digitsToRightOfCursor,
+  cursorPosForDigitsFromRight,
+  findDigitToDelete
 } from './numberFormatting';
 
 describe('numberFormatting', () => {
@@ -66,6 +69,60 @@ describe('numberFormatting', () => {
       expect(formattedIndexToRawIndex('1🔥234', 1)).toBe(1); // after '1'
       expect(formattedIndexToRawIndex('1🔥234', 3)).toBe(1); // after the emoji
       expect(formattedIndexToRawIndex('1🔥234', 4)).toBe(2); // after '2'
+    });
+  });
+
+  describe('digitsToRightOfCursor', () => {
+    it('counts significant chars to the right of cursor', () => {
+      // '1,234,567'
+      //  0123456789
+      expect(digitsToRightOfCursor('1,234,567', 0)).toBe(7); // all digits
+      expect(digitsToRightOfCursor('1,234,567', 1)).toBe(6); // after '1'
+      expect(digitsToRightOfCursor('1,234,567', 2)).toBe(6); // after ','  — comma not counted
+      expect(digitsToRightOfCursor('1,234,567', 5)).toBe(3); // after '4,'
+      expect(digitsToRightOfCursor('1,234,567', 9)).toBe(0); // end
+    });
+
+    it('counts dot and minus as significant', () => {
+      expect(digitsToRightOfCursor('-1,234.56', 0)).toBe(8); // -1234.56
+      expect(digitsToRightOfCursor('-1,234.56', 1)).toBe(7); // after '-'
+    });
+  });
+
+  describe('cursorPosForDigitsFromRight', () => {
+    it('finds position with N significant digits to the right', () => {
+      // '1,234,567' — cursor lands right before the Nth significant char from the right
+      expect(cursorPosForDigitsFromRight('1,234,567', 7)).toBe(0); // before '1'
+      expect(cursorPosForDigitsFromRight('1,234,567', 6)).toBe(2); // before '2'
+      expect(cursorPosForDigitsFromRight('1,234,567', 3)).toBe(6); // before '5'
+      expect(cursorPosForDigitsFromRight('1,234,567', 0)).toBe(9); // end
+    });
+
+    it('clamps to start if digitsFromRight exceeds total', () => {
+      expect(cursorPosForDigitsFromRight('1,234', 99)).toBe(0);
+    });
+  });
+
+  describe('findDigitToDelete', () => {
+    it('finds the digit to delete on backspace (skipping commas)', () => {
+      // '1,234,567'  cursor at index 2 (just after comma)
+      //  0123456789
+      expect(findDigitToDelete('1,234,567', 2, 'back')).toBe(0); // the '1'
+      expect(findDigitToDelete('1,234,567', 1, 'back')).toBe(0); // the '1'
+      expect(findDigitToDelete('1,234,567', 6, 'back')).toBe(4); // the '4'
+      expect(findDigitToDelete('1,234,567', 5, 'back')).toBe(4); // cursor after comma → '4'
+    });
+
+    it('finds the digit to delete on forward delete (skipping commas)', () => {
+      // '1,234,567' cursor at index 1 (just before comma)
+      expect(findDigitToDelete('1,234,567', 1, 'forward')).toBe(2); // the '2'
+      expect(findDigitToDelete('1,234,567', 2, 'forward')).toBe(2); // the '2'
+      expect(findDigitToDelete('1,234,567', 5, 'forward')).toBe(6); // the '5'
+    });
+
+    it('returns -1 when there is nothing to delete', () => {
+      expect(findDigitToDelete('1,234', 0, 'back')).toBe(-1);
+      expect(findDigitToDelete('1,234', 5, 'forward')).toBe(-1);
     });
   });
 
