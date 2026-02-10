@@ -70,6 +70,7 @@ export const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(function
       onKeyDown={onKeyDown as React.KeyboardEventHandler<HTMLInputElement>}
       onFocus={(e: React.FocusEvent<HTMLInputElement>) => rest.onFocus?.(e)}
       onBlur={(e: React.FocusEvent<HTMLInputElement>) => rest.onBlur?.(e)}
+      onSelect={(e: React.SyntheticEvent<HTMLInputElement>) => rest.onSelectionChange?.(e)}
       autoComplete={typeof rest.autoComplete === 'string' ? rest.autoComplete : undefined}
     />
   );

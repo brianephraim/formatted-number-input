@@ -34,11 +34,14 @@ export function LiveNumberInput({
   onBlur,
   ...rest
 }: ModeProps) {
+  const externalOnSelectionChange = (rest as { onSelectionChange?: (e: unknown) => void })
+    .onSelectionChange;
   const baseTestID = (rest as { testID?: string } | undefined)?.testID;
   const { containerStyle, inputTextStyle } = splitNumberInputStyle(style);
   const [isFocused, setIsFocused] = React.useState(false);
 
   const inputRef = React.useRef<InputHandle | null>(null);
+  const lastSelectionStartRef = React.useRef<number | null>(null);
 
   const displayValue =
     typeof maxDecimalPlaces === 'number' ? roundToPlaces(value, maxDecimalPlaces) : value;
@@ -70,6 +73,7 @@ export function LiveNumberInput({
       const pos = pendingCursorRef.current;
       pendingCursorRef.current = null;
       safeSetSelectionRange(inputRef.current, pos, pos);
+      lastSelectionStartRef.current = pos;
     }
   });
 
@@ -101,7 +105,8 @@ export function LiveNumberInput({
       event.preventDefault();
 
       const currentText = formattedText;
-      const cursorPos = (inputRef.current?.getSelectionStart?.() ?? currentText.length);
+      const cursorPos =
+        inputRef.current?.getSelectionStart?.() ?? lastSelectionStartRef.current ?? currentText.length;
 
       const direction = event.key === 'Backspace' ? 'back' : 'forward';
       const deleteIdx = findDigitToDelete(currentText, cursorPos, direction);
@@ -125,7 +130,8 @@ export function LiveNumberInput({
       // We need to figure out how many digits are to the right of where the cursor
       // will end up. Since `text` is the new value and the cursor is wherever the
       // browser put it, we read cursorPos from the input.
-      const cursorPos = inputRef.current?.getSelectionStart?.() ?? text.length;
+      const cursorPos =
+        inputRef.current?.getSelectionStart?.() ?? lastSelectionStartRef.current ?? text.length;
       const digitsRight = digitsToRightOfCursor(text, cursorPos);
 
       applyChange(text, digitsRight);
@@ -149,7 +155,19 @@ export function LiveNumberInput({
         }}
         onBlur={(e: unknown) => {
           setIsFocused(false);
+          lastSelectionStartRef.current = null;
           onBlur?.(e);
+        }}
+        onSelectionChange={(e: unknown) => {
+          const maybeNative = (e as { nativeEvent?: { selection?: { start?: number } } }).nativeEvent;
+          const nativeStart = maybeNative?.selection?.start;
+          const domStart = (e as { target?: { selectionStart?: number | null } }).target?.selectionStart;
+          if (typeof nativeStart === 'number') {
+            lastSelectionStartRef.current = nativeStart;
+          } else if (typeof domStart === 'number') {
+            lastSelectionStartRef.current = domStart;
+          }
+          externalOnSelectionChange?.(e);
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
         inputMode={Platform.OS === 'web' ? 'numeric' : undefined}
