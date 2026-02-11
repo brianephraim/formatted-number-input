@@ -95,6 +95,7 @@ export default function HomePage() {
               <>
                 <NumberInput
                   testID={testIdBase}
+                  accessibilityLabel="Default number input"
                   value={valueA}
                   onChangeNumber={setValueA}
                   placeholder="Enter a number"
@@ -116,6 +117,7 @@ export default function HomePage() {
               <>
                 <NumberInput
                   testID={testIdBase}
+                  accessibilityLabel="Big styled number input"
                   value={valueB}
                   onChangeNumber={setValueB}
                   placeholder="Big input"
@@ -145,6 +147,7 @@ export default function HomePage() {
               <>
                 <NumberInput
                   testID={testIdBase}
+                  accessibilityLabel="Dark theme number input"
                   value={valueC}
                   onChangeNumber={setValueC}
                   placeholder="Dark"
@@ -174,6 +177,7 @@ export default function HomePage() {
               <>
                 <NumberInput
                   testID={testIdBase}
+                  accessibilityLabel="Fixed width number input"
                   value={valueD}
                   onChangeNumber={setValueD}
                   placeholder="Fixed width"
@@ -196,6 +200,7 @@ export default function HomePage() {
               <>
                 <NumberInput
                   testID={testIdBase}
+                  accessibilityLabel="Decimals number input"
                   value={valueE}
                   onChangeNumber={setValueE}
                   placeholder={variant === 'rn' ? 'Decimals (rn)' : 'Decimals'}
@@ -219,6 +224,7 @@ export default function HomePage() {
               <>
                 <NumberInput
                   testID={testIdBase}
+                  accessibilityLabel="Display-only rounding number input"
                   value={valueF}
                   onChangeNumber={setValueF}
                   placeholder={variant === 'rn' ? 'displayOnly (rn)' : 'displayOnly'}
@@ -243,6 +249,7 @@ export default function HomePage() {
               <>
                 <NumberInput
                   testID={testIdBase}
+                  accessibilityLabel="Display-and-output rounding number input"
                   value={valueG}
                   onChangeNumber={setValueG}
                   placeholder={variant === 'rn' ? 'displayAndOutput (rn)' : 'displayAndOutput'}
@@ -267,6 +274,7 @@ export default function HomePage() {
               <>
                 <NumberInput
                   testID={testIdBase}
+                  accessibilityLabel="Live commas number input"
                   value={valueI}
                   onChangeNumber={setValueI}
                   placeholder={variant === 'rn' ? 'Live commas (rn)' : 'Live commas'}
@@ -290,6 +298,7 @@ export default function HomePage() {
             value={valueA}
             onChangeNumber={setValueA}
             placeholder="HTML-like input"
+            aria-label="HTML-like number input"
             name="amount"
             id="amount-field"
             className="my-custom-class"
@@ -300,6 +309,7 @@ export default function HomePage() {
               value={valueA}
               onChangeNumber={setValueA}
               placeholder="Disabled"
+              aria-label="Disabled HTML-like number input"
               disabled
               name="amount-disabled"
             />
@@ -316,6 +326,7 @@ export default function HomePage() {
               <>
                 <NumberInput
                   testID={testIdBase}
+                  accessibilityLabel="Emoji format number input"
                   value={valueH}
                   onChangeNumber={setValueH}
                   placeholder={variant === 'rn' ? 'Emoji format (rn)' : 'Emoji format'}

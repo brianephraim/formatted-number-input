@@ -5,6 +5,7 @@ import { DemoScreen } from './components/DemoScreen';
 
 type DemoBlockProps = {
   label: string;
+  testID: string;
   initialValue: number;
   maxDecimalPlaces?: number;
   decimalRoundingMode?: 'displayAndOutput' | 'displayOnly';
@@ -13,6 +14,7 @@ type DemoBlockProps = {
 
 function DemoBlock({
   label,
+  testID,
   initialValue,
   maxDecimalPlaces,
   decimalRoundingMode,
@@ -24,6 +26,8 @@ function DemoBlock({
     <View style={styles.block}>
       <Text style={styles.label}>{label}</Text>
       <NumberInput
+        testID={testID}
+        accessibilityLabel={label}
         value={value}
         onChangeNumber={setValue}
         inputComponent={TextInput}
@@ -62,15 +66,17 @@ export default function App() {
       <Text style={styles.title}>RN Number Input {bgPressCount}</Text>
       <Text style={styles.subtitle}>Tap into a field, type, blur, and compare behavior.</Text>
 
-      <DemoBlock label="No rounding" initialValue={123.48} />
-      <DemoBlock label="maxDecimalPlaces=2 (displayAndOutput)" initialValue={123.48} maxDecimalPlaces={2} />
+      <DemoBlock testID="no-rounding" label="No rounding" initialValue={123.48} />
+      <DemoBlock testID="display-and-output" label="maxDecimalPlaces=2 (displayAndOutput)" initialValue={123.48} maxDecimalPlaces={2} />
       <DemoBlock
+        testID="display-only"
         label="maxDecimalPlaces=2 (displayOnly)"
         initialValue={123.48}
         maxDecimalPlaces={2}
         decimalRoundingMode="displayOnly"
       />
       <DemoBlock
+        testID="custom-format"
         label="Custom formatDisplay"
         initialValue={1234.56}
         maxDecimalPlaces={2}
