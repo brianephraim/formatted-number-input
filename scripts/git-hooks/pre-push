@@ -1,0 +1,13 @@
+#!/bin/sh
+# Prevent push unless `npm run testall` succeeds.
+# Run from repo root (git passes no PWD guarantee).
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+echo "Running testall (format, typecheck, lint, tests, e2e, build) before push..."
+if ! npm run testall; then
+  echo ""
+  echo "Push aborted: testall failed. Fix issues above and try again."
+  exit 1
+fi
+exit 0
