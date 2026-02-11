@@ -33,3 +33,4 @@ apps/web/.vite
 test-results
 playwright-report
 
+.claude
