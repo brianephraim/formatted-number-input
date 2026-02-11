@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import fs from 'node:fs';
 
 type Variant =
@@ -8,7 +8,17 @@ type Variant =
   | 'html-controlled-string'
   | 'rn-controlled-string';
 
-async function focusBenchInput(page: any, variant: string) {
+interface BenchResult {
+  variant: string;
+  label: string;
+  msPerChar: { mean: number };
+  eventToRaf: { n: number; min: number; max: number; mean: number; median: number; p95: number };
+  reactCommit: { commits: number; n: number; min: number; max: number; mean: number; median: number; p95: number };
+  longTasks: number;
+  [key: string]: unknown;
+}
+
+async function focusBenchInput(page: Page, variant: string) {
   // NumberInput: click overlay to forward focus.
   const display = page.getByTestId('bench-input__display');
   if (await display.count()) {
@@ -28,7 +38,7 @@ async function focusBenchInput(page: any, variant: string) {
   return input;
 }
 
-async function clearInput(page: any) {
+async function clearInput(page: Page) {
   await page.keyboard.press('Meta+A');
   await page.keyboard.press('Backspace');
 }
@@ -44,7 +54,7 @@ test('benchmark run (automated): collects metrics for key variants', async ({ pa
   await page.getByTestId('bench-stress').uncheck();
 
   const variants: Variant[] = ['html-controlled-number', 'rn-controlled-number', 'number-input'];
-  const outputs: any[] = [];
+  const outputs: BenchResult[] = [];
 
   for (const variant of variants) {
     await page.getByTestId('bench-variant').selectOption(variant);
@@ -63,7 +73,8 @@ test('benchmark run (automated): collects metrics for key variants', async ({ pa
 
     // Let pending requestAnimationFrame samples flush.
     await page.evaluate(async () => {
-      const api = (window as any).__NUMBER_INPUT_BENCH__;
+      type BenchAPI = { flushRaf?: (n: number) => Promise<void> };
+      const api = (globalThis as Record<string, unknown>).__NUMBER_INPUT_BENCH__ as BenchAPI | undefined;
       if (api?.flushRaf) await api.flushRaf(3);
     });
 
@@ -72,7 +83,7 @@ test('benchmark run (automated): collects metrics for key variants', async ({ pa
     const text = await page.getByTestId('bench-results').textContent();
     expect(text).toBeTruthy();
 
-    const parsed = JSON.parse(text!);
+    const parsed: BenchResult = JSON.parse(text!);
 
     // Sanity: ensure we are actually recording measurements.
     expect(parsed.variant).toBe(variant);

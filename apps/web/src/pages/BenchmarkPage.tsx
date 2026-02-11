@@ -9,6 +9,7 @@ type Variant =
   | 'rn-controlled-number'
   | 'number-input';
 
+
 const VARIANT_LABEL: Record<Variant, string> = {
   'number-input': 'NumberInput',
   'html-controlled-number': 'HTML input (controlled number)',
@@ -85,6 +86,27 @@ function summarize(sample: BenchSample) {
   };
 }
 
+type BenchSummary = ReturnType<typeof summarize>;
+
+interface BenchAPI {
+  reset: () => void;
+  startRecording: () => void;
+  stopRecording: () => BenchSummary;
+  flushRaf: (count?: number) => Promise<void>;
+  runAutomatedInPage: (variantOverride?: Variant) => Promise<BenchSummary>;
+  runSuiteInPage: () => Promise<void>;
+  getResults: () => BenchSummary | null;
+  getSuiteResults: () => BenchSummary[] | null;
+}
+
+declare global {
+  interface Window {
+    __NUMBER_INPUT_BENCH__?: BenchAPI;
+  }
+}
+
+type ScoredSummary = BenchSummary & { score: number };
+
 class BenchCollector {
   eventToRafMs: number[] = [];
   reactCommitMs: number[] = [];
@@ -105,7 +127,7 @@ class BenchCollector {
             if (entry.entryType === 'longtask') this.longTasks += 1;
           }
         });
-        (this.observer as unknown as PerformanceObserver).observe({ entryTypes: ['longtask'] as any });
+        this.observer.observe({ entryTypes: ['longtask'] });
       } catch {
         // ignore
       }
@@ -165,8 +187,8 @@ export default function BenchmarkPage() {
   const [payload, setPayload] = React.useState('1234567890'.repeat(25));
   const [iterations, setIterations] = React.useState(10);
   const [active, setActive] = React.useState<Variant>('number-input');
-  const [results, setResults] = React.useState<object | null>(null);
-  const [suiteResults, setSuiteResults] = React.useState<object[] | null>(null);
+  const [results, setResults] = React.useState<BenchSummary | null>(null);
+  const [suiteResults, setSuiteResults] = React.useState<BenchSummary[] | null>(null);
   const [suiteRunning, setSuiteRunning] = React.useState(false);
 
   // States for each variant (keep separate so switching variants doesn't accidentally reuse state)
@@ -180,32 +202,6 @@ export default function BenchmarkPage() {
 
   const collectorRef = React.useRef(new BenchCollector());
 
-  // Expose a small API for Playwright: reset state + control recording.
-  React.useEffect(() => {
-    (window as any).__NUMBER_INPUT_BENCH__ = {
-      reset: () => {
-        setHtmlText('');
-        setHtmlNum(0);
-        setRnText('');
-        setRnNum(0);
-        setNumValue(0);
-        setResults(null);
-        setSuiteResults(null);
-      },
-      startRecording,
-      stopRecording,
-      flushRaf: async (count: number = 2) => {
-        for (let i = 0; i < count; i++) {
-          await new Promise((r) => requestAnimationFrame(() => r(null)));
-        }
-      },
-      runAutomatedInPage,
-      runSuiteInPage,
-      getResults: () => results,
-      getSuiteResults: () => suiteResults
-    };
-  }, [results, suiteResults]);
-
   const onProfilerRender = React.useCallback((actualDuration: number) => {
     collectorRef.current.onReactCommit(actualDuration);
   }, []);
@@ -218,6 +214,20 @@ export default function BenchmarkPage() {
 
   const [isRecording, setIsRecording] = React.useState(false);
   const startedAtRef = React.useRef<number | null>(null);
+
+  function getBenchDomInput(): HTMLInputElement | HTMLTextAreaElement | null {
+    // For NumberInput + HTML variants, the element is directly tagged.
+    const direct = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+      `[data-testid="bench-input"]`
+    );
+
+    // For react-native-web TextInput, testID can land on a wrapper. Use a wrapper
+    // testid and query its actual editable element.
+    const wrap = document.querySelector<HTMLElement>(`[data-testid="bench-input-wrap"]`);
+    const nested = wrap?.querySelector<HTMLInputElement | HTMLTextAreaElement>('input,textarea') ?? null;
+
+    return nested ?? direct;
+  }
 
   function startRecording() {
     collectorRef.current.start();
@@ -251,7 +261,18 @@ export default function BenchmarkPage() {
     return summary;
   }
 
-  async function runAutomatedInPage(variantOverride?: Variant): Promise<any> {
+  function score(summary: BenchSummary): number {
+    // Lower is better.
+    // Heuristic: prioritize tail-ish responsiveness + long tasks.
+    return (
+      2 * summary.msPerChar.mean +
+      summary.eventToRaf.p95 +
+      summary.reactCommit.p95 +
+      15 * summary.longTasks
+    );
+  }
+
+  async function runAutomatedInPage(variantOverride?: Variant): Promise<BenchSummary> {
     // Less-credible helper for quick manual testing.
     // Note: uses programmatic input events; prefer Playwright for credibility.
     const input = getBenchDomInput();
@@ -277,23 +298,11 @@ export default function BenchmarkPage() {
     await new Promise((r) => requestAnimationFrame(() => r(null)));
     await new Promise((r) => requestAnimationFrame(() => r(null)));
 
-    const summary = stopRecording() as any;
+    const summary = stopRecording();
     if (variantOverride) {
-      summary.variant = variantOverride;
-      summary.label = VARIANT_LABEL[variantOverride];
+      return { ...summary, variant: variantOverride, label: VARIANT_LABEL[variantOverride] };
     }
     return summary;
-  }
-
-  function score(summary: any): number {
-    // Lower is better.
-    // Heuristic: prioritize tail-ish responsiveness + long tasks.
-    return (
-      2 * (summary?.msPerChar?.mean ?? 0) +
-      (summary?.eventToRaf?.p95 ?? 0) +
-      (summary?.reactCommit?.p95 ?? 0) +
-      15 * (summary?.longTasks ?? 0)
-    );
   }
 
   async function runSuiteInPage() {
@@ -302,7 +311,7 @@ export default function BenchmarkPage() {
     setSuiteResults(null);
 
     const variants: Variant[] = ['html-controlled-number', 'rn-controlled-number', 'number-input'];
-    const collected: any[] = [];
+    const collected: BenchSummary[] = [];
 
     for (const v of variants) {
       setActive(v);
@@ -330,23 +339,54 @@ export default function BenchmarkPage() {
     setSuiteRunning(false);
   }
 
-  function getBenchDomInput(): HTMLInputElement | HTMLTextAreaElement | null {
-    // For NumberInput + HTML variants, the element is directly tagged.
-    const direct = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-      `[data-testid="bench-input"]`
-    );
+  // Expose a small API for Playwright: reset state + control recording.
+  // Use a ref so the effect doesn't re-run on every render (these functions
+  // capture component state via closure and are intentionally recreated).
+  const benchApiRef = React.useRef<BenchAPI | null>(null);
+  React.useEffect(() => {
+    benchApiRef.current = {
+      reset: () => {
+        setHtmlText('');
+        setHtmlNum(0);
+        setRnText('');
+        setRnNum(0);
+        setNumValue(0);
+        setResults(null);
+        setSuiteResults(null);
+      },
+      startRecording,
+      stopRecording,
+      flushRaf: async (count: number = 2) => {
+        for (let i = 0; i < count; i++) {
+          await new Promise((r) => requestAnimationFrame(() => r(null)));
+        }
+      },
+      runAutomatedInPage,
+      runSuiteInPage,
+      getResults: () => results,
+      getSuiteResults: () => suiteResults
+    };
+  });
 
-    // For react-native-web TextInput, testID can land on a wrapper. Use a wrapper
-    // testid and query its actual editable element.
-    const wrap = document.querySelector<HTMLElement>(`[data-testid="bench-input-wrap"]`);
-    const nested = wrap?.querySelector<HTMLInputElement | HTMLTextAreaElement>('input,textarea') ?? null;
-
-    return nested ?? direct;
-  }
+  React.useEffect(() => {
+    window.__NUMBER_INPUT_BENCH__ = {
+      reset: (...args) => benchApiRef.current!.reset(...args),
+      startRecording: (...args) => benchApiRef.current!.startRecording(...args),
+      stopRecording: (...args) => benchApiRef.current!.stopRecording(...args),
+      flushRaf: (...args) => benchApiRef.current!.flushRaf(...args),
+      runAutomatedInPage: (...args) => benchApiRef.current!.runAutomatedInPage(...args),
+      runSuiteInPage: (...args) => benchApiRef.current!.runSuiteInPage(...args),
+      getResults: (...args) => benchApiRef.current!.getResults(...args),
+      getSuiteResults: (...args) => benchApiRef.current!.getSuiteResults(...args),
+    };
+  }, []);
 
   // Controlled components (render only the active one to keep apples-to-apples)
   const benchInput = (() => {
-    const commonStyle = {
+    // Style shared across all benchmark variants. Typed as Record<string, unknown>
+    // because these CSS properties don't align with RN's StyleProp<TextStyle>
+    // (e.g. 'border' shorthand, 'boxSizing'). react-native-web handles them at runtime.
+    const commonStyle: Record<string, unknown> = {
       width: '100%',
       fontSize: 16,
       padding: '10px 12px',
@@ -354,7 +394,7 @@ export default function BenchmarkPage() {
       border: '1px solid #555',
       background: '#111',
       color: '#eee',
-      boxSizing: 'border-box' as const
+      boxSizing: 'border-box',
     };
 
     switch (active) {
@@ -396,7 +436,7 @@ export default function BenchmarkPage() {
             <View>
               <TextInput
                 testID="bench-input"
-                style={commonStyle as any}
+                style={commonStyle}
                 value={rnText}
                 onChangeText={(t) => {
                   collectorRef.current.markInputEvent();
@@ -413,7 +453,7 @@ export default function BenchmarkPage() {
             <View>
               <TextInput
                 testID="bench-input"
-                style={commonStyle as any}
+                style={commonStyle}
                 value={formatNum(rnNum)}
                 onChangeText={(t) => {
                   collectorRef.current.markInputEvent();
@@ -597,16 +637,14 @@ export default function BenchmarkPage() {
             <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6 }}>Ranking (lower score = better)</div>
             <ol style={{ marginTop: 0 }}>
               {[...suiteResults]
-                .map((r: any) => ({ ...r, score: score(r) }))
-                .sort((a: any, b: any) => a.score - b.score)
-                .map((r: any) => (
+                .map((r): ScoredSummary => ({ ...r, score: score(r) }))
+                .sort((a, b) => a.score - b.score)
+                .map((r) => (
                   <li key={r.variant}>
-                    <b>{r.label ?? r.variant}</b> — <b>score {Number(r.score).toFixed(2)}</b>
+                    <b>{r.label}</b> — <b>score {r.score.toFixed(2)}</b>
                     <div style={{ fontSize: 12, opacity: 0.8 }}>
-                      ms/char avg: {Number(r.msPerChar?.mean ?? 0).toFixed(2)}; event→rAF mean/min/max: {Number(
-                        r.eventToRaf?.mean ?? 0
-                      ).toFixed(2)} / {Number(r.eventToRaf?.min ?? 0).toFixed(2)} / {Number(r.eventToRaf?.max ?? 0).toFixed(2)};
-                      react commit p95: {Number(r.reactCommit?.p95 ?? 0).toFixed(2)}; longTasks: {r.longTasks}
+                      ms/char avg: {r.msPerChar.mean.toFixed(2)}; event→rAF mean/min/max: {r.eventToRaf.mean.toFixed(2)} / {r.eventToRaf.min.toFixed(2)} / {r.eventToRaf.max.toFixed(2)};
+                      react commit p95: {r.reactCommit.p95.toFixed(2)}; longTasks: {r.longTasks}
                     </div>
                   </li>
                 ))}
@@ -615,7 +653,7 @@ export default function BenchmarkPage() {
             <div style={{ fontSize: 12, opacity: 0.85, marginTop: 10, marginBottom: 6 }}>Scores (unsorted)</div>
             <ul style={{ marginTop: 0 }}>
               {[...suiteResults]
-                .map((r: any) => ({ label: r.label ?? r.variant, score: score(r) }))
+                .map((r) => ({ label: r.label, score: score(r) }))
                 .map((r) => (
                   <li key={r.label}>
                     <code>{r.label}</code>: <b>{r.score.toFixed(2)}</b>
@@ -629,7 +667,7 @@ export default function BenchmarkPage() {
           {suiteResults
             ? JSON.stringify(
                 {
-                  suite: suiteResults.map((r: any) => ({ ...r, score: score(r) }))
+                  suite: suiteResults.map((r): ScoredSummary => ({ ...r, score: score(r) }))
                 },
                 null,
                 2
