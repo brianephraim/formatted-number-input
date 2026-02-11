@@ -3,10 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
+  "workspaces": ["packages/*", "apps/*"],
   "scripts": {
     "dev:web": "npm -w @demo/web run dev",
     "dev:docs": "npm -w @demo/docs run dev",
@@ -17,11 +14,14 @@
     "deploy:docs": "npm run build:docs && gh-pages -d apps/docs/.vitepress/dist --nojekyll",
     "typecheck": "npm -w @formatted-number-input/core run typecheck && npm -w @demo/web run typecheck",
     "lint": "npm -w @formatted-number-input/core run lint && npm -w @demo/web run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test:core": "npm -w @formatted-number-input/core run test",
     "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.1",
-    "gh-pages": "^6.3.0"
+    "gh-pages": "^6.3.0",
+    "prettier": "^3.4.2"
   }
 }
