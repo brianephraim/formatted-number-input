@@ -20,13 +20,12 @@ export function DemoScreen({
   children,
   contentContainerStyle,
   onBackgroundTap,
-  enabledBlurOnTap = true
+  enabledBlurOnTap = true,
 }: DemoScreenProps) {
   return (
     <DemoScreenShell>
       <DemoScreenScroll contentContainerStyle={contentContainerStyle}>
-
-          {children}
+        {children}
       </DemoScreenScroll>
     </DemoScreenShell>
   );

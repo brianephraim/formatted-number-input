@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-test('rounding: displayAndOutput rounds the emitted value as you type', async ({ page }) => {
+test('rounding: displayAndOutput rounds the emitted value as you type', async ({
+  page,
+}) => {
   await page.goto('/');
 
   const input = page.getByTestId('number-input-decimals-html');
@@ -19,7 +21,9 @@ test('rounding: displayAndOutput rounds the emitted value as you type', async ({
   await expect(readout).toContainText('1.24');
 });
 
-test('rounding: displayOnly does not round the emitted value (but overlay will round on blur)', async ({ page }) => {
+test('rounding: displayOnly does not round the emitted value (but overlay will round on blur)', async ({
+  page,
+}) => {
   await page.goto('/');
 
   const input = page.getByTestId('number-input-displayonly-html');

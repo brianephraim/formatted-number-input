@@ -4,10 +4,7 @@
     "slug": "formatted-number-input",
     "version": "0.1.0",
     "orientation": "portrait",
-    "platforms": [
-      "ios",
-      "web"
-    ],
+    "platforms": ["ios", "web"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.formatted-number-input"

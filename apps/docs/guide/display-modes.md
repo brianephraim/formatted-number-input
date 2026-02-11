@@ -13,7 +13,11 @@ Commas are shown only when the input is **blurred**. While focused, the user typ
 ## Live formatting mode
 
 ```tsx
-<FormattedNumberInput value={value} onChangeNumber={setValue} showCommasWhileEditing />
+<FormattedNumberInput
+  value={value}
+  onChangeNumber={setValue}
+  showCommasWhileEditing
+/>
 ```
 
 Commas remain visible **while the user is typing**. The `onChangeNumber` callback still receives a plain number (no commas).

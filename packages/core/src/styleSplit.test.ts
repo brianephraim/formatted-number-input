@@ -16,7 +16,7 @@ describe('splitFormattedNumberInputStyle', () => {
       borderRadius: 10,
       backgroundColor: 'black',
       marginTop: 5,
-      width: 300
+      width: 300,
     });
 
     expect(inputTextStyle).toMatchObject({
@@ -24,7 +24,7 @@ describe('splitFormattedNumberInputStyle', () => {
       fontSize: 20,
       textAlign: 'right',
       paddingHorizontal: 12,
-      paddingVertical: 8
+      paddingVertical: 8,
     });
 
     expect(containerStyle).toMatchObject({
@@ -32,17 +32,21 @@ describe('splitFormattedNumberInputStyle', () => {
       borderRadius: 10,
       backgroundColor: 'black',
       marginTop: 5,
-      width: 300
+      width: 300,
     });
   });
 
   it('does not include undefined values', () => {
     const { inputTextStyle } = splitFormattedNumberInputStyle({
       color: undefined,
-      padding: undefined
+      padding: undefined,
     });
 
-    expect(Object.prototype.hasOwnProperty.call(inputTextStyle, 'color')).toBe(false);
-    expect(Object.prototype.hasOwnProperty.call(inputTextStyle, 'padding')).toBe(false);
+    expect(Object.prototype.hasOwnProperty.call(inputTextStyle, 'color')).toBe(
+      false
+    );
+    expect(
+      Object.prototype.hasOwnProperty.call(inputTextStyle, 'padding')
+    ).toBe(false);
   });
 });

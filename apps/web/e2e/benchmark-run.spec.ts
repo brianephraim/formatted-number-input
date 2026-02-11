@@ -12,8 +12,23 @@ interface BenchResult {
   variant: string;
   label: string;
   msPerChar: { mean: number };
-  eventToRaf: { n: number; min: number; max: number; mean: number; median: number; p95: number };
-  reactCommit: { commits: number; n: number; min: number; max: number; mean: number; median: number; p95: number };
+  eventToRaf: {
+    n: number;
+    min: number;
+    max: number;
+    mean: number;
+    median: number;
+    p95: number;
+  };
+  reactCommit: {
+    commits: number;
+    n: number;
+    min: number;
+    max: number;
+    mean: number;
+    median: number;
+    p95: number;
+  };
   longTasks: number;
   [key: string]: unknown;
 }
@@ -28,7 +43,10 @@ async function focusBenchInput(page: Page, variant: string) {
   // react-native-web TextInput: testID may be applied to a wrapper, so type into
   // the nested DOM <input>/<textarea>.
   if (variant.startsWith('rn-')) {
-    const dom = page.getByTestId('bench-input-wrap').locator('input,textarea').first();
+    const dom = page
+      .getByTestId('bench-input-wrap')
+      .locator('input,textarea')
+      .first();
     await dom.click();
     return dom;
   }
@@ -43,7 +61,9 @@ async function clearInput(page: Page) {
   await page.keyboard.press('Backspace');
 }
 
-test('benchmark run (automated): collects metrics for key variants', async ({ page }, testInfo) => {
+test('benchmark run (automated): collects metrics for key variants', async ({
+  page,
+}, testInfo) => {
   await page.goto('/#/benchmark');
 
   const payload = '1234567890'.repeat(20); // 200 chars
@@ -53,7 +73,11 @@ test('benchmark run (automated): collects metrics for key variants', async ({ pa
   await page.getByTestId('bench-iterations').fill(String(iterations));
   await page.getByTestId('bench-stress').uncheck();
 
-  const variants: Variant[] = ['html-controlled-number', 'rn-controlled-number', 'number-input'];
+  const variants: Variant[] = [
+    'html-controlled-number',
+    'rn-controlled-number',
+    'number-input',
+  ];
   const outputs: BenchResult[] = [];
 
   for (const variant of variants) {
@@ -74,7 +98,8 @@ test('benchmark run (automated): collects metrics for key variants', async ({ pa
     // Let pending requestAnimationFrame samples flush.
     await page.evaluate(async () => {
       type BenchAPI = { flushRaf?: (n: number) => Promise<void> };
-      const api = (globalThis as Record<string, unknown>).__NUMBER_INPUT_BENCH__ as BenchAPI | undefined;
+      const api = (globalThis as Record<string, unknown>)
+        .__NUMBER_INPUT_BENCH__ as BenchAPI | undefined;
       if (api?.flushRaf) await api.flushRaf(3);
     });
 
@@ -106,7 +131,7 @@ test('benchmark run (automated): collects metrics for key variants', async ({ pa
         createdAt: new Date().toISOString(),
         payloadLen: payload.length,
         iterations,
-        results: outputs
+        results: outputs,
       },
       null,
       2

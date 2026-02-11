@@ -14,14 +14,14 @@ export default function PermutationsPage() {
     () => parseCheckedFromParams(searchParams, 'web'),
     // Only compute once on mount — URL params are the initial state
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    []
   );
 
   const handleCheckedChange = useCallback(
     (checked: CheckedState) => {
       setSearchParams(checkedToParams(checked, 'web'), { replace: true });
     },
-    [setSearchParams],
+    [setSearchParams]
   );
 
   return (

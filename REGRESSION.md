@@ -3,6 +3,7 @@
 This document is a manual regression checklist for the web demo (`apps/web`) that exercises the core behaviors of the `@formatted-number-input/core` `FormattedNumberInput` component.
 
 It is designed to be executable by a human (or later automated with Playwright), and covers:
+
 - the overlay (DisplayInput) vs TypingInput model
 - controlled updates
 - style splitting
@@ -10,6 +11,7 @@ It is designed to be executable by a human (or later automated with Playwright),
 - caret mapping from formatted display to raw typing input (web)
 
 > Notes
+>
 > - Many behaviors (caret/selection mapping) are inherently web/DOM-specific. We currently test these in the Vite dev demo.
 > - JavaScript `number` precision and `Intl.NumberFormat` fraction digit limits mean “unlimited decimals” is not truly possible.
 
@@ -87,6 +89,7 @@ Goal: ensure the TypingInput key (`remountKeyForTypingInput`) does **not** updat
 ## 5) Rounding modes: correctness
 
 ### 5A) Default mode (Decimals… default mode = displayAndOutput)
+
 Props: `maxDecimalPlaces=2`, `decimalRoundingMode` default.
 
 1. Focus input.
@@ -97,11 +100,13 @@ Props: `maxDecimalPlaces=2`, `decimalRoundingMode` default.
 6. Refocus.
 
 **Pass:**
+
 - While focused, TypingInput does **not** snap/round mid-typing.
 - While typing, emitted `onChangeNumber` output is rounded to 2 places.
 - After blur → refocus, TypingInput is reseeded from the rounded value (long decimals should not reappear).
 
 ### 5B) displayOnly mode
+
 Props: `maxDecimalPlaces=2`, `decimalRoundingMode="displayOnly"`.
 
 1. Click “set to 1234.987654321”.
@@ -112,6 +117,7 @@ Props: `maxDecimalPlaces=2`, `decimalRoundingMode="displayOnly"`.
 **Pass:** display rounds; output/state does not.
 
 ### 5C) displayAndOutput explicit mode
+
 Props: `maxDecimalPlaces=2`, `decimalRoundingMode="displayAndOutput"`.
 
 1. Type a value with many decimals.
@@ -139,14 +145,16 @@ Goal: ensure non-decimal examples do not truncate to 3 decimals due to `toLocale
 Goal: clicking on formatted overlay should place caret correctly in raw TypingInput.
 
 ### 7A) Commas + right aligned
+
 1. Use an input that shows commas and is `textAlign: 'right'` (e.g. fixed-width example).
 2. Blur so overlay is visible.
-3. Click *between* two digits (e.g. just after a `3`).
+3. Click _between_ two digits (e.g. just after a `3`).
 4. Verify TypingInput focuses and caret is placed near that position (not always at end; not consistently off-by-one).
 
 **Pass:** caret placement matches click intent; not systematically shifted by commas.
 
 ### 7B) Emoji separator formatting
+
 1. Use the “Custom formatDisplay (emoji separators)” row.
 2. Blur so emoji separators are visible.
 3. Click near an emoji separator between digits.
@@ -182,6 +190,7 @@ Goal: clicking on formatted overlay should place caret correctly in raw TypingIn
 ## Optional future automation notes (Playwright)
 
 Candidate automation targets:
+
 - button click → assert readout text
 - focus/blur → overlay present/absent
 - basic typing → assert readout

@@ -14,13 +14,18 @@ function flattenStyle(style: unknown): StyleObject {
   // unit-test-friendly in Node environments.
   if (!style) return {};
   if (Array.isArray(style)) {
-    return style.reduce<StyleObject>((acc, item) => ({ ...acc, ...flattenStyle(item) }), {});
+    return style.reduce<StyleObject>(
+      (acc, item) => ({ ...acc, ...flattenStyle(item) }),
+      {}
+    );
   }
   if (typeof style === 'object') return style as StyleObject;
   return {};
 }
 
-export function splitFormattedNumberInputStyle(style: TextInputProps['style']): {
+export function splitFormattedNumberInputStyle(
+  style: TextInputProps['style']
+): {
   containerStyle: StyleObject;
   inputTextStyle: StyleObject;
 } {
@@ -82,7 +87,7 @@ export function splitFormattedNumberInputStyle(style: TextInputProps['style']): 
     paddingBottom,
     paddingLeft,
     paddingHorizontal,
-    paddingVertical
+    paddingVertical,
   });
 
   return { containerStyle, inputTextStyle };

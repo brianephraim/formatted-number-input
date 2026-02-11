@@ -21,7 +21,7 @@ import { FormattedNumberInput } from '@formatted-number-input/core';
 
 const [value, setValue] = useState(1234567);
 
-<FormattedNumberInput value={value} onChangeNumber={setValue} />
+<FormattedNumberInput value={value} onChangeNumber={setValue} />;
 ```
 
 ## Features

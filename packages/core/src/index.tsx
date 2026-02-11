@@ -12,5 +12,5 @@ export type {
   WrapperProps,
   InputComponent,
   RNishInputProps,
-  RNPointerEvents
+  RNPointerEvents,
 } from './adapters/types';

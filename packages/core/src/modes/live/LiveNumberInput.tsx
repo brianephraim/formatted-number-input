@@ -10,7 +10,7 @@ import {
   sanitizeNumericText,
   digitsToRightOfCursor,
   cursorPosForDigitsFromRight,
-  findDigitToDelete
+  findDigitToDelete,
 } from '../../numberFormatting';
 import { splitFormattedNumberInputStyle } from '../../styleSplit';
 import type { ModeProps } from '../types';
@@ -34,17 +34,21 @@ export function LiveNumberInput({
   onBlur,
   ...rest
 }: ModeProps) {
-  const externalOnSelectionChange = (rest as { onSelectionChange?: (e: unknown) => void })
-    .onSelectionChange;
+  const externalOnSelectionChange = (
+    rest as { onSelectionChange?: (e: unknown) => void }
+  ).onSelectionChange;
   const baseTestID = (rest as { testID?: string } | undefined)?.testID;
-  const { containerStyle, inputTextStyle } = splitFormattedNumberInputStyle(style);
+  const { containerStyle, inputTextStyle } =
+    splitFormattedNumberInputStyle(style);
   const [isFocused, setIsFocused] = React.useState(false);
 
   const inputRef = React.useRef<InputHandle | null>(null);
   const lastSelectionStartRef = React.useRef<number | null>(null);
 
   const displayValue =
-    typeof maxDecimalPlaces === 'number' ? roundToPlaces(value, maxDecimalPlaces) : value;
+    typeof maxDecimalPlaces === 'number'
+      ? roundToPlaces(value, maxDecimalPlaces)
+      : value;
 
   const format = React.useCallback(
     (n: number) => {
@@ -55,7 +59,9 @@ export function LiveNumberInput({
   );
 
   // Internal formatted text state — only used while focused.
-  const [formattedText, setFormattedText] = React.useState(() => format(displayValue));
+  const [formattedText, setFormattedText] = React.useState(() =>
+    format(displayValue)
+  );
 
   // Pending cursor position to apply after render.
   const pendingCursorRef = React.useRef<number | null>(null);
@@ -83,7 +89,8 @@ export function LiveNumberInput({
     if (Number.isNaN(next)) return;
 
     const outputValue =
-      typeof maxDecimalPlaces === 'number' && decimalRoundingMode === 'displayAndOutput'
+      typeof maxDecimalPlaces === 'number' &&
+      decimalRoundingMode === 'displayAndOutput'
         ? roundToPlaces(next, maxDecimalPlaces)
         : next;
 
@@ -91,10 +98,15 @@ export function LiveNumberInput({
 
     // Reformat and compute cursor.
     const newFormatted = format(
-      typeof maxDecimalPlaces === 'number' ? roundToPlaces(next, maxDecimalPlaces) : next
+      typeof maxDecimalPlaces === 'number'
+        ? roundToPlaces(next, maxDecimalPlaces)
+        : next
     );
     setFormattedText(newFormatted);
-    pendingCursorRef.current = cursorPosForDigitsFromRight(newFormatted, digitsRight);
+    pendingCursorRef.current = cursorPosForDigitsFromRight(
+      newFormatted,
+      digitsRight
+    );
   }
 
   const handleKeyDown = React.useCallback(
@@ -106,7 +118,9 @@ export function LiveNumberInput({
 
       const currentText = formattedText;
       const cursorPos =
-        inputRef.current?.getSelectionStart?.() ?? lastSelectionStartRef.current ?? currentText.length;
+        inputRef.current?.getSelectionStart?.() ??
+        lastSelectionStartRef.current ??
+        currentText.length;
 
       const direction = event.key === 'Backspace' ? 'back' : 'forward';
       const deleteIdx = findDigitToDelete(currentText, cursorPos, direction);
@@ -116,7 +130,8 @@ export function LiveNumberInput({
       const digitsRight = digitsToRightOfCursor(currentText, deleteIdx + 1);
 
       // Remove the character at deleteIdx from the raw (non-formatted) representation.
-      const rawText = currentText.slice(0, deleteIdx) + currentText.slice(deleteIdx + 1);
+      const rawText =
+        currentText.slice(0, deleteIdx) + currentText.slice(deleteIdx + 1);
 
       applyChange(rawText, digitsRight);
     },
@@ -126,7 +141,9 @@ export function LiveNumberInput({
 
   const handleCopy = React.useCallback((e: unknown) => {
     const event = e as ClipboardEvent;
-    const selection = (event.target as HTMLInputElement)?.ownerDocument?.getSelection?.();
+    const selection = (
+      event.target as HTMLInputElement
+    )?.ownerDocument?.getSelection?.();
     const text = selection?.toString() ?? '';
     if (text && event.clipboardData) {
       event.preventDefault();
@@ -141,7 +158,9 @@ export function LiveNumberInput({
       // will end up. Since `text` is the new value and the cursor is wherever the
       // browser put it, we read cursorPos from the input.
       const cursorPos =
-        inputRef.current?.getSelectionStart?.() ?? lastSelectionStartRef.current ?? text.length;
+        inputRef.current?.getSelectionStart?.() ??
+        lastSelectionStartRef.current ??
+        text.length;
       const digitsRight = digitsToRightOfCursor(text, cursorPos);
 
       applyChange(text, digitsRight);
@@ -170,9 +189,13 @@ export function LiveNumberInput({
           onBlur?.(e);
         }}
         onSelectionChange={(e: unknown) => {
-          const maybeNative = (e as { nativeEvent?: { selection?: { start?: number } } }).nativeEvent;
+          const maybeNative = (
+            e as { nativeEvent?: { selection?: { start?: number } } }
+          ).nativeEvent;
           const nativeStart = maybeNative?.selection?.start;
-          const domStart = (e as { target?: { selectionStart?: number | null } }).target?.selectionStart;
+          const domStart = (
+            e as { target?: { selectionStart?: number | null } }
+          ).target?.selectionStart;
           if (typeof nativeStart === 'number') {
             lastSelectionStartRef.current = nativeStart;
           } else if (typeof domStart === 'number') {

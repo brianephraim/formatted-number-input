@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-test('invalid characters: letters do not reappear after blur/refocus (reseeds on blur)', async ({ page }) => {
+test('invalid characters: letters do not reappear after blur/refocus (reseeds on blur)', async ({
+  page,
+}) => {
   await page.goto('/');
 
   const input = page.getByTestId('number-input-default-html');

@@ -58,7 +58,7 @@ export function SimpleTextInputsScreen({
   onGoToPermutations,
 }: SimpleTextInputsScreenProps) {
   const [values, setValues] = useState<string[]>(() =>
-    INPUTS.map((input) => input.defaultValue),
+    INPUTS.map((input) => input.defaultValue)
   );
 
   const updateValue = (index: number, next: string) => {

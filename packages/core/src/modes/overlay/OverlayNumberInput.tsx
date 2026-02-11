@@ -3,12 +3,16 @@ import { Platform, StyleSheet } from 'react-native';
 import { DivWrapper } from '../../adapters/DivWrapper';
 import { HtmlInput } from '../../adapters/HtmlInput';
 import type { InputHandle } from '../../adapters/types';
-import { safeFocus, safeGetSelectionStart, safeSetSelectionRange } from '../../safeSelection';
+import {
+  safeFocus,
+  safeGetSelectionStart,
+  safeSetSelectionRange,
+} from '../../safeSelection';
 import {
   defaultFormatDisplay,
   formattedIndexToRawIndex,
   roundToPlaces,
-  sanitizeNumericText
+  sanitizeNumericText,
 } from '../../numberFormatting';
 import { splitFormattedNumberInputStyle } from '../../styleSplit';
 import type { ModeProps } from '../types';
@@ -34,7 +38,8 @@ export function OverlayNumberInput({
   ...rest
 }: ModeProps) {
   const baseTestID = (rest as { testID?: string } | undefined)?.testID;
-  const { containerStyle, inputTextStyle } = splitFormattedNumberInputStyle(style);
+  const { containerStyle, inputTextStyle } =
+    splitFormattedNumberInputStyle(style);
   const [isFocused, setIsFocused] = React.useState(false);
 
   const isWeb = Platform.OS === 'web';
@@ -42,20 +47,27 @@ export function OverlayNumberInput({
   const displayInputRef = React.useRef<InputHandle | null>(null);
 
   const displayValue =
-    typeof maxDecimalPlaces === 'number' ? roundToPlaces(value, maxDecimalPlaces) : value;
+    typeof maxDecimalPlaces === 'number'
+      ? roundToPlaces(value, maxDecimalPlaces)
+      : value;
 
   // What should be injected into TypingInput.defaultValue (when it remounts).
   // In displayAndOutput mode, we want the DOM value to match the rounded value.
-  const seedValueForTypingInput = decimalRoundingMode === 'displayAndOutput' ? displayValue : value;
+  const seedValueForTypingInput =
+    decimalRoundingMode === 'displayAndOutput' ? displayValue : value;
 
-  const [remountKeyForTypingInput, setRemountKeyForTypingInput] = React.useState(0);
+  const [remountKeyForTypingInput, setRemountKeyForTypingInput] =
+    React.useState(0);
   const lastSeedValueForTypingInputRef = React.useRef(seedValueForTypingInput);
 
   // Only bump the remount key while blurred.
   // This preserves click-to-position caret behavior and prevents remounts while typing.
   React.useEffect(() => {
     if (isFocused) return;
-    if (Object.is(lastSeedValueForTypingInputRef.current, seedValueForTypingInput)) return;
+    if (
+      Object.is(lastSeedValueForTypingInputRef.current, seedValueForTypingInput)
+    )
+      return;
     lastSeedValueForTypingInputRef.current = seedValueForTypingInput;
     setRemountKeyForTypingInput((k) => k + 1);
   }, [isFocused, seedValueForTypingInput]);
@@ -107,7 +119,10 @@ export function OverlayNumberInput({
 
           // In displayAndOutput mode, the *output value* should be rounded as the user types.
           // The TypingInput text remains "raw" (unrounded) because it is uncontrolled.
-          if (typeof maxDecimalPlaces === 'number' && decimalRoundingMode === 'displayAndOutput') {
+          if (
+            typeof maxDecimalPlaces === 'number' &&
+            decimalRoundingMode === 'displayAndOutput'
+          ) {
             onChangeNumber(roundToPlaces(next, maxDecimalPlaces));
             return;
           }
@@ -143,7 +158,10 @@ export function OverlayNumberInput({
         Hidden while focused so the user edits the raw value without formatting/caret issues.
       */}
       {!isFocused ? (
-        <Wrapper pointerEvents={isWeb ? 'auto' : 'none'} style={styles.displayOverlay}>
+        <Wrapper
+          pointerEvents={isWeb ? 'auto' : 'none'}
+          style={styles.displayOverlay}
+        >
           <Input
             ref={displayInputRef}
             value={formattedValueText}
@@ -159,16 +177,27 @@ export function OverlayNumberInput({
               requestAnimationFrame(() => {
                 const displayHandle = displayInputRef.current;
                 const formattedIndex =
-                  safeGetSelectionStart(displayHandle) ?? formattedValueText.length;
+                  safeGetSelectionStart(displayHandle) ??
+                  formattedValueText.length;
 
-                const desiredRawIndex = formattedIndexToRawIndex(formattedValueText, formattedIndex);
-                const clampedRawIndex = Math.max(0, Math.min(desiredRawIndex, rawValueText.length));
+                const desiredRawIndex = formattedIndexToRawIndex(
+                  formattedValueText,
+                  formattedIndex
+                );
+                const clampedRawIndex = Math.max(
+                  0,
+                  Math.min(desiredRawIndex, rawValueText.length)
+                );
 
                 const typingHandle = typingInputRef.current;
                 safeFocus(typingHandle);
 
                 requestAnimationFrame(() => {
-                  safeSetSelectionRange(typingHandle, clampedRawIndex, clampedRawIndex);
+                  safeSetSelectionRange(
+                    typingHandle,
+                    clampedRawIndex,
+                    clampedRawIndex
+                  );
                 });
               });
             }}
@@ -195,17 +224,17 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     right: 0,
-    bottom: 0
+    bottom: 0,
   },
 
   displayInputFill: {
     // Ensures the overlay TextInput fills the overlay View.
     width: '100%',
-    height: '100%'
+    height: '100%',
   },
 
   typingInputHiddenText: {
     // Prevent double-rendered text when the display overlay is visible.
-    color: 'transparent'
-  }
+    color: 'transparent',
+  },
 });

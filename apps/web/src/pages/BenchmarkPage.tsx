@@ -9,13 +9,12 @@ type Variant =
   | 'rn-controlled-number'
   | 'number-input';
 
-
 const VARIANT_LABEL: Record<Variant, string> = {
   'number-input': 'FormattedNumberInput',
   'html-controlled-number': 'HTML input (controlled number)',
   'rn-controlled-number': 'RN TextInput (controlled number)',
   'html-controlled-string': 'HTML input (controlled string)',
-  'rn-controlled-string': 'RN TextInput (controlled string)'
+  'rn-controlled-string': 'RN TextInput (controlled string)',
 };
 
 type BenchSample = {
@@ -53,7 +52,7 @@ function stats(arr: number[]) {
     max,
     mean,
     median: p(sorted, 0.5),
-    p95: p(sorted, 0.95)
+    p95: p(sorted, 0.95),
   };
 }
 
@@ -72,17 +71,17 @@ function summarize(sample: BenchSample) {
 
     // Simple, easy-to-compare throughput metric.
     msPerChar: {
-      mean: keystrokes ? durationMs / keystrokes : 0
+      mean: keystrokes ? durationMs / keystrokes : 0,
     },
 
     // More granular, but can be noisy; kept for diagnostic value.
     eventToRaf: stats(sample.eventToRafMs),
     reactCommit: {
       commits: sample.reactCommits,
-      ...stats(sample.reactCommitMs)
+      ...stats(sample.reactCommitMs),
     },
 
-    longTasks: sample.longTasks
+    longTasks: sample.longTasks,
   };
 }
 
@@ -163,9 +162,24 @@ function StressTree({ enabled }: { enabled: boolean }) {
   const rows = 1500;
   const items = Array.from({ length: rows }, (_, i) => i);
   return (
-    <div style={{ marginTop: 16, maxHeight: 240, overflow: 'auto', border: '1px solid #333', borderRadius: 8 }}>
+    <div
+      style={{
+        marginTop: 16,
+        maxHeight: 240,
+        overflow: 'auto',
+        border: '1px solid #333',
+        borderRadius: 8,
+      }}
+    >
       {items.map((i) => (
-        <div key={i} style={{ padding: '2px 8px', opacity: 0.8, fontFamily: 'ui-monospace, monospace' }}>
+        <div
+          key={i}
+          style={{
+            padding: '2px 8px',
+            opacity: 0.8,
+            fontFamily: 'ui-monospace, monospace',
+          }}
+        >
           row {i}: {String(i * 7).padStart(6, '0')}
         </div>
       ))}
@@ -173,10 +187,25 @@ function StressTree({ enabled }: { enabled: boolean }) {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
-    <section style={{ padding: 12, border: '1px solid #333', borderRadius: 10, marginTop: 14 }}>
-      <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>{title}</div>
+    <section
+      style={{
+        padding: 12,
+        border: '1px solid #333',
+        borderRadius: 10,
+        marginTop: 14,
+      }}
+    >
+      <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>
+        {title}
+      </div>
       {children}
     </section>
   );
@@ -188,7 +217,9 @@ export default function BenchmarkPage() {
   const [iterations, setIterations] = React.useState(10);
   const [active, setActive] = React.useState<Variant>('number-input');
   const [results, setResults] = React.useState<BenchSummary | null>(null);
-  const [suiteResults, setSuiteResults] = React.useState<BenchSummary[] | null>(null);
+  const [suiteResults, setSuiteResults] = React.useState<BenchSummary[] | null>(
+    null
+  );
   const [suiteRunning, setSuiteRunning] = React.useState(false);
 
   // States for each variant (keep separate so switching variants doesn't accidentally reuse state)
@@ -217,14 +248,19 @@ export default function BenchmarkPage() {
 
   function getBenchDomInput(): HTMLInputElement | HTMLTextAreaElement | null {
     // For FormattedNumberInput + HTML variants, the element is directly tagged.
-    const direct = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-      `[data-testid="bench-input"]`
-    );
+    const direct = document.querySelector<
+      HTMLInputElement | HTMLTextAreaElement
+    >(`[data-testid="bench-input"]`);
 
     // For react-native-web TextInput, testID can land on a wrapper. Use a wrapper
     // testid and query its actual editable element.
-    const wrap = document.querySelector<HTMLElement>(`[data-testid="bench-input-wrap"]`);
-    const nested = wrap?.querySelector<HTMLInputElement | HTMLTextAreaElement>('input,textarea') ?? null;
+    const wrap = document.querySelector<HTMLElement>(
+      `[data-testid="bench-input-wrap"]`
+    );
+    const nested =
+      wrap?.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+        'input,textarea'
+      ) ?? null;
 
     return nested ?? direct;
   }
@@ -253,7 +289,7 @@ export default function BenchmarkPage() {
       reactCommits: collectorRef.current.reactCommits,
       longTasks: collectorRef.current.longTasks,
       startedAt,
-      endedAt
+      endedAt,
     };
 
     const summary = summarize(sample);
@@ -272,7 +308,9 @@ export default function BenchmarkPage() {
     );
   }
 
-  async function runAutomatedInPage(variantOverride?: Variant): Promise<BenchSummary> {
+  async function runAutomatedInPage(
+    variantOverride?: Variant
+  ): Promise<BenchSummary> {
     // Less-credible helper for quick manual testing.
     // Note: uses programmatic input events; prefer Playwright for credibility.
     const input = getBenchDomInput();
@@ -300,7 +338,11 @@ export default function BenchmarkPage() {
 
     const summary = stopRecording();
     if (variantOverride) {
-      return { ...summary, variant: variantOverride, label: VARIANT_LABEL[variantOverride] };
+      return {
+        ...summary,
+        variant: variantOverride,
+        label: VARIANT_LABEL[variantOverride],
+      };
     }
     return summary;
   }
@@ -310,7 +352,11 @@ export default function BenchmarkPage() {
     setResults(null);
     setSuiteResults(null);
 
-    const variants: Variant[] = ['html-controlled-number', 'rn-controlled-number', 'number-input'];
+    const variants: Variant[] = [
+      'html-controlled-number',
+      'rn-controlled-number',
+      'number-input',
+    ];
     const collected: BenchSummary[] = [];
 
     for (const v of variants) {
@@ -364,7 +410,7 @@ export default function BenchmarkPage() {
       runAutomatedInPage,
       runSuiteInPage,
       getResults: () => results,
-      getSuiteResults: () => suiteResults
+      getSuiteResults: () => suiteResults,
     };
   });
 
@@ -374,10 +420,12 @@ export default function BenchmarkPage() {
       startRecording: (...args) => benchApiRef.current!.startRecording(...args),
       stopRecording: (...args) => benchApiRef.current!.stopRecording(...args),
       flushRaf: (...args) => benchApiRef.current!.flushRaf(...args),
-      runAutomatedInPage: (...args) => benchApiRef.current!.runAutomatedInPage(...args),
+      runAutomatedInPage: (...args) =>
+        benchApiRef.current!.runAutomatedInPage(...args),
       runSuiteInPage: (...args) => benchApiRef.current!.runSuiteInPage(...args),
       getResults: (...args) => benchApiRef.current!.getResults(...args),
-      getSuiteResults: (...args) => benchApiRef.current!.getSuiteResults(...args),
+      getSuiteResults: (...args) =>
+        benchApiRef.current!.getSuiteResults(...args),
     };
   }, []);
 
@@ -478,7 +526,11 @@ export default function BenchmarkPage() {
             }}
             autoComplete="off"
             placeholder="benchmark"
-            style={{ backgroundColor: '#111', color: '#eee', borderColor: '#555' }}
+            style={{
+              backgroundColor: '#111',
+              color: '#eee',
+              borderColor: '#555',
+            }}
           />
         );
 
@@ -491,25 +543,44 @@ export default function BenchmarkPage() {
     <div>
       <h1 style={{ marginTop: 0 }}>Benchmark</h1>
       <p style={{ opacity: 0.8, maxWidth: 760 }}>
-        This page compares keystroke responsiveness and React commit work across implementations. For the most credible
-        results, run the automation via Playwright (it produces consistent typing patterns).
+        This page compares keystroke responsiveness and React commit work across
+        implementations. For the most credible results, run the automation via
+        Playwright (it produces consistent typing patterns).
       </p>
 
       <Section title="Controls">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div
+          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}
+        >
           <label style={{ display: 'grid', gap: 6 }}>
             <div style={{ fontSize: 12, opacity: 0.8 }}>Variant</div>
             <select
               data-testid="bench-variant"
               value={active}
               onChange={(e) => setActive(e.target.value as Variant)}
-              style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #555', background: '#111', color: '#eee' }}
+              style={{
+                padding: '8px 10px',
+                borderRadius: 8,
+                border: '1px solid #555',
+                background: '#111',
+                color: '#eee',
+              }}
             >
-              <option value="number-input">FormattedNumberInput (controlled number, uncontrolled typing)</option>
-              <option value="html-controlled-number">HTML input (controlled number, parse/format each input)</option>
-              <option value="rn-controlled-number">RN TextInput (controlled number, parse/format each input)</option>
-              <option value="html-controlled-string">HTML input (controlled string)</option>
-              <option value="rn-controlled-string">RN TextInput (controlled string)</option>
+              <option value="number-input">
+                FormattedNumberInput (controlled number, uncontrolled typing)
+              </option>
+              <option value="html-controlled-number">
+                HTML input (controlled number, parse/format each input)
+              </option>
+              <option value="rn-controlled-number">
+                RN TextInput (controlled number, parse/format each input)
+              </option>
+              <option value="html-controlled-string">
+                HTML input (controlled string)
+              </option>
+              <option value="rn-controlled-string">
+                RN TextInput (controlled string)
+              </option>
             </select>
           </label>
 
@@ -519,7 +590,13 @@ export default function BenchmarkPage() {
               data-testid="bench-payload"
               value={payload}
               onChange={(e) => setPayload(e.target.value)}
-              style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #555', background: '#111', color: '#eee' }}
+              style={{
+                padding: '8px 10px',
+                borderRadius: 8,
+                border: '1px solid #555',
+                background: '#111',
+                color: '#eee',
+              }}
             />
           </label>
 
@@ -532,22 +609,39 @@ export default function BenchmarkPage() {
               min={1}
               max={200}
               onChange={(e) => setIterations(Number(e.target.value))}
-              style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #555', background: '#111', color: '#eee' }}
+              style={{
+                padding: '8px 10px',
+                borderRadius: 8,
+                border: '1px solid #555',
+                background: '#111',
+                color: '#eee',
+              }}
             />
           </label>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 26 }}>
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginTop: 26,
+            }}
+          >
             <input
               data-testid="bench-stress"
               type="checkbox"
               checked={stress}
               onChange={(e) => setStress(e.target.checked)}
             />
-            <span style={{ fontSize: 12, opacity: 0.9 }}>Stress mode (renders heavy subtree on every update)</span>
+            <span style={{ fontSize: 12, opacity: 0.9 }}>
+              Stress mode (renders heavy subtree on every update)
+            </span>
           </label>
         </div>
 
-        <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
+        <div
+          style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}
+        >
           <button
             data-testid="bench-reset"
             onClick={() => {
@@ -558,7 +652,13 @@ export default function BenchmarkPage() {
               setNumValue(0);
               setResults(null);
             }}
-            style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #555', background: '#111', color: '#eee' }}
+            style={{
+              padding: '8px 10px',
+              borderRadius: 8,
+              border: '1px solid #555',
+              background: '#111',
+              color: '#eee',
+            }}
           >
             Reset
           </button>
@@ -572,7 +672,7 @@ export default function BenchmarkPage() {
               borderRadius: 8,
               border: '1px solid #1f6feb',
               background: isRecording ? '#222' : '#0b2a66',
-              color: '#fff'
+              color: '#fff',
             }}
           >
             Start recording
@@ -587,7 +687,7 @@ export default function BenchmarkPage() {
               borderRadius: 8,
               border: '1px solid #555',
               background: !isRecording ? '#222' : '#111',
-              color: '#eee'
+              color: '#eee',
             }}
           >
             Stop + summarize
@@ -597,7 +697,13 @@ export default function BenchmarkPage() {
             data-testid="bench-start"
             disabled={suiteRunning}
             onClick={() => void runAutomatedInPage()}
-            style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #555', background: '#111', color: '#eee' }}
+            style={{
+              padding: '8px 10px',
+              borderRadius: 8,
+              border: '1px solid #555',
+              background: '#111',
+              color: '#eee',
+            }}
           >
             Run (in-page, less credible)
           </button>
@@ -611,21 +717,32 @@ export default function BenchmarkPage() {
               borderRadius: 8,
               border: '1px solid #1f6feb',
               background: suiteRunning ? '#222' : '#0b2a66',
-              color: '#fff'
+              color: '#fff',
             }}
           >
             {suiteRunning ? 'Running suite…' : 'Run suite + rank (in-page)'}
           </button>
 
-          <div style={{ fontSize: 12, opacity: 0.75, alignSelf: 'center', maxWidth: 520 }}>
-            The suite runs variants sequentially under the same load and provides a simple ranking. For credible runs,
-            prefer Playwright (consistent typing patterns).
+          <div
+            style={{
+              fontSize: 12,
+              opacity: 0.75,
+              alignSelf: 'center',
+              maxWidth: 520,
+            }}
+          >
+            The suite runs variants sequentially under the same load and
+            provides a simple ranking. For credible runs, prefer Playwright
+            (consistent typing patterns).
           </div>
         </div>
       </Section>
 
       <Section title="Under test">
-        <React.Profiler id="bench" onRender={(_, __, actualDuration) => onProfilerRender(actualDuration)}>
+        <React.Profiler
+          id="bench"
+          onRender={(_, __, actualDuration) => onProfilerRender(actualDuration)}
+        >
           {benchInput}
           <StressTree enabled={stress} />
         </React.Profiler>
@@ -634,7 +751,9 @@ export default function BenchmarkPage() {
       <Section title="Results">
         {suiteResults ? (
           <div data-testid="bench-suite-results" style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6 }}>Ranking (lower score = better)</div>
+            <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6 }}>
+              Ranking (lower score = better)
+            </div>
             <ol style={{ marginTop: 0 }}>
               {[...suiteResults]
                 .map((r): ScoredSummary => ({ ...r, score: score(r) }))
@@ -643,14 +762,26 @@ export default function BenchmarkPage() {
                   <li key={r.variant}>
                     <b>{r.label}</b> — <b>score {r.score.toFixed(2)}</b>
                     <div style={{ fontSize: 12, opacity: 0.8 }}>
-                      ms/char avg: {r.msPerChar.mean.toFixed(2)}; event→rAF mean/min/max: {r.eventToRaf.mean.toFixed(2)} / {r.eventToRaf.min.toFixed(2)} / {r.eventToRaf.max.toFixed(2)};
-                      react commit p95: {r.reactCommit.p95.toFixed(2)}; longTasks: {r.longTasks}
+                      ms/char avg: {r.msPerChar.mean.toFixed(2)}; event→rAF
+                      mean/min/max: {r.eventToRaf.mean.toFixed(2)} /{' '}
+                      {r.eventToRaf.min.toFixed(2)} /{' '}
+                      {r.eventToRaf.max.toFixed(2)}; react commit p95:{' '}
+                      {r.reactCommit.p95.toFixed(2)}; longTasks: {r.longTasks}
                     </div>
                   </li>
                 ))}
             </ol>
 
-            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 10, marginBottom: 6 }}>Scores (unsorted)</div>
+            <div
+              style={{
+                fontSize: 12,
+                opacity: 0.85,
+                marginTop: 10,
+                marginBottom: 6,
+              }}
+            >
+              Scores (unsorted)
+            </div>
             <ul style={{ marginTop: 0 }}>
               {[...suiteResults]
                 .map((r) => ({ label: r.label, score: score(r) }))
@@ -663,11 +794,16 @@ export default function BenchmarkPage() {
           </div>
         ) : null}
 
-        <pre data-testid="bench-results" style={{ whiteSpace: 'pre-wrap', fontSize: 12, opacity: 0.9 }}>
+        <pre
+          data-testid="bench-results"
+          style={{ whiteSpace: 'pre-wrap', fontSize: 12, opacity: 0.9 }}
+        >
           {suiteResults
             ? JSON.stringify(
                 {
-                  suite: suiteResults.map((r): ScoredSummary => ({ ...r, score: score(r) }))
+                  suite: suiteResults.map(
+                    (r): ScoredSummary => ({ ...r, score: score(r) })
+                  ),
                 },
                 null,
                 2

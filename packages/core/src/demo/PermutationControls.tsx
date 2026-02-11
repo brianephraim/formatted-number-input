@@ -6,7 +6,13 @@ import {
   getOptionsForPlatform,
 } from './permutations';
 
-function Checkbox({ value, onToggle }: { value: boolean; onToggle: () => void }) {
+function Checkbox({
+  value,
+  onToggle,
+}: {
+  value: boolean;
+  onToggle: () => void;
+}) {
   return (
     <Pressable
       onPress={onToggle}
@@ -41,7 +47,10 @@ function OptionGroup({
             style={styles.row}
             onPress={() => onChange(optionKey, val, !isOn)}
           >
-            <Checkbox value={isOn} onToggle={() => onChange(optionKey, val, !isOn)} />
+            <Checkbox
+              value={isOn}
+              onToggle={() => onChange(optionKey, val, !isOn)}
+            />
             <Text style={styles.rowLabel}>{display}</Text>
           </Pressable>
         );

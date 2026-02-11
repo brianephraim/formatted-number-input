@@ -3,10 +3,13 @@ import {
   ScrollView,
   ScrollViewProps,
   StyleProp,
-  ViewStyle
+  ViewStyle,
 } from 'react-native';
 
-export type DemoScreenScrollProps = Omit<ScrollViewProps, 'contentContainerStyle'> & {
+export type DemoScreenScrollProps = Omit<
+  ScrollViewProps,
+  'contentContainerStyle'
+> & {
   children: React.ReactNode;
   contentContainerStyle?: StyleProp<ViewStyle>;
 };
@@ -20,7 +23,7 @@ export function DemoScreenScroll({
   return (
     <ScrollView
       keyboardShouldPersistTaps={keyboardShouldPersistTaps}
-      automaticallyAdjustKeyboardInsets 
+      automaticallyAdjustKeyboardInsets
       contentContainerStyle={contentContainerStyle}
       {...rest}
     >

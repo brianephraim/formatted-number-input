@@ -14,12 +14,7 @@ import { FormattedNumberInput } from '@formatted-number-input/core';
 function App() {
   const [value, setValue] = useState(1234567);
 
-  return (
-    <FormattedNumberInput
-      value={value}
-      onChangeNumber={setValue}
-    />
-  );
+  return <FormattedNumberInput value={value} onChangeNumber={setValue} />;
 }
 ```
 

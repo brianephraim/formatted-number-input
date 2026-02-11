@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-test('typing stability: inserting in the middle does not jump caret to end (smoke)', async ({ page }) => {
+test('typing stability: inserting in the middle does not jump caret to end (smoke)', async ({
+  page,
+}) => {
   await page.goto('/');
 
   const input = page.getByTestId('number-input-default-html');
@@ -19,8 +21,12 @@ test('typing stability: inserting in the middle does not jump caret to end (smok
   await page.keyboard.type('9');
 
   // If the input remounted or caret jumped, selectionStart tends to land at end.
-  const selectionStart = await input.evaluate((el) => (el as HTMLInputElement).selectionStart);
-  const valueLen = await input.evaluate((el) => (el as HTMLInputElement).value.length);
+  const selectionStart = await input.evaluate(
+    (el) => (el as HTMLInputElement).selectionStart
+  );
+  const valueLen = await input.evaluate(
+    (el) => (el as HTMLInputElement).value.length
+  );
 
   expect(selectionStart).not.toBeNull();
   expect(selectionStart!).toBeLessThan(valueLen);

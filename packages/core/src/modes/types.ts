@@ -7,7 +7,13 @@ import type { InputComponent, WrapperComponent } from '../adapters/types';
  */
 export type ModeProps = Omit<
   TextInputProps,
-  'value' | 'defaultValue' | 'onChangeText' | 'keyboardType' | 'inputMode' | 'onFocus' | 'onBlur'
+  | 'value'
+  | 'defaultValue'
+  | 'onChangeText'
+  | 'keyboardType'
+  | 'inputMode'
+  | 'onFocus'
+  | 'onBlur'
 > & {
   value: number;
   onChangeNumber: (next: number) => void;

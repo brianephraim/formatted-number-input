@@ -8,22 +8,26 @@ type ScreenName = 'permutations' | 'simple-text-inputs';
 
 export default function App() {
   const [screen, setScreen] = useState<ScreenName>('permutations');
-if(screen !== 'permutations'){
-  return (
-      <SimpleTextInputsScreen onGoToPermutations={() => setScreen('permutations')} />
-  );
-}
+  if (screen !== 'permutations') {
+    return (
+      <SimpleTextInputsScreen
+        onGoToPermutations={() => setScreen('permutations')}
+      />
+    );
+  }
   return (
     <DemoScreen>
       <View style={styles.container}>
-          <Pressable
-            style={styles.navButton}
-            onPress={() => setScreen('simple-text-inputs')}
-          >
-            <Text style={styles.navButtonText}>Open simple TextInputs screen</Text>
-          </Pressable>
-          <PermutationsDemo platform="native" />
-        </View>
+        <Pressable
+          style={styles.navButton}
+          onPress={() => setScreen('simple-text-inputs')}
+        >
+          <Text style={styles.navButtonText}>
+            Open simple TextInputs screen
+          </Text>
+        </Pressable>
+        <PermutationsDemo platform="native" />
+      </View>
     </DemoScreen>
   );
 }

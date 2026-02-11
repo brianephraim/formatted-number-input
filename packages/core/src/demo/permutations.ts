@@ -83,7 +83,9 @@ export type Permutation = {
 
 export type Platform = 'web' | 'native';
 
-export function getOptionsForPlatform(platform: Platform): Record<string, OptionDef> {
+export function getOptionsForPlatform(
+  platform: Platform
+): Record<string, OptionDef> {
   const result: Record<string, OptionDef> = {};
   for (const [key, opt] of Object.entries(OPTIONS)) {
     if (opt.platform === 'all' || opt.platform === platform) {
@@ -116,7 +118,10 @@ export function defaultCheckedState(platform: Platform): CheckedState {
 /*  Permutation generator                                              */
 /* ------------------------------------------------------------------ */
 
-export function generatePermutations(checked: CheckedState, platform: Platform): Permutation[] {
+export function generatePermutations(
+  checked: CheckedState,
+  platform: Platform
+): Permutation[] {
   const keys = getOptionKeys(platform);
   const arrays = keys.map((k) => [...(checked[k] ?? [])]);
 
@@ -146,7 +151,9 @@ export function generatePermutations(checked: CheckedState, platform: Platform):
 /* ------------------------------------------------------------------ */
 
 export const bananaFormat = (n: number): string =>
-  n.toLocaleString('en-US', { maximumFractionDigits: 20 }).replace(/,/g, '\u{1F34C}');
+  n
+    .toLocaleString('en-US', { maximumFractionDigits: 20 })
+    .replace(/,/g, '\u{1F34C}');
 
 /* ------------------------------------------------------------------ */
 /*  Map a Permutation to FormattedNumberInput props                     */
@@ -159,7 +166,8 @@ export function getFormattedNumberInputPropsForPermutation(
 
   if (perm.inputComponent === 'rn') props.inputComponent = TextInput;
   if (perm.wrapperComponent === 'rn') props.wrapperComponent = View;
-  if (perm.maxDecimalPlaces !== 'none') props.maxDecimalPlaces = Number(perm.maxDecimalPlaces);
+  if (perm.maxDecimalPlaces !== 'none')
+    props.maxDecimalPlaces = Number(perm.maxDecimalPlaces);
   props.decimalRoundingMode = perm.decimalRoundingMode;
   if (perm.formatDisplay === 'bananas') props.formatDisplay = bananaFormat;
   props.showCommasWhileEditing = perm.showCommasWhileEditing === 'true';
@@ -171,7 +179,10 @@ export function getFormattedNumberInputPropsForPermutation(
 /*  Label builder                                                      */
 /* ------------------------------------------------------------------ */
 
-export function getPermutationLabel(perm: Permutation, platform: Platform): string {
+export function getPermutationLabel(
+  perm: Permutation,
+  platform: Platform
+): string {
   const parts: string[] = [];
   if (platform === 'web') {
     parts.push(`input: ${perm.inputComponent}`);
@@ -190,7 +201,7 @@ export function getPermutationLabel(perm: Permutation, platform: Platform): stri
 
 export function parseCheckedFromParams(
   searchParams: URLSearchParams,
-  platform: Platform,
+  platform: Platform
 ): CheckedState {
   const opts = getOptionsForPlatform(platform);
   const result: CheckedState = {};
@@ -205,13 +216,19 @@ export function parseCheckedFromParams(
   return result;
 }
 
-export function checkedToParams(checked: CheckedState, platform: Platform): Record<string, string> {
+export function checkedToParams(
+  checked: CheckedState,
+  platform: Platform
+): Record<string, string> {
   const opts = getOptionsForPlatform(platform);
   const params: Record<string, string> = {};
   for (const key of Object.keys(opts)) {
     const allValues = Object.keys(opts[key].values);
     const selected = checked[key];
-    if (selected.size !== allValues.length || !allValues.every((v) => selected.has(v))) {
+    if (
+      selected.size !== allValues.length ||
+      !allValues.every((v) => selected.has(v))
+    ) {
       params[key] = [...selected].join(',');
     }
   }

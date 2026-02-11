@@ -5,7 +5,10 @@ export function roundToPlaces(value: number, places: number) {
   return Math.round(value * factor) / factor;
 }
 
-export function defaultFormatDisplay(value: number, maxDecimalPlaces: number | undefined) {
+export function defaultFormatDisplay(
+  value: number,
+  maxDecimalPlaces: number | undefined
+) {
   // Keep it conservative: avoid locale surprises in tests.
   // Note: Intl/NumberFormat will clamp maximumFractionDigits internally.
   const clampedMax =
@@ -14,11 +17,14 @@ export function defaultFormatDisplay(value: number, maxDecimalPlaces: number | u
       : 20;
 
   return value.toLocaleString('en-US', {
-    maximumFractionDigits: clampedMax
+    maximumFractionDigits: clampedMax,
   });
 }
 
-export function formattedIndexToRawIndex(formattedText: string, formattedIndex: number) {
+export function formattedIndexToRawIndex(
+  formattedText: string,
+  formattedIndex: number
+) {
   // Best-effort mapping for formatted display strings that introduce separators
   // like commas/spaces/emoji. We count only the characters that also exist in the
   // raw numeric string (digits, '.', '-').
@@ -44,7 +50,10 @@ export function digitsToRightOfCursor(text: string, cursorPos: number): number {
   return count;
 }
 
-export function cursorPosForDigitsFromRight(text: string, digitsFromRight: number): number {
+export function cursorPosForDigitsFromRight(
+  text: string,
+  digitsFromRight: number
+): number {
   if (digitsFromRight <= 0) return text.length;
 
   // Scan from the right, counting significant chars.

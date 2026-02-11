@@ -9,7 +9,10 @@ import {
 } from './permutations';
 import { PermutationCard } from './PermutationCard';
 import { PermutationControls } from './PermutationControls';
-import { flattenRnStyle, translateRnStyleToCss } from '../adapters/rnStyleToCss';
+import {
+  flattenRnStyle,
+  translateRnStyleToCss,
+} from '../adapters/rnStyleToCss';
 
 /** Shared style for all inputs so FormattedNumberInput and base inputs render identically. */
 const sharedInputStyle = {
@@ -51,7 +54,9 @@ function BaseInputExamples({
 
       {platform === 'web' ? (
         <View style={styles.card}>
-          <Text style={styles.label}>{'Basic HTML <input type="number" />'}</Text>
+          <Text style={styles.label}>
+            {'Basic HTML <input type="number" />'}
+          </Text>
           <input
             type="number"
             inputMode="decimal"
@@ -91,7 +96,7 @@ export function PermutationsDemo({
   onCheckedChange,
 }: PermutationsDemoProps) {
   const [checked, setChecked] = useState<CheckedState>(
-    () => initialChecked ?? defaultCheckedState(platform),
+    () => initialChecked ?? defaultCheckedState(platform)
   );
 
   const handleChange = useCallback(
@@ -105,12 +110,12 @@ export function PermutationsDemo({
         return next;
       });
     },
-    [onCheckedChange],
+    [onCheckedChange]
   );
 
   const permutations = useMemo(
     () => generatePermutations(checked, platform),
-    [checked, platform],
+    [checked, platform]
   );
 
   return (
@@ -126,7 +131,8 @@ export function PermutationsDemo({
       <BaseInputExamples platform={platform} inputStyle={sharedInputStyle} />
 
       <Text style={styles.count}>
-        Showing {permutations.length} permutation{permutations.length !== 1 ? 's' : ''}
+        Showing {permutations.length} permutation
+        {permutations.length !== 1 ? 's' : ''}
       </Text>
 
       {permutations.map((perm) => (
@@ -138,7 +144,7 @@ export function PermutationsDemo({
         />
       ))}
     </View>
-  );  
+  );
 }
 
 const styles = StyleSheet.create({

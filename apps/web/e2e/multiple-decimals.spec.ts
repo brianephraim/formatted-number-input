@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-test('parsing: multiple decimal points does not crash and emits a number (collapsed)', async ({ page }) => {
+test('parsing: multiple decimal points does not crash and emits a number (collapsed)', async ({
+  page,
+}) => {
   await page.goto('/');
 
   const input = page.getByTestId('number-input-default-html');

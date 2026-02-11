@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-test('default row: controlled set button updates readout and overlay toggles on focus/blur (html adapters)', async ({ page }) => {
+test('default row: controlled set button updates readout and overlay toggles on focus/blur (html adapters)', async ({
+  page,
+}) => {
   await page.goto('/');
 
   const input = page.getByTestId('number-input-default-html');
@@ -25,7 +27,9 @@ test('default row: controlled set button updates readout and overlay toggles on 
   await expect(display).toBeVisible();
 });
 
-test('caret mapping: clicking display roughly maps to typing selectionStart (comma formatted, right-aligned)', async ({ page }) => {
+test('caret mapping: clicking display roughly maps to typing selectionStart (comma formatted, right-aligned)', async ({
+  page,
+}) => {
   await page.goto('/');
 
   const display = page.getByTestId('number-input-fixedwidth-html__display');
@@ -44,11 +48,15 @@ test('caret mapping: clicking display roughly maps to typing selectionStart (com
 
   await expect(typing).toBeFocused({ timeout: 10_000 });
 
-  const selectionStart = await typing.evaluate((el) => (el as HTMLInputElement).selectionStart);
+  const selectionStart = await typing.evaluate(
+    (el) => (el as HTMLInputElement).selectionStart
+  );
   expect(selectionStart).not.toBeNull();
 
   // We keep this loose because font metrics vary.
   // The key regression we want to avoid is always ending up at the end.
-  const valueLen = await typing.evaluate((el) => (el as HTMLInputElement).value.length);
+  const valueLen = await typing.evaluate(
+    (el) => (el as HTMLInputElement).value.length
+  );
   expect(selectionStart!).toBeLessThan(valueLen);
 });

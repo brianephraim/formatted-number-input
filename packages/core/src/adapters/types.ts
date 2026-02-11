@@ -27,11 +27,19 @@ export type WrapperProps = {
 export type WrapperComponent = React.ComponentType<WrapperProps>;
 export type InputComponent = React.ElementType;
 
-export type AutoCompleteProp = TextInputProps extends { autoComplete?: infer T } ? T : string;
+export type AutoCompleteProp = TextInputProps extends { autoComplete?: infer T }
+  ? T
+  : string;
 
 export type RNishInputProps = Pick<
   TextInputProps,
-  'value' | 'defaultValue' | 'placeholder' | 'editable' | 'style' | 'inputMode' | 'testID'
+  | 'value'
+  | 'defaultValue'
+  | 'placeholder'
+  | 'editable'
+  | 'style'
+  | 'inputMode'
+  | 'testID'
 > & {
   onChangeText?: (text: string) => void;
 

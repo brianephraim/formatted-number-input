@@ -12,9 +12,9 @@ export function DemoScreenShell({ children, style }: DemoScreenShellProps) {
       style={[
         {
           flex: 1,
-          backgroundColor: '#F5F5F2'
+          backgroundColor: '#F5F5F2',
         },
-        style
+        style,
       ]}
     >
       {children}

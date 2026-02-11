@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 
-test('live commas: typing in the middle keeps caret near insertion point', async ({ page }) => {
+test('live commas: typing in the middle keeps caret near insertion point', async ({
+  page,
+}) => {
   await page.goto('/');
 
   const input = page.getByTestId('number-input-livecommas-html');
@@ -16,8 +18,12 @@ test('live commas: typing in the middle keeps caret near insertion point', async
   await input.click({ position: { x: 12, y: 10 } });
   await page.keyboard.type('9');
 
-  const selectionStart = await input.evaluate((el) => (el as HTMLInputElement).selectionStart);
-  const valueLen = await input.evaluate((el) => (el as HTMLInputElement).value.length);
+  const selectionStart = await input.evaluate(
+    (el) => (el as HTMLInputElement).selectionStart
+  );
+  const valueLen = await input.evaluate(
+    (el) => (el as HTMLInputElement).value.length
+  );
 
   expect(selectionStart).not.toBeNull();
   expect(selectionStart!).toBeLessThan(valueLen);

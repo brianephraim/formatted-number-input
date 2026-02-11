@@ -7,7 +7,7 @@ import {
   defaultFormatDisplay,
   digitsToRightOfCursor,
   cursorPosForDigitsFromRight,
-  findDigitToDelete
+  findDigitToDelete,
 } from './numberFormatting';
 
 describe('numberFormatting', () => {
@@ -128,7 +128,9 @@ describe('numberFormatting', () => {
 
   describe('defaultFormatDisplay', () => {
     it('returns a string and does not throw', () => {
-      expect(typeof defaultFormatDisplay(1234.987654321, undefined)).toBe('string');
+      expect(typeof defaultFormatDisplay(1234.987654321, undefined)).toBe(
+        'string'
+      );
       expect(typeof defaultFormatDisplay(1234.987654321, 2)).toBe('string');
     });
 

@@ -6,23 +6,23 @@ export default defineConfig({
   testDir: './apps/web/e2e',
   timeout: 30_000,
   expect: {
-    timeout: 5_000
+    timeout: 5_000,
   },
   use: {
     baseURL: `http://localhost:${PORT}`,
-    trace: 'on-first-retry'
+    trace: 'on-first-retry',
   },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] }
-    }
+      use: { ...devices['Desktop Chrome'] },
+    },
   ],
   webServer: {
     command: `npm -w @demo/web run dev -- --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: true,
     stdout: 'pipe',
-    stderr: 'pipe'
-  }
+    stderr: 'pipe',
+  },
 });

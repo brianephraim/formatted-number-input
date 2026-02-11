@@ -42,7 +42,8 @@ export function translateRnStyleToCss(style: StyleObject): React.CSSProperties {
   }
   if (style.paddingTop != null) css.paddingTop = toPx(style.paddingTop);
   if (style.paddingRight != null) css.paddingRight = toPx(style.paddingRight);
-  if (style.paddingBottom != null) css.paddingBottom = toPx(style.paddingBottom);
+  if (style.paddingBottom != null)
+    css.paddingBottom = toPx(style.paddingBottom);
   if (style.paddingLeft != null) css.paddingLeft = toPx(style.paddingLeft);
 
   if (style.margin != null) css.margin = toPx(style.margin);
@@ -67,7 +68,8 @@ export function translateRnStyleToCss(style: StyleObject): React.CSSProperties {
   if (style.borderRadius != null) css.borderRadius = toPx(style.borderRadius);
 
   // background
-  if (typeof style.backgroundColor === 'string') css.backgroundColor = style.backgroundColor;
+  if (typeof style.backgroundColor === 'string')
+    css.backgroundColor = style.backgroundColor;
 
   // text
   if (typeof style.color === 'string') css.color = style.color;
@@ -79,7 +81,8 @@ export function translateRnStyleToCss(style: StyleObject): React.CSSProperties {
   if (typeof style.fontStyle === 'string') {
     css.fontStyle = style.fontStyle as React.CSSProperties['fontStyle'];
   }
-  if (style.letterSpacing != null) css.letterSpacing = toPx(style.letterSpacing);
+  if (style.letterSpacing != null)
+    css.letterSpacing = toPx(style.letterSpacing);
   if (style.lineHeight != null) css.lineHeight = toPx(style.lineHeight);
   if (typeof style.textAlign === 'string') {
     css.textAlign = style.textAlign as React.CSSProperties['textAlign'];

@@ -13,15 +13,15 @@ export default [
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
-      globals: globals.browser
+      globals: globals.browser,
     },
     plugins: {
       'react-hooks': reactHooks,
-      'react-refresh': reactRefresh
+      'react-refresh': reactRefresh,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      '@typescript-eslint/no-explicit-any': 'error'
-    }
-  }
+      '@typescript-eslint/no-explicit-any': 'error',
+    },
+  },
 ];
