@@ -2,6 +2,13 @@
 
 This page documents behaviors and edge cases that may affect integration or UX.
 
+## Choosing a component
+
+The package exports two components:
+
+- **`FormattedNumberInputHtmlLike`** — drop-in replacement for `<input>`. Accepts HTML attributes (`disabled`, `className`, `id`, `name`, `aria-*`, `data-*`). Best for web-only apps using standard HTML conventions.
+- **`FormattedNumberInput`** — drop-in replacement for React Native `TextInput`. Uses RN-style props (`editable`, style objects). Works on both web and React Native.
+
 ## Input parsing
 
 ### Negative numbers

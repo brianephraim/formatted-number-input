@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: formatted-number-input
-  text: React Native-compatible number input
-  tagline: Formatted numeric input with overlay or live comma display modes
+  text: Drop-in formatted number input
+  tagline: A replacement for <input> and React Native TextInput with automatic comma formatting, decimal rounding, and smart cursor management
   actions:
     - theme: brand
       text: Get started
@@ -17,16 +17,23 @@ hero:
 ## Quick start
 
 ```tsx
-import { FormattedNumberInput } from '@formatted-number-input/core';
+import { FormattedNumberInputHtmlLike } from '@formatted-number-input/core';
 
 const [value, setValue] = useState(1234567);
 
-<FormattedNumberInput value={value} onChangeNumber={setValue} />;
+<FormattedNumberInputHtmlLike
+  value={value}
+  onChangeNumber={setValue}
+  className="my-input"
+/>;
 ```
 
 ## Features
 
+- **Drop-in replacement** — swap out `<input>` or RN `TextInput` with minimal changes
 - **Overlay mode** — commas shown only when blurred; raw typing when focused
-- **Live mode** — commas visible while typing; smart Backspace/Delete over separators
-- **React Native** — use web or native via adapters (`HtmlInput`, `DivWrapper`)
-- **Configurable** — `maxDecimalPlaces`, rounding modes, custom formatters
+- **Live mode** — commas visible while typing; smart Backspace/Delete skips separators
+- **Decimal control** — `maxDecimalPlaces` with `displayAndOutput` or `displayOnly` rounding
+- **Custom formatters** — emoji separators, spaces, or any custom format function
+- **Cross-platform** — works on web and React Native via adapter props
+- **Lightweight** — no external dependencies; uses native `Intl.NumberFormat`
