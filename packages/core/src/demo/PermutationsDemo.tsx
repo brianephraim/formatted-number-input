@@ -25,7 +25,6 @@ export type PermutationsDemoProps = {
   platform: Platform;
   initialChecked?: CheckedState;
   onCheckedChange?: (checked: CheckedState) => void;
-  scrollable?: boolean;
 };
 
 function BaseInputExamples({ platform }: { platform: Platform }) {
@@ -76,7 +75,6 @@ export function PermutationsDemo({
   platform,
   initialChecked,
   onCheckedChange,
-  scrollable = true,
 }: PermutationsDemoProps) {
   const [checked, setChecked] = useState<CheckedState>(
     () => initialChecked ?? defaultCheckedState(platform),
@@ -101,7 +99,7 @@ export function PermutationsDemo({
     [checked, platform],
   );
 
-  const content = (
+  return (
     <View style={styles.container}>
       <Text style={styles.title}>Permutations</Text>
 
@@ -125,17 +123,7 @@ export function PermutationsDemo({
         />
       ))}
     </View>
-  );
-  if (!scrollable) return content;
-  return (
-    <ScrollView
-      contentContainerStyle={styles.scroll}
-      automaticallyAdjustKeyboardInsets
-      
-    >
-      {content}
-    </ScrollView>
-  );
+  );  
 }
 
 const styles = StyleSheet.create({

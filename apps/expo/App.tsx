@@ -22,7 +22,7 @@ if(screen !== 'permutations'){
           >
             <Text style={styles.navButtonText}>Open simple TextInputs screen</Text>
           </Pressable>
-          <PermutationsDemo platform="native" scrollable={false} />
+          <PermutationsDemo platform="native" />
         </View>
     </DemoScreen>
   );
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   navButtonText: {
-    color: '#1d3d60',
+    color: '#fff',
     fontSize: 13,
     fontWeight: '500',
   },

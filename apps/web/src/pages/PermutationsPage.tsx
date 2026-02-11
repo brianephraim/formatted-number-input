@@ -29,7 +29,6 @@ export default function PermutationsPage() {
       platform="web"
       initialChecked={initialChecked}
       onCheckedChange={handleCheckedChange}
-      scrollable={false}
     />
   );
 }
