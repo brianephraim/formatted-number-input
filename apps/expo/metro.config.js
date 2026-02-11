@@ -23,7 +23,7 @@ config.resolver.resolverMainFields = ['react-native', 'browser', 'main', 'module
 // Resolve the workspace package from source so we can skip a build step.
 config.resolver.extraNodeModules = {
   ...config.resolver.extraNodeModules,
-  '@rn-number-input/core': path.resolve(workspaceRoot, 'packages/core/src')
+  '@formatted-number-input/core': path.resolve(workspaceRoot, 'packages/core/src')
 };
 
 module.exports = config;

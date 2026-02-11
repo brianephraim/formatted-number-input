@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { PermutationsDemo } from '@rn-number-input/core/src/demo';
+import { PermutationsDemo } from '@formatted-number-input/core/src/demo';
 import { DemoScreen } from './components/DemoScreen';
 import { SimpleTextInputsScreen } from './components/SimpleTextInputsScreen';
 

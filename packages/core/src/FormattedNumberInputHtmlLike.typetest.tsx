@@ -1,6 +1,6 @@
 /**
  * Type-compatibility test: every prop value used here must be accepted by
- * BOTH a plain JSX `<input>` AND `<NumberInputHtmlLike>`.
+ * BOTH a plain JSX `<input>` AND `<FormattedNumberInputHtmlLike>`.
  *
  * This file is NOT executed — it only needs to compile (`tsc --noEmit`).
  * If a prop's type diverges between the two, this file will produce a
@@ -8,7 +8,7 @@
  */
 
 import * as React from 'react';
-import { NumberInputHtmlLike } from './NumberInputHtmlLike';
+import { FormattedNumberInputHtmlLike } from './FormattedNumberInputHtmlLike';
 
 // ---------------------------------------------------------------------------
 // Shared prop values — identical variables are passed to both components.
@@ -439,12 +439,12 @@ export function HtmlInputBaseline() {
   );
 }
 
-/** NumberInputHtmlLike — must accept every prop the baseline does. */
-export function NumberInputHtmlLikeExhaustive() {
+/** FormattedNumberInputHtmlLike — must accept every prop the baseline does. */
+export function FormattedNumberInputHtmlLikeExhaustive() {
   return (
     <>
       {/* ---- Standard attributes ---- */}
-      <NumberInputHtmlLike
+      <FormattedNumberInputHtmlLike
         value={42}
         onChangeNumber={() => {}}
         name={name}
@@ -560,7 +560,7 @@ export function NumberInputHtmlLikeExhaustive() {
         onAnimationEnd={onAnimationEnd}
         onAnimationIteration={onAnimationIteration}
         onTransitionEnd={onTransitionEnd}
-        // ---- NumberInput-specific props ----
+        // ---- FormattedNumberInput-specific props ----
         maxDecimalPlaces={2}
         decimalRoundingMode="displayAndOutput"
         formatDisplay={(n) => `$${n.toFixed(2)}`}

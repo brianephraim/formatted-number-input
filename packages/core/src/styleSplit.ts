@@ -20,7 +20,7 @@ function flattenStyle(style: unknown): StyleObject {
   return {};
 }
 
-export function splitNumberInputStyle(style: TextInputProps['style']): {
+export function splitFormattedNumberInputStyle(style: TextInputProps['style']): {
   containerStyle: StyleObject;
   inputTextStyle: StyleObject;
 } {

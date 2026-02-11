@@ -2,7 +2,7 @@ import { OverlayNumberInput } from './modes/overlay/OverlayNumberInput';
 import { LiveNumberInput } from './modes/live/LiveNumberInput';
 import type { ModeProps } from './modes/types';
 
-export type NumberInputProps = ModeProps & {
+export type FormattedNumberInputProps = ModeProps & {
   /**
    * When true, commas (group separators) remain visible while the input is focused
    * and the user is typing. Backspace/Delete intelligently skip over separators
@@ -16,7 +16,10 @@ export type NumberInputProps = ModeProps & {
 /**
  * Hub component that routes to the appropriate mode implementation.
  */
-export function NumberInput({ showCommasWhileEditing = false, ...modeProps }: NumberInputProps) {
+export function FormattedNumberInput({
+  showCommasWhileEditing = false,
+  ...modeProps
+}: FormattedNumberInputProps) {
   if (showCommasWhileEditing) {
     return <LiveNumberInput {...modeProps} />;
   }

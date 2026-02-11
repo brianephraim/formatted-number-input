@@ -1,6 +1,6 @@
 # Documentation site
 
-VitePress documentation for `@rn-number-input/core`, deployable to GitHub Pages.
+VitePress documentation for `@formatted-number-input/core`, deployable to GitHub Pages.
 
 ## Local development
 
@@ -8,7 +8,7 @@ VitePress documentation for `@rn-number-input/core`, deployable to GitHub Pages.
 npm run dev:docs
 ```
 
-Open the URL VitePress prints (e.g. `http://localhost:5173/react-fancy-number-input/`).
+Open the URL VitePress prints (e.g. `http://localhost:5173/formatted-number-input/`).
 
 ## Preview production build
 
@@ -29,4 +29,4 @@ This builds the docs and pushes the output to the `gh-pages` branch.
 
 After deployment, the site is available at:
 
-https://brianephraim.github.io/react-fancy-number-input/
+https://brianephraim.github.io/formatted-number-input/

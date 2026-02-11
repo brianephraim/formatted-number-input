@@ -12,7 +12,7 @@ import {
   cursorPosForDigitsFromRight,
   findDigitToDelete
 } from '../../numberFormatting';
-import { splitNumberInputStyle } from '../../styleSplit';
+import { splitFormattedNumberInputStyle } from '../../styleSplit';
 import type { ModeProps } from '../types';
 
 /**
@@ -37,7 +37,7 @@ export function LiveNumberInput({
   const externalOnSelectionChange = (rest as { onSelectionChange?: (e: unknown) => void })
     .onSelectionChange;
   const baseTestID = (rest as { testID?: string } | undefined)?.testID;
-  const { containerStyle, inputTextStyle } = splitNumberInputStyle(style);
+  const { containerStyle, inputTextStyle } = splitFormattedNumberInputStyle(style);
   const [isFocused, setIsFocused] = React.useState(false);
 
   const inputRef = React.useRef<InputHandle | null>(null);

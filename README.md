@@ -1,4 +1,4 @@
-# rn-number-input
+# formatted-number-input
 
 Monorepo for developing a React Native-compatible number input component **using react-native-web only** (no emulators).
 
@@ -14,11 +14,11 @@ Then open the URL Vite prints.
 ## Usage
 
 ```tsx
-import { NumberInput } from '@rn-number-input/core';
+import { FormattedNumberInput } from '@formatted-number-input/core';
 
 const [value, setValue] = useState(1234567);
 
-<NumberInput value={value} onChangeNumber={setValue} />
+<FormattedNumberInput value={value} onChangeNumber={setValue} />
 ```
 
 ## Display modes
@@ -28,7 +28,7 @@ The component has two display modes, controlled by the `showCommasWhileEditing` 
 ### Overlay mode (default)
 
 ```tsx
-<NumberInput value={value} onChangeNumber={setValue} />
+<FormattedNumberInput value={value} onChangeNumber={setValue} />
 ```
 
 Commas are shown only when the input is **blurred**. While focused, the user types into a raw numeric input (no commas). An absolutely-positioned display overlay shows the formatted value on top when blurred.
@@ -36,7 +36,7 @@ Commas are shown only when the input is **blurred**. While focused, the user typ
 ### Live formatting mode
 
 ```tsx
-<NumberInput value={value} onChangeNumber={setValue} showCommasWhileEditing />
+<FormattedNumberInput value={value} onChangeNumber={setValue} showCommasWhileEditing />
 ```
 
 Commas remain visible **while the user is typing**. The `onChangeNumber` callback still receives a plain number (no commas).
@@ -61,15 +61,15 @@ All other `TextInput` props (e.g. `placeholder`, `style`, `testID`) are forwarde
 ## Documentation
 
 ```bash
-npm run dev:docs     # local dev at http://localhost:5173/react-fancy-number-input/
+npm run dev:docs     # local dev at http://localhost:5173/formatted-number-input/
 npm run build:docs  # build for GitHub Pages
 npm run deploy:docs # build and push to gh-pages branch
 ```
 
 ## Repo layout
 
-- `packages/core` → the reusable component package (`@rn-number-input/core`)
-  - `src/NumberInput.tsx` → hub component that routes to the active mode
+- `packages/core` → the reusable component package (`@formatted-number-input/core`)
+  - `src/FormattedNumberInput.tsx` → hub component that routes to the active mode
   - `src/modes/overlay/` → overlay mode (dual-input architecture)
   - `src/modes/live/` → live formatting mode (single controlled input)
   - `src/numberFormatting.ts` → shared formatting and cursor-mapping helpers

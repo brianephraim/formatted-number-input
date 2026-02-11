@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NumberInput } from '@rn-number-input/core';
+import { FormattedNumberInput } from '@formatted-number-input/core';
 import { TextInput, View } from 'react-native';
 
 type Variant =
@@ -11,7 +11,7 @@ type Variant =
 
 
 const VARIANT_LABEL: Record<Variant, string> = {
-  'number-input': 'NumberInput',
+  'number-input': 'FormattedNumberInput',
   'html-controlled-number': 'HTML input (controlled number)',
   'rn-controlled-number': 'RN TextInput (controlled number)',
   'html-controlled-string': 'HTML input (controlled string)',
@@ -216,7 +216,7 @@ export default function BenchmarkPage() {
   const startedAtRef = React.useRef<number | null>(null);
 
   function getBenchDomInput(): HTMLInputElement | HTMLTextAreaElement | null {
-    // For NumberInput + HTML variants, the element is directly tagged.
+    // For FormattedNumberInput + HTML variants, the element is directly tagged.
     const direct = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
       `[data-testid="bench-input"]`
     );
@@ -469,7 +469,7 @@ export default function BenchmarkPage() {
 
       case 'number-input':
         return (
-          <NumberInput
+          <FormattedNumberInput
             testID="bench-input"
             value={numValue}
             onChangeNumber={(n) => {
@@ -505,7 +505,7 @@ export default function BenchmarkPage() {
               onChange={(e) => setActive(e.target.value as Variant)}
               style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #555', background: '#111', color: '#eee' }}
             >
-              <option value="number-input">NumberInput (controlled number, uncontrolled typing)</option>
+              <option value="number-input">FormattedNumberInput (controlled number, uncontrolled typing)</option>
               <option value="html-controlled-number">HTML input (controlled number, parse/format each input)</option>
               <option value="rn-controlled-number">RN TextInput (controlled number, parse/format each input)</option>
               <option value="html-controlled-string">HTML input (controlled string)</option>

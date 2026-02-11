@@ -1,5 +1,5 @@
 {
-  "name": "rn-number-input-repo",
+  "name": "formatted-number-input-repo",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,13 +11,13 @@
     "dev:web": "npm -w @demo/web run dev",
     "dev:docs": "npm -w @demo/docs run dev",
     "dev:expo": "npm -w @demo/expo run start -- -c",
-    "build": "npm -w @rn-number-input/core run build",
+    "build": "npm -w @formatted-number-input/core run build",
     "build:docs": "npm -w @demo/docs run build",
     "preview:docs": "npm -w @demo/docs run preview",
     "deploy:docs": "npm run build:docs && gh-pages -d apps/docs/.vitepress/dist --nojekyll",
-    "typecheck": "npm -w @rn-number-input/core run typecheck && npm -w @demo/web run typecheck",
-    "lint": "npm -w @rn-number-input/core run lint && npm -w @demo/web run lint",
-    "test:core": "npm -w @rn-number-input/core run test",
+    "typecheck": "npm -w @formatted-number-input/core run typecheck && npm -w @demo/web run typecheck",
+    "lint": "npm -w @formatted-number-input/core run lint && npm -w @demo/web run lint",
+    "test:core": "npm -w @formatted-number-input/core run test",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

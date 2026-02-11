@@ -10,7 +10,7 @@ import {
   roundToPlaces,
   sanitizeNumericText
 } from '../../numberFormatting';
-import { splitNumberInputStyle } from '../../styleSplit';
+import { splitFormattedNumberInputStyle } from '../../styleSplit';
 import type { ModeProps } from '../types';
 
 /**
@@ -34,7 +34,7 @@ export function OverlayNumberInput({
   ...rest
 }: ModeProps) {
   const baseTestID = (rest as { testID?: string } | undefined)?.testID;
-  const { containerStyle, inputTextStyle } = splitNumberInputStyle(style);
+  const { containerStyle, inputTextStyle } = splitFormattedNumberInputStyle(style);
   const [isFocused, setIsFocused] = React.useState(false);
 
   const isWeb = Platform.OS === 'web';

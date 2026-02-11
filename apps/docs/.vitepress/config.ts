@@ -2,9 +2,9 @@ import { defineConfig } from 'vitepress';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: 'rn-number-input',
+  title: 'formatted-number-input',
   description: 'React Native-compatible number input component',
-  base: '/react-fancy-number-input/',
+  base: '/formatted-number-input/',
   ignoreDeadLinks: true,
   themeConfig: {
     nav: [
@@ -27,7 +27,7 @@ export default defineConfig({
       },
     ],
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/brianephraim/react-fancy-number-input' },
+      { icon: 'github', link: 'https://github.com/brianephraim/formatted-number-input' },
     ],
   },
 });

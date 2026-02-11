@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { splitNumberInputStyle } from './styleSplit';
+import { splitFormattedNumberInputStyle } from './styleSplit';
 
-describe('splitNumberInputStyle', () => {
+describe('splitFormattedNumberInputStyle', () => {
   it('puts typography + padding props into inputTextStyle', () => {
-    const { containerStyle, inputTextStyle } = splitNumberInputStyle({
+    const { containerStyle, inputTextStyle } = splitFormattedNumberInputStyle({
       color: 'red',
       fontSize: 20,
       textAlign: 'right',
@@ -37,7 +37,7 @@ describe('splitNumberInputStyle', () => {
   });
 
   it('does not include undefined values', () => {
-    const { inputTextStyle } = splitNumberInputStyle({
+    const { inputTextStyle } = splitFormattedNumberInputStyle({
       color: undefined,
       padding: undefined
     });

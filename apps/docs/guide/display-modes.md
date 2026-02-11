@@ -5,7 +5,7 @@ The component has two display modes, controlled by the `showCommasWhileEditing` 
 ## Overlay mode (default)
 
 ```tsx
-<NumberInput value={value} onChangeNumber={setValue} />
+<FormattedNumberInput value={value} onChangeNumber={setValue} />
 ```
 
 Commas are shown only when the input is **blurred**. While focused, the user types into a raw numeric input (no commas). An absolutely-positioned display overlay shows the formatted value on top when blurred.
@@ -13,7 +13,7 @@ Commas are shown only when the input is **blurred**. While focused, the user typ
 ## Live formatting mode
 
 ```tsx
-<NumberInput value={value} onChangeNumber={setValue} showCommasWhileEditing />
+<FormattedNumberInput value={value} onChangeNumber={setValue} showCommasWhileEditing />
 ```
 
 Commas remain visible **while the user is typing**. The `onChangeNumber` callback still receives a plain number (no commas).

@@ -1,6 +1,6 @@
-# Regression Test Plan — rn-number-input
+# Regression Test Plan — formatted-number-input
 
-This document is a manual regression checklist for the web demo (`apps/web`) that exercises the core behaviors of the `@rn-number-input/core` `NumberInput` component.
+This document is a manual regression checklist for the web demo (`apps/web`) that exercises the core behaviors of the `@formatted-number-input/core` `FormattedNumberInput` component.
 
 It is designed to be executable by a human (or later automated with Playwright), and covers:
 - the overlay (DisplayInput) vs TypingInput model

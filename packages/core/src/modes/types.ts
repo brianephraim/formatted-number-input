@@ -3,7 +3,7 @@ import type { InputComponent, WrapperComponent } from '../adapters/types';
 
 /**
  * Props shared by both mode components (overlay and live).
- * This is NumberInputProps minus `showCommasWhileEditing` (consumed by the hub).
+ * This is FormattedNumberInputProps minus `showCommasWhileEditing` (consumed by the hub).
  */
 export type ModeProps = Omit<
   TextInputProps,

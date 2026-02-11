@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: rn-number-input
+  name: formatted-number-input
   text: React Native-compatible number input
   tagline: Formatted numeric input with overlay or live comma display modes
   actions:
@@ -17,11 +17,11 @@ hero:
 ## Quick start
 
 ```tsx
-import { NumberInput } from '@rn-number-input/core';
+import { FormattedNumberInput } from '@formatted-number-input/core';
 
 const [value, setValue] = useState(1234567);
 
-<NumberInput value={value} onChangeNumber={setValue} />
+<FormattedNumberInput value={value} onChangeNumber={setValue} />
 ```
 
 ## Features

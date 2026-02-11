@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "RN Number Input",
-    "slug": "rn-number-input",
+    "slug": "formatted-number-input",
     "version": "0.1.0",
     "orientation": "portrait",
     "platforms": [
@@ -10,7 +10,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.rn-number-input"
+      "bundleIdentifier": "com.anonymous.formatted-number-input"
     }
   }
 }

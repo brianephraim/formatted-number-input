@@ -13,7 +13,7 @@ export {
   defaultCheckedState,
   generatePermutations,
   bananaFormat,
-  getNumberInputPropsForPermutation,
+  getFormattedNumberInputPropsForPermutation,
   getPermutationLabel,
   parseCheckedFromParams,
   checkedToParams,

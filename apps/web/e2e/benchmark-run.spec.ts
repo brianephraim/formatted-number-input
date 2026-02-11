@@ -19,7 +19,7 @@ interface BenchResult {
 }
 
 async function focusBenchInput(page: Page, variant: string) {
-  // NumberInput: click overlay to forward focus.
+  // FormattedNumberInput: click overlay to forward focus.
   const display = page.getByTestId('bench-input__display');
   if (await display.count()) {
     await display.click();

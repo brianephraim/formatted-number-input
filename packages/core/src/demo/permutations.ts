@@ -149,10 +149,12 @@ export const bananaFormat = (n: number): string =>
   n.toLocaleString('en-US', { maximumFractionDigits: 20 }).replace(/,/g, '\u{1F34C}');
 
 /* ------------------------------------------------------------------ */
-/*  Map a Permutation to NumberInput props                              */
+/*  Map a Permutation to FormattedNumberInput props                     */
 /* ------------------------------------------------------------------ */
 
-export function getNumberInputPropsForPermutation(perm: Permutation): Record<string, unknown> {
+export function getFormattedNumberInputPropsForPermutation(
+  perm: Permutation
+): Record<string, unknown> {
   const props: Record<string, unknown> = {};
 
   if (perm.inputComponent === 'rn') props.inputComponent = TextInput;

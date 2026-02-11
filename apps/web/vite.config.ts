@@ -10,7 +10,7 @@ export default defineConfig({
       'react-native': 'react-native-web',
       'react-native$': 'react-native-web',
       // Import package source directly for fast iteration
-      '@rn-number-input/core': path.resolve(__dirname, '../../packages/core/src')
+      '@formatted-number-input/core': path.resolve(__dirname, '../../packages/core/src')
     },
     extensions: ['.web.tsx', '.web.ts', '.tsx', '.ts', '.jsx', '.js']
   },

@@ -1,5 +1,5 @@
 {
-  "name": "@rn-number-input/core",
+  "name": "@formatted-number-input/core",
   "version": "0.1.0",
   "description": "React Native-compatible number input component",
   "license": "MIT",

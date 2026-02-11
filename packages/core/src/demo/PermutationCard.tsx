@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import type { TextInputProps } from 'react-native';
 import { StyleSheet, Text, View } from 'react-native';
-import { NumberInput } from '../NumberInput';
+import { FormattedNumberInput } from '../FormattedNumberInput';
 import {
   type Permutation,
   type Platform,
-  getNumberInputPropsForPermutation,
+  getFormattedNumberInputPropsForPermutation,
   getPermutationLabel,
 } from './permutations';
 
@@ -19,13 +19,13 @@ export function PermutationCard({
   inputStyle: TextInputProps['style'];
 }) {
   const [value, setValue] = useState(1234567.89);
-  const props = getNumberInputPropsForPermutation(perm);
+  const props = getFormattedNumberInputPropsForPermutation(perm);
   const label = getPermutationLabel(perm, platform);
 
   return (
     <View style={styles.card}>
       <Text style={styles.label}>{label}</Text>
-      <NumberInput
+      <FormattedNumberInput
         value={value}
         onChangeNumber={setValue}
         placeholder="Type here"

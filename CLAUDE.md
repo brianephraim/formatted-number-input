@@ -2,7 +2,7 @@
 
 ## Project overview
 
-Monorepo for `@rn-number-input/core`, a React Native-compatible number input component. See `README.md` for usage and architecture.
+Monorepo for `@formatted-number-input/core`, a React Native-compatible number input component. See `README.md` for usage and architecture.
 
 ## Common commands
 

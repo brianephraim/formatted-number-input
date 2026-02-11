@@ -3,19 +3,19 @@
 ## Installation
 
 ```bash
-npm install @rn-number-input/core
+npm install @formatted-number-input/core
 ```
 
 ## Basic usage
 
 ```tsx
-import { NumberInput } from '@rn-number-input/core';
+import { FormattedNumberInput } from '@formatted-number-input/core';
 
 function App() {
   const [value, setValue] = useState(1234567);
 
   return (
-    <NumberInput
+    <FormattedNumberInput
       value={value}
       onChangeNumber={setValue}
     />

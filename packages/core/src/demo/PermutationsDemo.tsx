@@ -11,7 +11,7 @@ import { PermutationCard } from './PermutationCard';
 import { PermutationControls } from './PermutationControls';
 import { flattenRnStyle, translateRnStyleToCss } from '../adapters/rnStyleToCss';
 
-/** Shared style for all inputs so NumberInput and base inputs render identically. */
+/** Shared style for all inputs so FormattedNumberInput and base inputs render identically. */
 const sharedInputStyle = {
   width: '100%' as const,
   borderWidth: 1,
