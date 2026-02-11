@@ -5,8 +5,10 @@ test('typing stability: inserting in the middle does not jump caret to end (smok
 }) => {
   await page.goto('/');
 
-  const input = page.getByTestId('number-input-default-html');
-  const display = page.getByTestId('number-input-default-html__display');
+  const input = page.getByTestId('number-input-default-html').first();
+  const display = page
+    .getByTestId('number-input-default-html__display')
+    .first();
 
   // Focus through overlay
   await expect(display).toBeVisible();

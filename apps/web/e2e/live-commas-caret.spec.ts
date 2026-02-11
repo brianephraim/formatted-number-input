@@ -5,7 +5,7 @@ test('live commas: typing in the middle keeps caret near insertion point', async
 }) => {
   await page.goto('/');
 
-  const input = page.getByTestId('number-input-livecommas-html');
+  const input = page.getByTestId('number-input-livecommas-html').first();
 
   await expect(input).toBeVisible();
   await input.click();

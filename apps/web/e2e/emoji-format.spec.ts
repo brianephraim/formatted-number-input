@@ -5,8 +5,8 @@ test('caret mapping: emoji-separated display forwards focus to typing input', as
 }) => {
   await page.goto('/');
 
-  const display = page.getByTestId('number-input-emoji-html__display');
-  const typing = page.getByTestId('number-input-emoji-html');
+  const display = page.getByTestId('number-input-emoji-html__display').first();
+  const typing = page.getByTestId('number-input-emoji-html').first();
 
   await expect(display).toBeVisible();
 

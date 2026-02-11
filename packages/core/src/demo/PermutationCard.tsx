@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import type { TextInputProps } from 'react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { FormattedNumberInput } from '../FormattedNumberInput';
 import {
   type Permutation,
   type Platform,
   getFormattedNumberInputPropsForPermutation,
   getPermutationLabel,
+  getTestIdForPermutation,
 } from './permutations';
+
+const E2E_SET_VALUE = 1234.987654321;
 
 export function PermutationCard({
   perm,
@@ -21,6 +24,7 @@ export function PermutationCard({
   const [value, setValue] = useState(1234567.89);
   const props = getFormattedNumberInputPropsForPermutation(perm);
   const label = getPermutationLabel(perm, platform);
+  const testId = getTestIdForPermutation(perm);
 
   return (
     <View style={styles.card}>
@@ -32,7 +36,21 @@ export function PermutationCard({
         style={inputStyle}
         {...props}
       />
-      <Text style={styles.value}>value: {JSON.stringify(value)}</Text>
+      <View style={styles.actions}>
+        <Pressable
+          onPress={() => setValue(E2E_SET_VALUE)}
+          style={styles.setButton}
+          testID={testId ? `${testId}__set` : undefined}
+        >
+          <Text style={styles.setButtonText}>Set</Text>
+        </Pressable>
+        <Text
+          style={styles.value}
+          testID={testId ? `${testId}__value` : undefined}
+        >
+          value: {JSON.stringify(value)}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -53,10 +71,26 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
     color: '#ccc',
   },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 6,
+  },
+  setButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    backgroundColor: '#4a90d9',
+  },
+  setButtonText: {
+    fontSize: 11,
+    fontFamily: 'monospace',
+    color: '#fff',
+  },
   value: {
     fontSize: 11,
     opacity: 0.8,
-    marginTop: 6,
     fontFamily: 'monospace',
     color: '#ccc',
   },

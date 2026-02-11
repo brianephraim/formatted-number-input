@@ -120,7 +120,9 @@ export function PermutationsDemo({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Permutations</Text>
+      <Text style={styles.title} testID="permutations-title">
+        Permutations
+      </Text>
 
       <PermutationControls
         platform={platform}

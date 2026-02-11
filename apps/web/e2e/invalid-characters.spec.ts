@@ -5,8 +5,10 @@ test('invalid characters: letters do not reappear after blur/refocus (reseeds on
 }) => {
   await page.goto('/');
 
-  const input = page.getByTestId('number-input-default-html');
-  const display = page.getByTestId('number-input-default-html__display');
+  const input = page.getByTestId('number-input-default-html').first();
+  const display = page
+    .getByTestId('number-input-default-html__display')
+    .first();
 
   // Focus through overlay.
   await expect(display).toBeVisible();
@@ -17,7 +19,7 @@ test('invalid characters: letters do not reappear after blur/refocus (reseeds on
   await input.fill('12abc34');
 
   // Blur so overlay is visible again.
-  await page.click('h1');
+  await page.getByTestId('permutations-title').click();
   await expect(display).toBeVisible();
 
   // Refocus; the typing input should be reseeded from controlled value (letters removed).

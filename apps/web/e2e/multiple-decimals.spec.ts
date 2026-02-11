@@ -5,9 +5,11 @@ test('parsing: multiple decimal points does not crash and emits a number (collap
 }) => {
   await page.goto('/');
 
-  const input = page.getByTestId('number-input-default-html');
-  const display = page.getByTestId('number-input-default-html__display');
-  const readout = page.getByTestId('number-input-default-html__value');
+  const input = page.getByTestId('number-input-default-html').first();
+  const display = page
+    .getByTestId('number-input-default-html__display')
+    .first();
+  const readout = page.getByTestId('number-input-default-html__value').first();
 
   await expect(display).toBeVisible();
   await display.click();

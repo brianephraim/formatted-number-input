@@ -156,6 +156,38 @@ export const bananaFormat = (n: number): string =>
     .replace(/,/g, '\u{1F34C}');
 
 /* ------------------------------------------------------------------ */
+/*  Test ID slug for e2e (must match apps/web/e2e/*.spec.ts expectations) */
+/* ------------------------------------------------------------------ */
+
+export function getTestIdSlug(perm: Permutation): string {
+  const {
+    inputComponent,
+    wrapperComponent,
+    maxDecimalPlaces,
+    decimalRoundingMode,
+    formatDisplay,
+    showCommasWhileEditing,
+  } = perm;
+
+  if (inputComponent !== 'html' || wrapperComponent !== 'html') {
+    return `${inputComponent}-${wrapperComponent}`;
+  }
+
+  if (showCommasWhileEditing === 'true') return 'livecommas';
+  if (formatDisplay === 'bananas') return 'emoji';
+  if (decimalRoundingMode === 'displayOnly') return 'displayonly';
+  if (maxDecimalPlaces === '2') return 'decimals';
+  if (maxDecimalPlaces === '5') return 'fixedwidth';
+
+  return 'default';
+}
+
+export function getTestIdForPermutation(perm: Permutation): string {
+  const slug = getTestIdSlug(perm);
+  return `number-input-${slug}-${perm.inputComponent}`;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Map a Permutation to FormattedNumberInput props                     */
 /* ------------------------------------------------------------------ */
 
@@ -171,6 +203,8 @@ export function getFormattedNumberInputPropsForPermutation(
   props.decimalRoundingMode = perm.decimalRoundingMode;
   if (perm.formatDisplay === 'bananas') props.formatDisplay = bananaFormat;
   props.showCommasWhileEditing = perm.showCommasWhileEditing === 'true';
+
+  props.testID = getTestIdForPermutation(perm);
 
   return props;
 }

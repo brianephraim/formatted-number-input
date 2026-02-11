@@ -5,10 +5,12 @@ test('default row: controlled set button updates readout and overlay toggles on 
 }) => {
   await page.goto('/');
 
-  const input = page.getByTestId('number-input-default-html');
-  const display = page.getByTestId('number-input-default-html__display');
-  const setBtn = page.getByTestId('number-input-default-html__set');
-  const readout = page.getByTestId('number-input-default-html__value');
+  const input = page.getByTestId('number-input-default-html').first();
+  const display = page
+    .getByTestId('number-input-default-html__display')
+    .first();
+  const setBtn = page.getByTestId('number-input-default-html__set').first();
+  const readout = page.getByTestId('number-input-default-html__value').first();
 
   // Initially blurred: display overlay should exist
   await expect(display).toBeVisible();
@@ -23,7 +25,7 @@ test('default row: controlled set button updates readout and overlay toggles on 
   await expect(display).toHaveCount(0);
 
   // Blur should bring overlay back
-  await page.click('h1');
+  await page.getByTestId('permutations-title').click();
   await expect(display).toBeVisible();
 });
 
@@ -32,8 +34,10 @@ test('caret mapping: clicking display roughly maps to typing selectionStart (com
 }) => {
   await page.goto('/');
 
-  const display = page.getByTestId('number-input-fixedwidth-html__display');
-  const typing = page.getByTestId('number-input-fixedwidth-html');
+  const display = page
+    .getByTestId('number-input-fixedwidth-html__display')
+    .first();
+  const typing = page.getByTestId('number-input-fixedwidth-html').first();
 
   // Ensure blurred overlay is visible
   await expect(display).toBeVisible();
