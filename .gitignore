@@ -25,6 +25,7 @@ apps/web/.vite
 
 # VitePress
 apps/docs/.vitepress/dist
+apps/docs/.vitepress/cache
 
 # misc
 *.tsbuildinfo
