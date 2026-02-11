@@ -26,6 +26,7 @@ export function PermutationCard({
         value={value}
         onChangeNumber={setValue}
         placeholder="Type here"
+        style={styles.input}
         {...props}
       />
       <Text style={styles.value}>value: {JSON.stringify(value)}</Text>
@@ -48,6 +49,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontFamily: 'monospace',
     color: '#ccc',
+  },
+  input: {
+    color: '#eee',
   },
   value: {
     fontSize: 11,
