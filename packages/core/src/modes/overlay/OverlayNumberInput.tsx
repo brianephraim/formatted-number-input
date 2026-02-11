@@ -86,7 +86,7 @@ export function OverlayNumberInput({
     : defaultFormatDisplay(displayValue, maxDecimalPlaces);
 
   return (
-    <Wrapper style={[styles.root, containerStyle]}>
+    <Wrapper style={[styles.overlayRoot, containerStyle]}>
       {/*
         TypingInput: uncontrolled editor.
         It stays mounted beneath the overlay, but we remount it on focus/blur to resync defaultValue.
@@ -133,7 +133,7 @@ export function OverlayNumberInput({
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
         inputMode={Platform.OS === 'web' ? 'numeric' : undefined}
-        style={[styles.inputBase, inputTextStyle, !isFocused && styles.typingInputHiddenText]}
+        style={[inputTextStyle, !isFocused && styles.typingInputHiddenText]}
         caretHidden={!isFocused}
         {...rest}
       />
@@ -176,7 +176,7 @@ export function OverlayNumberInput({
               // no-op: this field is display-only; focus will be forwarded immediately on web.
             }}
             caretHidden
-            style={[styles.inputBase, styles.displayInputFill, inputTextStyle]}
+            style={[styles.displayInputFill, inputTextStyle]}
           />
         </Wrapper>
       ) : null}
@@ -185,27 +185,9 @@ export function OverlayNumberInput({
 }
 
 const styles = StyleSheet.create({
-  root: {
-    width: '100%',
+  // Structural: needed for overlay positioning.
+  overlayRoot: {
     position: 'relative',
-
-    // Defaults to mimic a plain React Native TextInput box.
-    borderWidth: 1,
-    borderColor: '#999',
-    borderRadius: 8,
-    backgroundColor: 'transparent'
-  },
-
-  // Base input styles that should apply to BOTH the typing input and display overlay.
-  // Visual box styles (border/background/radius/margins/layout) are handled by the wrapper.
-  inputBase: {
-    width: '100%',
-
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-
-    fontSize: 16,
-    backgroundColor: 'transparent'
   },
 
   displayOverlay: {

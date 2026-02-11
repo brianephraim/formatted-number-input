@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { TextInputProps } from 'react-native';
 import { StyleSheet, Text, View } from 'react-native';
 import { NumberInput } from '../NumberInput';
 import {
@@ -11,9 +12,11 @@ import {
 export function PermutationCard({
   perm,
   platform,
+  inputStyle,
 }: {
   perm: Permutation;
   platform: Platform;
+  inputStyle: TextInputProps['style'];
 }) {
   const [value, setValue] = useState(1234567.89);
   const props = getNumberInputPropsForPermutation(perm);
@@ -26,7 +29,7 @@ export function PermutationCard({
         value={value}
         onChangeNumber={setValue}
         placeholder="Type here"
-        style={styles.input}
+        style={inputStyle}
         {...props}
       />
       <Text style={styles.value}>value: {JSON.stringify(value)}</Text>
@@ -49,9 +52,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontFamily: 'monospace',
     color: '#ccc',
-  },
-  input: {
-    color: '#eee',
   },
   value: {
     fontSize: 11,

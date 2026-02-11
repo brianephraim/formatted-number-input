@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
 import { DivWrapper } from '../../adapters/DivWrapper';
 import { HtmlInput } from '../../adapters/HtmlInput';
 import type { InputHandle } from '../../adapters/types';
@@ -151,7 +151,7 @@ export function LiveNumberInput({
   );
 
   return (
-    <Wrapper style={[styles.root, containerStyle]}>
+    <Wrapper style={containerStyle}>
       <Input
         ref={inputRef}
         value={formattedText}
@@ -182,31 +182,9 @@ export function LiveNumberInput({
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
         inputMode={Platform.OS === 'web' ? 'numeric' : undefined}
-        style={[styles.inputBase, inputTextStyle]}
+        style={inputTextStyle}
         {...rest}
       />
     </Wrapper>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    width: '100%',
-    position: 'relative',
-
-    borderWidth: 1,
-    borderColor: '#999',
-    borderRadius: 8,
-    backgroundColor: 'transparent'
-  },
-
-  inputBase: {
-    width: '100%',
-
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-
-    fontSize: 16,
-    backgroundColor: 'transparent'
-  }
-});

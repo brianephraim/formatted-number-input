@@ -30,6 +30,16 @@ export function translateRnStyleToCss(style: StyleObject): React.CSSProperties {
   if (style.left != null) css.left = toPx(style.left);
 
   if (style.padding != null) css.padding = toPx(style.padding);
+  const pv = style.paddingVertical;
+  const ph = style.paddingHorizontal;
+  if (pv != null) {
+    css.paddingTop = toPx(pv);
+    css.paddingBottom = toPx(pv);
+  }
+  if (ph != null) {
+    css.paddingLeft = toPx(ph);
+    css.paddingRight = toPx(ph);
+  }
   if (style.paddingTop != null) css.paddingTop = toPx(style.paddingTop);
   if (style.paddingRight != null) css.paddingRight = toPx(style.paddingRight);
   if (style.paddingBottom != null) css.paddingBottom = toPx(style.paddingBottom);

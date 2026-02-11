@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import {
   type CheckedState,
   type OptionKey,
@@ -9,17 +9,20 @@ import {
 } from './permutations';
 import { PermutationCard } from './PermutationCard';
 import { PermutationControls } from './PermutationControls';
+import { flattenRnStyle, translateRnStyleToCss } from '../adapters/rnStyleToCss';
 
-const htmlNumberInputStyle = {
-  width: '100%',
-  padding: '10px 12px',
-  border: '1px solid #999',
+/** Shared style for all inputs so NumberInput and base inputs render identically. */
+const sharedInputStyle = {
+  width: '100%' as const,
+  borderWidth: 1,
+  borderColor: '#999',
   borderRadius: 8,
-  backgroundColor: 'transparent',
-  color: '#eee',
+  paddingVertical: 10,
+  paddingHorizontal: 12,
   fontSize: 16,
-  boxSizing: 'border-box',
-} as const;
+  color: '#eee',
+  backgroundColor: 'transparent',
+};
 
 export type PermutationsDemoProps = {
   platform: Platform;
@@ -27,9 +30,20 @@ export type PermutationsDemoProps = {
   onCheckedChange?: (checked: CheckedState) => void;
 };
 
-function BaseInputExamples({ platform }: { platform: Platform }) {
+function BaseInputExamples({
+  platform,
+  inputStyle,
+}: {
+  platform: Platform;
+  inputStyle: typeof sharedInputStyle;
+}) {
   const [htmlValue, setHtmlValue] = useState('1234567.89');
   const [rnValue, setRnValue] = useState('1234567.89');
+
+  const htmlCssStyle = {
+    ...translateRnStyleToCss(flattenRnStyle(inputStyle)),
+    boxSizing: 'border-box' as const,
+  };
 
   return (
     <View style={styles.examplesContainer}>
@@ -45,7 +59,7 @@ function BaseInputExamples({ platform }: { platform: Platform }) {
             placeholder="Type here"
             value={htmlValue}
             onChange={(event) => setHtmlValue(event.currentTarget.value)}
-            style={htmlNumberInputStyle}
+            style={htmlCssStyle}
           />
           <Text style={styles.value}>value: {JSON.stringify(htmlValue)}</Text>
         </View>
@@ -63,7 +77,7 @@ function BaseInputExamples({ platform }: { platform: Platform }) {
           placeholder="Type here"
           keyboardType={platform === 'web' ? undefined : 'decimal-pad'}
           inputMode={platform === 'web' ? 'decimal' : undefined}
-          style={styles.baseTextInput}
+          style={inputStyle}
         />
         <Text style={styles.value}>value: {JSON.stringify(rnValue)}</Text>
       </View>
@@ -109,7 +123,7 @@ export function PermutationsDemo({
         onChange={handleChange}
       />
 
-      <BaseInputExamples platform={platform} />
+      <BaseInputExamples platform={platform} inputStyle={sharedInputStyle} />
 
       <Text style={styles.count}>
         Showing {permutations.length} permutation{permutations.length !== 1 ? 's' : ''}
@@ -120,6 +134,7 @@ export function PermutationsDemo({
           key={JSON.stringify(perm)}
           perm={perm}
           platform={platform}
+          inputStyle={sharedInputStyle}
         />
       ))}
     </View>
@@ -176,16 +191,5 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontFamily: 'monospace',
     color: '#ccc',
-  },
-  baseTextInput: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#999',
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    fontSize: 16,
-    color: '#eee',
-    backgroundColor: 'transparent',
   },
 });
