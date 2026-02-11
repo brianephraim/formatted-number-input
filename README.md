@@ -58,6 +58,14 @@ Backspace and Delete intelligently skip over comma separators to delete the near
 
 All other `TextInput` props (e.g. `placeholder`, `style`, `testID`) are forwarded to the underlying input.
 
+## Documentation
+
+```bash
+npm run dev:docs     # local dev at http://localhost:5173/react-fancy-number-input/
+npm run build:docs  # build for GitHub Pages
+npm run deploy:docs # build and push to gh-pages branch
+```
+
 ## Repo layout
 
 - `packages/core` → the reusable component package (`@rn-number-input/core`)
@@ -68,6 +76,7 @@ All other `TextInput` props (e.g. `placeholder`, `style`, `testID`) are forwarde
   - `src/adapters/` → platform adapters (`HtmlInput`, `DivWrapper`)
 - `apps/web` → Vite + React + react-native-web playground
 - `apps/expo` → Expo demo app
+- `apps/docs` → VitePress documentation (deployable to GitHub Pages)
 
 ## Notes
 

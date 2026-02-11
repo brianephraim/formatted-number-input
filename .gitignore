@@ -23,6 +23,9 @@ pnpm-debug.log*
 apps/web/dist
 apps/web/.vite
 
+# VitePress
+apps/docs/.vitepress/dist
+
 # misc
 *.tsbuildinfo
 

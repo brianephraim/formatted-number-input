@@ -9,6 +9,9 @@ Monorepo for `@rn-number-input/core`, a React Native-compatible number input com
 ```bash
 npm install                # install dependencies
 npm run dev:web            # start Vite dev server (web playground)
+npm run dev:docs           # start VitePress docs (localhost)
+npm run build:docs         # build docs for GitHub Pages
+npm run deploy:docs        # deploy docs to gh-pages branch
 npx expo start             # start Expo dev server (apps/expo)
 npm run lint               # lint (from packages/core)
 npm test                   # run tests
