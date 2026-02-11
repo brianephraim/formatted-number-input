@@ -20,6 +20,7 @@ export function DemoScreenScroll({
   return (
     <ScrollView
       keyboardShouldPersistTaps={keyboardShouldPersistTaps}
+      automaticallyAdjustKeyboardInsets 
       contentContainerStyle={contentContainerStyle}
       {...rest}
     >

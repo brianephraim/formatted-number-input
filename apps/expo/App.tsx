@@ -8,11 +8,14 @@ type ScreenName = 'permutations' | 'simple-text-inputs';
 
 export default function App() {
   const [screen, setScreen] = useState<ScreenName>('permutations');
-
+if(screen !== 'permutations'){
+  return (
+      <SimpleTextInputsScreen onGoToPermutations={() => setScreen('permutations')} />
+  );
+}
   return (
     <DemoScreen>
-      {screen === 'permutations' ? (
-        <View style={styles.container}>
+      <View style={styles.container}>
           <Pressable
             style={styles.navButton}
             onPress={() => setScreen('simple-text-inputs')}
@@ -21,9 +24,6 @@ export default function App() {
           </Pressable>
           <PermutationsDemo platform="native" scrollable={false} />
         </View>
-      ) : (
-        <SimpleTextInputsScreen onGoToPermutations={() => setScreen('permutations')} />
-      )}
     </DemoScreen>
   );
 }

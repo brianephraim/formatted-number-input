@@ -126,11 +126,13 @@ export function PermutationsDemo({
       ))}
     </View>
   );
-
   if (!scrollable) return content;
-
   return (
-    <ScrollView contentContainerStyle={styles.scroll}>
+    <ScrollView
+      contentContainerStyle={styles.scroll}
+      automaticallyAdjustKeyboardInsets
+      
+    >
       {content}
     </ScrollView>
   );
@@ -138,7 +140,7 @@ export function PermutationsDemo({
 
 const styles = StyleSheet.create({
   scroll: {
-    padding: 16,
+    borderColor: '#4a90d9',
   },
   container: {
     flex: 1,

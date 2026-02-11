@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
-import { BlurOnTapCapture } from './BlurOnTapCapture';
 import { DemoScreenShell } from './DemoScreenShell';
 import { DemoScreenScroll } from './DemoScreenScroll';
 
@@ -26,9 +25,8 @@ export function DemoScreen({
   return (
     <DemoScreenShell>
       <DemoScreenScroll contentContainerStyle={contentContainerStyle}>
-        <BlurOnTapCapture enabled={enabledBlurOnTap} onBlurTap={onBackgroundTap}>
+
           {children}
-        </BlurOnTapCapture>
       </DemoScreenScroll>
     </DemoScreenShell>
   );
