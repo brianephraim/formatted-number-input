@@ -10,7 +10,7 @@ export default defineConfig({
       'react-native': 'react-native-web',
       'react-native$': 'react-native-web',
       // Import package source directly for fast iteration
-      '@formatted-number-input/core': path.resolve(
+      'formatted-number-input': path.resolve(
         __dirname,
         '../../packages/core/src'
       ),

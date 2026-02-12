@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FormattedNumberInput } from '@formatted-number-input/core';
+import { FormattedNumberInput } from 'formatted-number-input';
 import { TextInput, View } from 'react-native';
 
 type Variant =

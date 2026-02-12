@@ -5,7 +5,7 @@ import {
   type CheckedState,
   parseCheckedFromParams,
   checkedToParams,
-} from '@formatted-number-input/core/demo';
+} from 'formatted-number-input/demo';
 
 export default function PermutationsPage() {
   const [searchParams, setSearchParams] = useSearchParams();

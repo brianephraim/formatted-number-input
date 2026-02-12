@@ -17,7 +17,7 @@ hero:
 ## Quick start
 
 ```tsx
-import { FormattedNumberInputHtmlLike } from '@formatted-number-input/core';
+import { FormattedNumberInputHtmlLike } from 'formatted-number-input';
 
 const [value, setValue] = useState(1234567);
 

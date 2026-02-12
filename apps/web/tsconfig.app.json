@@ -19,8 +19,8 @@
     /* Workspace path aliases (so TS can resolve the local package without building dist/) */
     "baseUrl": ".",
     "paths": {
-      "@formatted-number-input/core": ["../../packages/core/src/index.tsx"],
-      "@formatted-number-input/core/*": ["../../packages/core/src/*"]
+      "formatted-number-input": ["../../packages/core/src/index.tsx"],
+      "formatted-number-input/*": ["../../packages/core/src/*"]
     },
 
     /* Linting */

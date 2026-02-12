@@ -1,6 +1,6 @@
 # Documentation site
 
-VitePress documentation for `@formatted-number-input/core`, deployable to GitHub Pages.
+VitePress documentation for `formatted-number-input`, deployable to GitHub Pages.
 
 ## Local development
 

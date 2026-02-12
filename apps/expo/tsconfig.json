@@ -4,8 +4,8 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@formatted-number-input/core": ["../../packages/core/src/index.tsx"],
-      "@formatted-number-input/core/*": ["../../packages/core/src/*"]
+      "formatted-number-input": ["../../packages/core/src/index.tsx"],
+      "formatted-number-input/*": ["../../packages/core/src/*"]
     }
   },
   "include": [

@@ -1,6 +1,6 @@
 # Regression Test Plan — formatted-number-input
 
-This document is a manual regression checklist for the web demo (`apps/web`) that exercises the core behaviors of the `@formatted-number-input/core` `FormattedNumberInput` component.
+This document is a manual regression checklist for the web demo (`apps/web`) that exercises the core behaviors of the `formatted-number-input` `FormattedNumberInput` component.
 
 It is designed to be executable by a human (or later automated with Playwright), and covers:
 

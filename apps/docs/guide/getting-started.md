@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-npm install @formatted-number-input/core
+npm install formatted-number-input
 ```
 
 ## Web — HTML drop-in replacement
@@ -11,7 +11,7 @@ npm install @formatted-number-input/core
 Use `FormattedNumberInputHtmlLike` as a drop-in replacement for `<input type="number">`. It accepts standard HTML input attributes like `disabled`, `className`, `id`, `name`, `aria-*`, `data-*`, `tabIndex`, and `autoComplete`.
 
 ```tsx
-import { FormattedNumberInputHtmlLike } from '@formatted-number-input/core';
+import { FormattedNumberInputHtmlLike } from 'formatted-number-input';
 
 function App() {
   const [value, setValue] = useState(1234567);
@@ -40,7 +40,7 @@ The key differences from a standard `<input>`:
 Use `FormattedNumberInput` for full control. It uses React Native `TextInput`-style props (`editable` instead of `disabled`, style objects, etc.) and works on both web and native.
 
 ```tsx
-import { FormattedNumberInput } from '@formatted-number-input/core';
+import { FormattedNumberInput } from 'formatted-number-input';
 
 function App() {
   const [value, setValue] = useState(1234567);
@@ -55,7 +55,7 @@ The component works as a drop-in replacement for React Native `TextInput`. Pass 
 
 ```tsx
 import { TextInput, View } from 'react-native';
-import { FormattedNumberInput } from '@formatted-number-input/core';
+import { FormattedNumberInput } from 'formatted-number-input';
 
 function App() {
   const [value, setValue] = useState(1234567);

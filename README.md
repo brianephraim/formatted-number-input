@@ -1,4 +1,4 @@
-# @formatted-number-input/core
+# formatted-number-input
 
 A drop-in replacement for `<input type="number">` (web) and React Native `TextInput` that adds automatic number formatting with comma separators, decimal rounding, and intelligent cursor management.
 
@@ -15,7 +15,7 @@ A drop-in replacement for `<input type="number">` (web) and React Native `TextIn
 ## Installation
 
 ```bash
-npm install @formatted-number-input/core
+npm install formatted-number-input
 ```
 
 ## Quick start
@@ -25,7 +25,7 @@ npm install @formatted-number-input/core
 Use `FormattedNumberInputHtmlLike` as a drop-in replacement for `<input>`. It accepts standard HTML input attributes like `disabled`, `className`, `id`, `aria-*`, and `data-*`.
 
 ```tsx
-import { FormattedNumberInputHtmlLike } from '@formatted-number-input/core';
+import { FormattedNumberInputHtmlLike } from 'formatted-number-input';
 
 function App() {
   const [value, setValue] = useState(1234567);
@@ -46,7 +46,7 @@ function App() {
 Use `FormattedNumberInput` for full control. It uses React Native `TextInput`-style props (`editable` instead of `disabled`, `onChangeText`, etc.) and works on both platforms.
 
 ```tsx
-import { FormattedNumberInput } from '@formatted-number-input/core';
+import { FormattedNumberInput } from 'formatted-number-input';
 
 function App() {
   const [value, setValue] = useState(1234567);
@@ -61,7 +61,7 @@ Pass your platform's `TextInput` and `View` as adapters:
 
 ```tsx
 import { TextInput, View } from 'react-native';
-import { FormattedNumberInput } from '@formatted-number-input/core';
+import { FormattedNumberInput } from 'formatted-number-input';
 
 <FormattedNumberInput
   value={value}
@@ -124,7 +124,7 @@ npm run deploy:docs  # build and push to gh-pages branch
 
 ## Repo layout
 
-- `packages/core` — the reusable component package (`@formatted-number-input/core`)
+- `packages/core` — the reusable component package (`formatted-number-input`)
   - `src/FormattedNumberInput.tsx` — hub component that routes to the active mode
   - `src/FormattedNumberInputHtmlLike.tsx` — HTML-compatible drop-in wrapper
   - `src/modes/overlay/` — overlay mode (dual-input architecture)

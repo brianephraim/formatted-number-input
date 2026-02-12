@@ -55,10 +55,10 @@ The displayed value is rounded, but `onChangeNumber` receives the unrounded valu
 import {
   FormattedNumberInput,
   FormattedNumberInputHtmlLike,
-} from '@formatted-number-input/core';
+} from 'formatted-number-input';
 
 // Adapters (for custom platform integration)
-import { HtmlInput, DivWrapper } from '@formatted-number-input/core';
+import { HtmlInput, DivWrapper } from 'formatted-number-input';
 
 // Types
 import type {
@@ -70,5 +70,5 @@ import type {
   WrapperProps,
   RNishInputProps,
   RNPointerEvents,
-} from '@formatted-number-input/core';
+} from 'formatted-number-input';
 ```
