@@ -1,8 +1,24 @@
 {
   "name": "formatted-number-input",
   "version": "0.1.0",
-  "description": "React Native-compatible number input component",
+  "description": "Drop-in formatted number input for web and React Native",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brianephraim/formatted-number-input.git"
+  },
+  "homepage": "https://brianephraim.github.io/formatted-number-input/",
+  "bugs": {
+    "url": "https://github.com/brianephraim/formatted-number-input/issues"
+  },
+  "keywords": [
+    "react",
+    "react-native",
+    "input",
+    "number",
+    "formatted-input",
+    "currency"
+  ],
   "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
