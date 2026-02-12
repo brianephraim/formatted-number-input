@@ -22,6 +22,8 @@
     "test:core": "npm -w formatted-number-input run test",
     "test:e2e": "playwright test",
     "testall": "npm run format:check && npm run typecheck && npm run lint && npm run test:core && npm run test:e2e && npm run build",
+    "publish:npm": "node scripts/publish-npm.mjs",
+    "publish:npm:dry": "node scripts/publish-npm.mjs --dry-run",
     "prepare": "git config core.hooksPath scripts/git-hooks 2>/dev/null || true"
   },
   "devDependencies": {
