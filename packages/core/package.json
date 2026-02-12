@@ -1,6 +1,6 @@
 {
   "name": "formatted-number-input",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Drop-in formatted number input for web and React Native",
   "license": "MIT",
   "repository": {
