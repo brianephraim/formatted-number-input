@@ -28,10 +28,7 @@ config.resolver.resolverMainFields = [
 // Resolve the workspace package from source so we can skip a build step.
 config.resolver.extraNodeModules = {
   ...config.resolver.extraNodeModules,
-  'formatted-number-input': path.resolve(
-    workspaceRoot,
-    'packages/core/src'
-  ),
+  'formatted-number-input': path.resolve(workspaceRoot, 'packages/core/src'),
 };
 
 module.exports = config;
