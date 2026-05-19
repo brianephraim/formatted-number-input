@@ -3,7 +3,8 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
 // react-native-web setup for Vite
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/formatted-number-input/web-standalone/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -24,4 +25,4 @@ export default defineConfig({
   define: {
     __DEV__: JSON.stringify(true),
   },
-});
+}));

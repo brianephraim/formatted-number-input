@@ -11,6 +11,7 @@ import {
 } from './permutations';
 
 const E2E_SET_VALUE = 1234.987654321;
+const E2E_SET_LABEL = `Set ${E2E_SET_VALUE}`;
 
 export function PermutationCard({
   perm,
@@ -42,7 +43,7 @@ export function PermutationCard({
           style={styles.setButton}
           testID={testId ? `${testId}__set` : undefined}
         >
-          <Text style={styles.setButtonText}>Set</Text>
+          <Text style={styles.setButtonText}>{E2E_SET_LABEL}</Text>
         </Pressable>
         <Text
           style={styles.value}

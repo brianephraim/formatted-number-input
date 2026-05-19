@@ -12,6 +12,9 @@ hero:
     - theme: alt
       text: API
       link: /api/props
+    - theme: alt
+      text: Web demo
+      link: /web
 ---
 
 ## Quick start
@@ -37,3 +40,8 @@ const [value, setValue] = useState(1234567);
 - **Custom formatters** — emoji separators, spaces, or any custom format function
 - **Cross-platform** — works on web and React Native via adapter props
 - **Lightweight** — no external dependencies; uses native `Intl.NumberFormat`
+
+## Demos
+
+- [Web playground](/web) — interactive Vite demo inside the docs shell
+- [Expo Snack](/guide/expo-snack) — live React Native demo powered by Snack and source files served from this site

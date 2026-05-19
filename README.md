@@ -2,6 +2,12 @@
 
 A drop-in replacement for `<input type="number">` (web) and React Native `TextInput` that adds automatic number formatting with comma separators, decimal rounding, and intelligent cursor management.
 
+Docs and demos:
+
+- [Documentation](https://brianephraim.github.io/formatted-number-input/)
+- [Web demo](https://brianephraim.github.io/formatted-number-input/web.html)
+- [Expo Snack demo](https://brianephraim.github.io/formatted-number-input/guide/expo-snack.html)
+
 ## Features
 
 - **Drop-in replacement** — swap out your `<input>` or `TextInput` with minimal changes

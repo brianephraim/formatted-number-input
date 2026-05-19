@@ -26,6 +26,7 @@ apps/web/.vite
 # VitePress
 apps/docs/.vitepress/dist
 apps/docs/.vitepress/cache
+apps/docs/public/snack-src
 
 # misc
 *.tsbuildinfo
