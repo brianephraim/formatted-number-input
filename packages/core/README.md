@@ -13,7 +13,7 @@ npm install formatted-number-input
 ```tsx
 import { FormattedNumberInputHtmlLike } from 'formatted-number-input';
 
-<FormattedNumberInputHtmlLike value={value} onChangeNumber={setValue} />
+<FormattedNumberInputHtmlLike value={value} onChangeNumber={setValue} />;
 ```
 
 Or use the cross-platform API:
@@ -21,7 +21,7 @@ Or use the cross-platform API:
 ```tsx
 import { FormattedNumberInput } from 'formatted-number-input';
 
-<FormattedNumberInput value={value} onChangeNumber={setValue} />
+<FormattedNumberInput value={value} onChangeNumber={setValue} />;
 ```
 
 ## Docs

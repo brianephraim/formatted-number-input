@@ -18,27 +18,49 @@ async function main() {
   const rl = createInterface({ input, output });
 
   try {
-    const currentVersion = runCapture(`npm -w ${PACKAGE_WORKSPACE} pkg get version`).replace(/"/g, '');
+    const currentVersion = runCapture(
+      `npm -w ${PACKAGE_WORKSPACE} pkg get version`
+    ).replace(/"/g, '');
     console.log(`\nCurrent version: ${currentVersion}`);
 
-    const bumpAnswer = (await rl.question('Bump version before publish? (y/N): ')).trim().toLowerCase();
+    const bumpAnswer = (
+      await rl.question('Bump version before publish? (y/N): ')
+    )
+      .trim()
+      .toLowerCase();
 
     if (bumpAnswer === 'y' || bumpAnswer === 'yes') {
-      const degree = (await rl.question('Select bump type [patch|minor|major|custom]: ')).trim().toLowerCase();
+      const degree = (
+        await rl.question('Select bump type [patch|minor|major|custom]: ')
+      )
+        .trim()
+        .toLowerCase();
 
       if (degree === 'patch' || degree === 'minor' || degree === 'major') {
-        run(`npm -w ${PACKAGE_WORKSPACE} version ${degree} --no-git-tag-version`);
+        run(
+          `npm -w ${PACKAGE_WORKSPACE} version ${degree} --no-git-tag-version`
+        );
       } else if (degree === 'custom') {
-        const customVersion = (await rl.question('Enter exact version (e.g. 0.2.0): ')).trim();
+        const customVersion = (
+          await rl.question('Enter exact version (e.g. 0.2.0): ')
+        ).trim();
         if (!customVersion) throw new Error('Custom version is required.');
-        run(`npm -w ${PACKAGE_WORKSPACE} version ${customVersion} --no-git-tag-version`);
+        run(
+          `npm -w ${PACKAGE_WORKSPACE} version ${customVersion} --no-git-tag-version`
+        );
       } else {
-        throw new Error('Invalid bump type. Use patch, minor, major, or custom.');
+        throw new Error(
+          'Invalid bump type. Use patch, minor, major, or custom.'
+        );
       }
     }
 
-    const nextVersion = runCapture(`npm -w ${PACKAGE_WORKSPACE} pkg get version`).replace(/"/g, '');
-    console.log(`\nPublishing ${PACKAGE_WORKSPACE}@${nextVersion}${dryRun ? ' (dry-run)' : ''}...`);
+    const nextVersion = runCapture(
+      `npm -w ${PACKAGE_WORKSPACE} pkg get version`
+    ).replace(/"/g, '');
+    console.log(
+      `\nPublishing ${PACKAGE_WORKSPACE}@${nextVersion}${dryRun ? ' (dry-run)' : ''}...`
+    );
 
     const otp = (await rl.question('OTP (leave blank to skip): ')).trim();
     const otpArg = otp ? ` --otp ${otp}` : '';

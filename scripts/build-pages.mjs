@@ -7,10 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..');
 
-const docsPublicSnackSrcDir = path.join(
-  repoRoot,
-  'apps/docs/public/snack-src'
-);
+const docsPublicSnackSrcDir = path.join(repoRoot, 'apps/docs/public/snack-src');
 const docsDistDir = path.join(repoRoot, 'apps/docs/.vitepress/dist');
 const webDistDir = path.join(repoRoot, 'apps/web/dist');
 
@@ -27,13 +24,15 @@ const run = (args) => {
 };
 
 await rm(docsPublicSnackSrcDir, { recursive: true, force: true });
-await mkdir(
-  path.join(docsPublicSnackSrcDir, 'formatted-number-input'),
-  { recursive: true }
-);
+await mkdir(path.join(docsPublicSnackSrcDir, 'formatted-number-input'), {
+  recursive: true,
+});
 
 await cp(
-  path.join(repoRoot, 'apps/docs/.vitepress/theme/snacks/formatted-number-input/App.js'),
+  path.join(
+    repoRoot,
+    'apps/docs/.vitepress/theme/snacks/formatted-number-input/App.js'
+  ),
   path.join(docsPublicSnackSrcDir, 'App.js')
 );
 
