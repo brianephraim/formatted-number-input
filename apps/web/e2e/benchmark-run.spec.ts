@@ -64,7 +64,7 @@ async function clearInput(page: Page) {
 test('benchmark run (automated): collects metrics for key variants', async ({
   page,
 }, testInfo) => {
-  await page.goto('/#/benchmark');
+  await page.goto('/web.html#/benchmark');
 
   const payload = '1234567890'.repeat(20); // 200 chars
   const iterations = 5;

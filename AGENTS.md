@@ -4,13 +4,21 @@
 
 Monorepo for `formatted-number-input`, a React Native-compatible number input component. See `README.md` for usage and architecture.
 
+## Framework policy
+
+- This is a React / React Native library repo. Prefer React-based tools and site architecture for demos, docs shells, and landing pages.
+- Do **not** introduce Vue, VitePress theme customization, Vue single-file components, or React-mounted-inside-Vue wrappers for user-facing site work unless the human explicitly asks for Vue.
+- When working on the `gh-pages` landing page or docs UX, prefer extending `apps/web` or another React-based surface rather than adding more logic under a Vue-based docs theme.
+- If an existing non-React docs stack creates friction, pause and propose a React-first refactor plan instead of deepening the mixed-framework setup.
+- Treat mixed-framework solutions as a last resort that require explicit user approval.
+
 ## Common commands
 
 ```bash
 npm install                # install dependencies
-npm run dev:web            # start Vite dev server (web playground)
-npm run dev:docs           # start VitePress docs (localhost)
-npm run build:docs        # build docs for GitHub Pages
+npm run dev:web            # start React docs/site dev server
+npm run dev:docs           # alias for the React docs/site dev server
+npm run build:docs        # build the React site for GitHub Pages
 npm run deploy:docs       # deploy docs to gh-pages branch
 npx expo start             # start Expo dev server (apps/expo)
 npm run lint               # lint (from packages/core)

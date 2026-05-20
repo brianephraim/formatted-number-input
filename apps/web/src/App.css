@@ -1,12 +1,9 @@
 .web-demo-shell {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 32px 16px 48px;
+  padding: 0;
 }
 
 .web-demo-shell--embedded {
   max-width: none;
-  padding: 20px 20px 28px;
 }
 
 .web-demo-header {

@@ -4,7 +4,7 @@ import path from 'node:path';
 
 // react-native-web setup for Vite
 export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/formatted-number-input/web-standalone/' : '/',
+  base: command === 'build' ? '/formatted-number-input/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -24,5 +24,24 @@ export default defineConfig(({ command }) => ({
   },
   define: {
     __DEV__: JSON.stringify(true),
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        web: path.resolve(__dirname, 'web.html'),
+        apiProps: path.resolve(__dirname, 'api/props.html'),
+        guideGettingStarted: path.resolve(
+          __dirname,
+          'guide/getting-started.html'
+        ),
+        guideDisplayModes: path.resolve(
+          __dirname,
+          'guide/display-modes.html'
+        ),
+        guideNuances: path.resolve(__dirname, 'guide/nuances.html'),
+        guideExpoSnack: path.resolve(__dirname, 'guide/expo-snack.html'),
+      },
+    },
   },
 }));

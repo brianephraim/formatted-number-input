@@ -1,5 +1,4 @@
 import { useMemo, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import {
   PermutationsDemo,
   type CheckedState,
@@ -8,10 +7,8 @@ import {
 } from 'formatted-number-input/demo';
 
 export default function PermutationsPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
   const initialChecked = useMemo(
-    () => parseCheckedFromParams(searchParams, 'web'),
+    () => parseCheckedFromParams(new URLSearchParams(window.location.search), 'web'),
     // Only compute once on mount — URL params are the initial state
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -19,9 +16,11 @@ export default function PermutationsPage() {
 
   const handleCheckedChange = useCallback(
     (checked: CheckedState) => {
-      setSearchParams(checkedToParams(checked, 'web'), { replace: true });
+      const next = checkedToParams(checked, 'web');
+      const nextUrl = `${window.location.pathname}?${next.toString()}${window.location.hash}`;
+      window.history.replaceState(null, '', nextUrl);
     },
-    [setSearchParams]
+    []
   );
 
   return (

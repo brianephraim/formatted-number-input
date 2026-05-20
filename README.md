@@ -123,7 +123,7 @@ All other `TextInput` props (e.g. `placeholder`, `style`, `testID`, `editable`) 
 Full docs: [brianephraim.github.io/formatted-number-input](https://brianephraim.github.io/formatted-number-input/)
 
 ```bash
-npm run dev:docs     # local dev at http://localhost:5173/formatted-number-input/
+npm run dev:docs     # local React docs/site dev server
 npm run build:docs   # build for GitHub Pages
 npm run deploy:docs  # build and push to gh-pages branch
 ```
@@ -137,9 +137,8 @@ npm run deploy:docs  # build and push to gh-pages branch
   - `src/modes/live/` — live formatting mode (single controlled input)
   - `src/numberFormatting.ts` — shared formatting and cursor-mapping helpers
   - `src/adapters/` — platform adapters (`HtmlInput`, `DivWrapper`)
-- `apps/web` — Vite + React playground
+- `apps/web` — React landing page, docs site, and browser playground
 - `apps/expo` — Expo demo app
-- `apps/docs` — VitePress documentation
 
 ## Development
 

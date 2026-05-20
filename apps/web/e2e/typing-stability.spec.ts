@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('typing stability: inserting in the middle does not jump caret to end (smoke)', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/web.html');
 
   const input = page.getByTestId('number-input-default-html').first();
   const display = page

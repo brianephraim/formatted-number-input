@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('default row: controlled set button updates readout and overlay toggles on focus/blur (html adapters)', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/web.html');
 
   const input = page.getByTestId('number-input-default-html').first();
   const display = page
@@ -32,7 +32,7 @@ test('default row: controlled set button updates readout and overlay toggles on 
 test('caret mapping: clicking display roughly maps to typing selectionStart (comma formatted, right-aligned)', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/web.html');
 
   const display = page
     .getByTestId('number-input-fixedwidth-html__display')

@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "formatted-number-input": "file:../../packages/core",
+    "qrcode": "^1.5.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native-web": "^0.19.12",
-    "react-router-dom": "^7.13.0"
+    "react-native-web": "^0.19.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

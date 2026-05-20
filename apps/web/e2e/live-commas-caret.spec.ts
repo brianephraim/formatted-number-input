@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('live commas: typing in the middle keeps caret near insertion point', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/web.html');
 
   const input = page.getByTestId('number-input-livecommas-html').first();
 

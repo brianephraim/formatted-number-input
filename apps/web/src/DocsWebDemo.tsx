@@ -1,14 +1,34 @@
-import { useState } from 'react';
-
-import { PermutationsDemo } from 'formatted-number-input/demo';
-
-import './App.css';
+import { useEffect, useState } from 'react';
 import BenchmarkPage from './pages/BenchmarkPage';
+import PermutationsPage from './pages/PermutationsPage';
+import './App.css';
 
 type TabKey = 'permutations' | 'benchmark';
 
+function getTabFromHash(): TabKey {
+  return window.location.hash === '#/benchmark' ? 'benchmark' : 'permutations';
+}
+
 export default function DocsWebDemo() {
-  const [activeTab, setActiveTab] = useState<TabKey>('permutations');
+  const [activeTab, setActiveTab] = useState<TabKey>(getTabFromHash);
+
+  useEffect(() => {
+    function syncTab() {
+      setActiveTab(getTabFromHash());
+    }
+
+    window.addEventListener('hashchange', syncTab);
+    return () => window.removeEventListener('hashchange', syncTab);
+  }, []);
+
+  function setTab(nextTab: TabKey) {
+    const nextHash = nextTab === 'benchmark' ? '#/benchmark' : '#/';
+    if (window.location.hash !== nextHash) {
+      window.location.hash = nextHash;
+    } else {
+      setActiveTab(nextTab);
+    }
+  }
 
   return (
     <div className="web-demo-shell web-demo-shell--embedded">
@@ -31,7 +51,7 @@ export default function DocsWebDemo() {
               ? 'web-demo-nav__link is-active'
               : 'web-demo-nav__link'
           }
-          onClick={() => setActiveTab('permutations')}
+          onClick={() => setTab('permutations')}
         >
           Permutations
         </button>
@@ -42,14 +62,14 @@ export default function DocsWebDemo() {
               ? 'web-demo-nav__link is-active'
               : 'web-demo-nav__link'
           }
-          onClick={() => setActiveTab('benchmark')}
+          onClick={() => setTab('benchmark')}
         >
           Benchmark
         </button>
       </div>
 
       {activeTab === 'permutations' ? (
-        <PermutationsDemo platform="web" />
+        <PermutationsPage />
       ) : (
         <BenchmarkPage />
       )}

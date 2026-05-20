@@ -22,6 +22,7 @@ pnpm-debug.log*
 # Vite
 apps/web/dist
 apps/web/.vite
+apps/web/public/snack-src
 
 # VitePress
 apps/docs/.vitepress/dist
