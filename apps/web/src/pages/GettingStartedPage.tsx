@@ -58,9 +58,9 @@ function App() {
       <section className="docs-section">
         <h2>Web or React Native: core API</h2>
         <p>
-          Use <code>FormattedNumberInput</code> for full control. It uses
-          React Native <code>TextInput</code>-style props and works on both web
-          and native.
+          Use <code>FormattedNumberInput</code> for full control. It uses React
+          Native <code>TextInput</code>-style props and works on both web and
+          native.
         </p>
         <CodeBlock language="tsx">{`import { FormattedNumberInput } from 'formatted-number-input';
 
@@ -106,18 +106,16 @@ function App() {
         <h2>Next steps</h2>
         <ul className="docs-list">
           <li>
-            <a href={sitePath('guide/display-modes.html')}>
-              Display modes
-            </a>{' '}
-            for overlay vs live comma formatting
+            <a href={sitePath('guide/display-modes.html')}>Display modes</a> for
+            overlay vs live comma formatting
           </li>
           <li>
             <a href={sitePath('guide/nuances.html')}>Nuances</a> for edge cases
             and platform differences
           </li>
           <li>
-            <a href={sitePath('api/props.html')}>API Props</a> for the full
-            prop reference
+            <a href={sitePath('api/props.html')}>API Props</a> for the full prop
+            reference
           </li>
         </ul>
       </section>

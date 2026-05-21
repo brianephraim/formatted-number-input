@@ -11,7 +11,9 @@ export default function CodeBlock({
 }) {
   return (
     <div className="site-code-block">
-      {language ? <span className="site-code-block__language">{language}</span> : null}
+      {language ? (
+        <span className="site-code-block__language">{language}</span>
+      ) : null}
       <pre>
         <code>{code ?? children}</code>
       </pre>

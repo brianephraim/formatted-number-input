@@ -9,19 +9,19 @@ import {
 export default function PermutationsPage() {
   const initialChecked = useMemo(
     () =>
-      parseCheckedFromParams(new URLSearchParams(window.location.search), 'web'),
+      parseCheckedFromParams(
+        new URLSearchParams(window.location.search),
+        'web'
+      ),
     // Only compute once on mount — URL params are the initial state.
     []
   );
 
-  const handleCheckedChange = useCallback(
-    (checked: CheckedState) => {
-      const next = checkedToParams(checked, 'web');
-      const nextUrl = `${window.location.pathname}?${next.toString()}${window.location.hash}`;
-      window.history.replaceState(null, '', nextUrl);
-    },
-    []
-  );
+  const handleCheckedChange = useCallback((checked: CheckedState) => {
+    const next = checkedToParams(checked, 'web');
+    const nextUrl = `${window.location.pathname}?${next.toString()}${window.location.hash}`;
+    window.history.replaceState(null, '', nextUrl);
+  }, []);
 
   return (
     <PermutationsDemo

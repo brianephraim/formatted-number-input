@@ -12,14 +12,14 @@ export default function NuancesPage() {
         <ul className="docs-list">
           <li>
             <strong>FormattedNumberInputHtmlLike</strong>: drop-in replacement
-            for HTML input. Accepts HTML attributes such as <code>disabled</code>,{' '}
-            <code>className</code>, <code>id</code>, <code>name</code>,{' '}
-            <code>aria-*</code>, and <code>data-*</code>.
+            for HTML input. Accepts HTML attributes such as{' '}
+            <code>disabled</code>, <code>className</code>, <code>id</code>,{' '}
+            <code>name</code>, <code>aria-*</code>, and <code>data-*</code>.
           </li>
           <li>
-            <strong>FormattedNumberInput</strong>: drop-in replacement for
-            React Native <code>TextInput</code>. Uses RN-style props and works
-            on web and native.
+            <strong>FormattedNumberInput</strong>: drop-in replacement for React
+            Native <code>TextInput</code>. Uses RN-style props and works on web
+            and native.
           </li>
         </ul>
       </section>
@@ -30,8 +30,8 @@ export default function NuancesPage() {
         <h3>Negative numbers</h3>
         <p>
           A leading minus sign is supported. Minus signs in the middle of the
-          string are stripped, so <code>12-3</code> becomes <code>123</code>{' '}
-          and <code>--12</code> becomes <code>-12</code>.
+          string are stripped, so <code>12-3</code> becomes <code>123</code> and{' '}
+          <code>--12</code> becomes <code>-12</code>.
         </p>
 
         <h3>Multiple decimal points</h3>
@@ -86,9 +86,9 @@ export default function NuancesPage() {
             is used and <code>inputMode</code> is omitted.
           </li>
           <li>
-            <strong>Overlay focus transfer</strong>: on web, the display
-            overlay forwards focus to the typing input with caret mapping. On
-            native, the overlay is non-interactive.
+            <strong>Overlay focus transfer</strong>: on web, the display overlay
+            forwards focus to the typing input with caret mapping. On native,
+            the overlay is non-interactive.
           </li>
         </ul>
       </section>

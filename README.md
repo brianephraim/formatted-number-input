@@ -103,16 +103,16 @@ Commas remain visible **while the user is typing**. Backspace and Delete intelli
 
 ## Props
 
-| Prop                     | Type                                  | Default                   | Description                                                                    |
-| ------------------------ | ------------------------------------- | ------------------------- | ------------------------------------------------------------------------------ |
-| `value`                  | `number`                              | (required)                | Controlled numeric value                                                       |
-| `onChangeNumber`         | `(n: number) => void`                 | (required)                | Called when the user types a valid number                                      |
-| `showCommasWhileEditing` | `boolean`                             | `false`                   | Show commas while focused/typing (live mode)                                   |
+| Prop                     | Type                                  | Default                   | Description                                                                                                             |
+| ------------------------ | ------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `value`                  | `number`                              | (required)                | Controlled numeric value                                                                                                |
+| `onChangeNumber`         | `(n: number) => void`                 | (required)                | Called when the user types a valid number                                                                               |
+| `showCommasWhileEditing` | `boolean`                             | `false`                   | Show commas while focused/typing (live mode)                                                                            |
 | `maxDecimalPlaces`       | `number`                              | —                         | Max digits after the decimal point. On web, `0` defaults to a numeric keypad; other values default to a decimal keypad. |
-| `decimalRoundingMode`    | `'displayAndOutput' \| 'displayOnly'` | `'displayAndOutput'`      | Whether rounding applies to both the output value and display, or display only |
-| `formatDisplay`          | `(value: number) => string`           | `toLocaleString('en-US')` | Custom formatter for the display text                                          |
-| `inputComponent`         | `InputComponent`                      | `HtmlInput`               | Custom input adapter (e.g. RN `TextInput`)                                     |
-| `wrapperComponent`       | `WrapperComponent`                    | `DivWrapper`              | Custom wrapper adapter (e.g. RN `View`)                                        |
+| `decimalRoundingMode`    | `'displayAndOutput' \| 'displayOnly'` | `'displayAndOutput'`      | Whether rounding applies to both the output value and display, or display only                                          |
+| `formatDisplay`          | `(value: number) => string`           | `toLocaleString('en-US')` | Custom formatter for the display text                                                                                   |
+| `inputComponent`         | `InputComponent`                      | `HtmlInput`               | Custom input adapter (e.g. RN `TextInput`)                                                                              |
+| `wrapperComponent`       | `WrapperComponent`                    | `DivWrapper`              | Custom wrapper adapter (e.g. RN `View`)                                                                                 |
 
 All other `TextInput` props (e.g. `placeholder`, `style`, `testID`, `editable`) are forwarded to the underlying input.
 

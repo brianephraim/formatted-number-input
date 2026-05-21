@@ -4,7 +4,10 @@ import { DivWrapper } from '../../adapters/DivWrapper';
 import { HtmlInput } from '../../adapters/HtmlInput';
 import type { InputHandle } from '../../adapters/types';
 import { getDefaultWebInputMode } from '../../inputMode';
-import { safeGetSelectionStart, safeSetSelectionRange } from '../../safeSelection';
+import {
+  safeGetSelectionStart,
+  safeSetSelectionRange,
+} from '../../safeSelection';
 import {
   defaultFormatDisplay,
   roundToPlaces,

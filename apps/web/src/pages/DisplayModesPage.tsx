@@ -36,8 +36,8 @@ export default function DisplayModesPage() {
             typing input remounts to reseed from the controlled value.
           </li>
           <li>
-            On web, clicking the formatted display transfers focus to the
-            typing input with caret position mapping.
+            On web, clicking the formatted display transfers focus to the typing
+            input with caret position mapping.
           </li>
         </ol>
       </section>

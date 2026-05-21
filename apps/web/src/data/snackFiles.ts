@@ -25,11 +25,13 @@ export const formattedNumberInputSnackFiles = {
   },
   'formatted-number-input/src/modes/live/LiveNumberInput.tsx': {
     type: 'CODE',
-    publicPath: 'snack-src/formatted-number-input/src/modes/live/LiveNumberInput.tsx',
+    publicPath:
+      'snack-src/formatted-number-input/src/modes/live/LiveNumberInput.tsx',
   },
   'formatted-number-input/src/modes/overlay/OverlayNumberInput.tsx': {
     type: 'CODE',
-    publicPath: 'snack-src/formatted-number-input/src/modes/overlay/OverlayNumberInput.tsx',
+    publicPath:
+      'snack-src/formatted-number-input/src/modes/overlay/OverlayNumberInput.tsx',
   },
   'formatted-number-input/src/modes/types.ts': {
     type: 'CODE',

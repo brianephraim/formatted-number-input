@@ -75,7 +75,10 @@ function roundToPlaces(value: number, places: number) {
   return Math.round(value * factor) / factor;
 }
 
-function defaultFormatDisplay(value: number, maxDecimalPlaces: number | undefined) {
+function defaultFormatDisplay(
+  value: number,
+  maxDecimalPlaces: number | undefined
+) {
   const clampedMax =
     typeof maxDecimalPlaces === 'number'
       ? Math.min(20, Math.max(0, Math.floor(maxDecimalPlaces)))
@@ -91,7 +94,9 @@ export default function HomePageDemo() {
   const [showCommasWhileEditing, setShowCommasWhileEditing] = useState<
     boolean | undefined
   >(true);
-  const [maxDecimalPlaces, setMaxDecimalPlaces] = useState<number | undefined>(2);
+  const [maxDecimalPlaces, setMaxDecimalPlaces] = useState<number | undefined>(
+    2
+  );
   const [decimalRoundingMode, setDecimalRoundingMode] = useState<
     DecimalRoundingMode | undefined
   >('displayOnly');
@@ -143,8 +148,8 @@ export default function HomePageDemo() {
       <div className="home-demo__content">
         <div className="home-demo__example">
           <p className="home-demo__field-hint">
-            Live example of this component. Use the prop controls below to change
-            this exact instance.
+            Live example of this component. Use the prop controls below to
+            change this exact instance.
           </p>
           <div className="home-demo__input-shell">
             <div className="home-demo__currency" aria-hidden="true">
@@ -265,8 +270,8 @@ export default function HomePageDemo() {
                 ))}
               </div>
               <p className="home-demo__control-note">
-                Rounds the display value before formatting. Leave it undefined to
-                preserve the full numeric precision.
+                Rounds the display value before formatting. Leave it undefined
+                to preserve the full numeric precision.
               </p>
             </div>
 
@@ -329,20 +334,22 @@ export default function HomePageDemo() {
                 >
                   Undefined (US / UK default)
                 </button>
-                {(Object.keys(formatterPresets) as FormatterPreset[]).map((preset) => (
-                  <button
-                    key={preset}
-                    type="button"
-                    className={
-                      formatterPreset === preset
-                        ? 'home-demo__pill is-active'
-                        : 'home-demo__pill'
-                    }
-                    onClick={() => setFormatterPreset(preset)}
-                  >
-                    {formatterPresets[preset].label}
-                  </button>
-                ))}
+                {(Object.keys(formatterPresets) as FormatterPreset[]).map(
+                  (preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      className={
+                        formatterPreset === preset
+                          ? 'home-demo__pill is-active'
+                          : 'home-demo__pill'
+                      }
+                      onClick={() => setFormatterPreset(preset)}
+                    >
+                      {formatterPresets[preset].label}
+                    </button>
+                  )
+                )}
               </div>
               <p className="home-demo__control-note">
                 Uses <code>formatDisplay</code> presets to change the rendered

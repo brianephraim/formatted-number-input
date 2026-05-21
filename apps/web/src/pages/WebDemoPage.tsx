@@ -24,7 +24,8 @@ export default function WebDemoPage() {
             through an iframe.
           </li>
           <li>
-            The benchmark deep link is still available via <code>#/benchmark</code>.
+            The benchmark deep link is still available via{' '}
+            <code>#/benchmark</code>.
           </li>
         </ul>
       </section>

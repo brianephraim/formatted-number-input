@@ -13,9 +13,9 @@ export default function ExpoSnackPage() {
         </p>
         <p>
           The embedded Snack loads its demo app and library source files from
-          this GitHub Pages site under <code>/formatted-number-input/snack-src/</code>.
-          That keeps the Snack aligned with the deployed site without requiring
-          an npm publish.
+          this GitHub Pages site under{' '}
+          <code>/formatted-number-input/snack-src/</code>. That keeps the Snack
+          aligned with the deployed site without requiring an npm publish.
         </p>
       </header>
 

@@ -57,11 +57,7 @@ export default function DocsWebDemo() {
         </button>
       </div>
 
-      {activeTab === 'permutations' ? (
-        <PermutationsPage />
-      ) : (
-        <BenchmarkPage />
-      )}
+      {activeTab === 'permutations' ? <PermutationsPage /> : <BenchmarkPage />}
     </div>
   );
 }

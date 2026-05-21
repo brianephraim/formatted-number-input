@@ -35,10 +35,7 @@ export default defineConfig(({ command }) => ({
           __dirname,
           'guide/getting-started.html'
         ),
-        guideDisplayModes: path.resolve(
-          __dirname,
-          'guide/display-modes.html'
-        ),
+        guideDisplayModes: path.resolve(__dirname, 'guide/display-modes.html'),
         guideNuances: path.resolve(__dirname, 'guide/nuances.html'),
         guideExpoSnack: path.resolve(__dirname, 'guide/expo-snack.html'),
       },

@@ -10,9 +10,8 @@ export function safeGetSelectionStart(
   const v = handle?.getSelectionStart?.();
   if (typeof v === 'number') return v;
 
-  const selectionStart = (
-    handle as { selectionStart?: unknown } | null
-  )?.selectionStart;
+  const selectionStart = (handle as { selectionStart?: unknown } | null)
+    ?.selectionStart;
   return typeof selectionStart === 'number' ? selectionStart : null;
 }
 

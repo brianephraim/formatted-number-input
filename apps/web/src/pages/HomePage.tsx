@@ -56,8 +56,8 @@ const [value, setValue] = useState(1234567);
                 rounding
               </li>
               <li>
-                <strong>Custom formatters</strong>: emoji separators, spaces,
-                or any custom format function
+                <strong>Custom formatters</strong>: emoji separators, spaces, or
+                any custom format function
               </li>
               <li>
                 <strong>Cross-platform</strong>: works on web and React Native
@@ -78,9 +78,9 @@ const [value, setValue] = useState(1234567);
                 React demo page for permutations and benchmarks
               </li>
               <li>
-                <a href={sitePath('guide/expo-snack.html')}>Expo Snack</a>:
-                live React Native demo powered by Snack and source files served
-                from this site
+                <a href={sitePath('guide/expo-snack.html')}>Expo Snack</a>: live
+                React Native demo powered by Snack and source files served from
+                this site
               </li>
             </ul>
           </section>

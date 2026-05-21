@@ -139,8 +139,7 @@ export default function ApiPropsPage() {
         </p>
         <p>
           It accepts the same formatting props as{' '}
-          <code>FormattedNumberInput</code> plus standard HTML input
-          attributes.
+          <code>FormattedNumberInput</code> plus standard HTML input attributes.
         </p>
 
         <div className="docs-table-wrap">
