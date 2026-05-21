@@ -53,18 +53,7 @@ export default function DocsWebDemo() {
           }
           onClick={() => setTab('permutations')}
         >
-          Permutations
-        </button>
-        <button
-          type="button"
-          className={
-            activeTab === 'benchmark'
-              ? 'web-demo-nav__link is-active'
-              : 'web-demo-nav__link'
-          }
-          onClick={() => setTab('benchmark')}
-        >
-          Benchmark
+          Examples to show
         </button>
       </div>
 

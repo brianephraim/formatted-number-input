@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { DivWrapper } from '../../adapters/DivWrapper';
 import { HtmlInput } from '../../adapters/HtmlInput';
 import type { InputHandle } from '../../adapters/types';
+import { getDefaultWebInputMode } from '../../inputMode';
 import { safeSetSelectionRange } from '../../safeSelection';
 import {
   defaultFormatDisplay,
@@ -49,6 +50,7 @@ export function LiveNumberInput({
     typeof maxDecimalPlaces === 'number'
       ? roundToPlaces(value, maxDecimalPlaces)
       : value;
+  const webInputMode = getDefaultWebInputMode(maxDecimalPlaces);
 
   const format = React.useCallback(
     (n: number) => {
@@ -204,7 +206,7 @@ export function LiveNumberInput({
           externalOnSelectionChange?.(e);
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
-        inputMode={Platform.OS === 'web' ? 'numeric' : undefined}
+        inputMode={Platform.OS === 'web' ? webInputMode : undefined}
         style={inputTextStyle}
         {...rest}
       />

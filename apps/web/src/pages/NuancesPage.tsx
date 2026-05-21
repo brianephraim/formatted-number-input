@@ -76,8 +76,10 @@ export default function NuancesPage() {
         <h2>Platform differences</h2>
         <ul className="docs-list">
           <li>
-            <strong>Web</strong>: <code>inputMode="numeric"</code> is used and{' '}
-            <code>keyboardType</code> is omitted.
+            <strong>Web</strong>: <code>keyboardType</code> is omitted and{' '}
+            <code>inputMode</code> defaults to <code>"numeric"</code> when{' '}
+            <code>maxDecimalPlaces</code> resolves to <code>0</code>, otherwise{' '}
+            it defaults to <code>"decimal"</code>.
           </li>
           <li>
             <strong>React Native</strong>: <code>keyboardType="numeric"</code>{' '}

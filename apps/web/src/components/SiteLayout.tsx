@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import { sitePath } from '../lib/site';
 
 const navItems = [
-  { href: 'guide/getting-started.html', label: 'Guide' },
+  { href: '', label: 'Home' },
+  { href: 'guide/getting-started.html', label: 'Get started' },
   { href: 'api/props.html', label: 'API' },
   { href: 'web.html', label: 'Web Demo' },
   { href: 'guide/expo-snack.html', label: 'Snack Demo' },

@@ -11,20 +11,9 @@ export default function HomePage() {
           <h1 className="site-hero__title">Drop-in formatted number input</h1>
           <p className="site-hero__tagline">
             A replacement for <code>{`<input>`}</code> and React Native{' '}
-            <code>TextInput</code> with automatic comma formatting, decimal
-            rounding, and smart cursor management.
+            <code>TextInput</code> with automatic comma formatting and decimal
+            rounding.
           </p>
-          <div className="site-hero__actions">
-            <a className="site-button site-button--brand" href={sitePath('guide/getting-started.html')}>
-              Get started
-            </a>
-            <a className="site-button" href={sitePath('api/props.html')}>
-              API
-            </a>
-            <a className="site-button" href={sitePath('web.html')}>
-              Web demo
-            </a>
-          </div>
         </div>
       </section>
 
