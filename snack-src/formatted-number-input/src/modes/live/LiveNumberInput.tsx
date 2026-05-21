@@ -1,9 +1,13 @@
 import * as React from 'react';
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { DivWrapper } from '../../adapters/DivWrapper';
 import { HtmlInput } from '../../adapters/HtmlInput';
 import type { InputHandle } from '../../adapters/types';
-import { safeSetSelectionRange } from '../../safeSelection';
+import { getDefaultWebInputMode } from '../../inputMode';
+import {
+  safeGetSelectionStart,
+  safeSetSelectionRange,
+} from '../../safeSelection';
 import {
   defaultFormatDisplay,
   roundToPlaces,
@@ -11,6 +15,7 @@ import {
   digitsToRightOfCursor,
   cursorPosForDigitsFromRight,
   findDigitToDelete,
+  preserveEditingStateInFormattedText,
 } from '../../numberFormatting';
 import { splitFormattedNumberInputStyle } from '../../styleSplit';
 import type { ModeProps } from '../types';
@@ -49,6 +54,7 @@ export function LiveNumberInput({
     typeof maxDecimalPlaces === 'number'
       ? roundToPlaces(value, maxDecimalPlaces)
       : value;
+  const webInputMode = getDefaultWebInputMode(maxDecimalPlaces);
 
   const format = React.useCallback(
     (n: number) => {
@@ -85,8 +91,18 @@ export function LiveNumberInput({
 
   function applyChange(rawText: string, digitsRight: number) {
     const cleaned = sanitizeNumericText(rawText);
+    if (cleaned === '') return;
+
     const next = Number(cleaned);
-    if (Number.isNaN(next)) return;
+    if (Number.isNaN(next)) {
+      const transientText = preserveEditingStateInFormattedText(cleaned, '');
+      setFormattedText(transientText);
+      pendingCursorRef.current = cursorPosForDigitsFromRight(
+        transientText,
+        digitsRight
+      );
+      return;
+    }
 
     const outputValue =
       typeof maxDecimalPlaces === 'number' &&
@@ -97,10 +113,13 @@ export function LiveNumberInput({
     onChangeNumber(outputValue);
 
     // Reformat and compute cursor.
-    const newFormatted = format(
-      typeof maxDecimalPlaces === 'number'
-        ? roundToPlaces(next, maxDecimalPlaces)
-        : next
+    const newFormatted = preserveEditingStateInFormattedText(
+      cleaned,
+      format(
+        typeof maxDecimalPlaces === 'number'
+          ? roundToPlaces(next, maxDecimalPlaces)
+          : next
+      )
     );
     setFormattedText(newFormatted);
     pendingCursorRef.current = cursorPosForDigitsFromRight(
@@ -118,7 +137,7 @@ export function LiveNumberInput({
 
       const currentText = formattedText;
       const cursorPos =
-        inputRef.current?.getSelectionStart?.() ??
+        safeGetSelectionStart(inputRef.current) ??
         lastSelectionStartRef.current ??
         currentText.length;
 
@@ -158,7 +177,7 @@ export function LiveNumberInput({
       // will end up. Since `text` is the new value and the cursor is wherever the
       // browser put it, we read cursorPos from the input.
       const cursorPos =
-        inputRef.current?.getSelectionStart?.() ??
+        safeGetSelectionStart(inputRef.current) ??
         lastSelectionStartRef.current ??
         text.length;
       const digitsRight = digitsToRightOfCursor(text, cursorPos);
@@ -204,10 +223,16 @@ export function LiveNumberInput({
           externalOnSelectionChange?.(e);
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
-        inputMode={Platform.OS === 'web' ? 'numeric' : undefined}
-        style={inputTextStyle}
+        inputMode={Platform.OS === 'web' ? webInputMode : undefined}
+        style={[styles.inputFillWidth, inputTextStyle]}
         {...rest}
       />
     </Wrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  inputFillWidth: {
+    width: '100%',
+  },
+});

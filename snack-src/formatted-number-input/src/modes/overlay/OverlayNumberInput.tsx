@@ -3,6 +3,7 @@ import { Platform, StyleSheet } from 'react-native';
 import { DivWrapper } from '../../adapters/DivWrapper';
 import { HtmlInput } from '../../adapters/HtmlInput';
 import type { InputHandle } from '../../adapters/types';
+import { getDefaultWebInputMode } from '../../inputMode';
 import {
   safeFocus,
   safeGetSelectionStart,
@@ -43,6 +44,7 @@ export function OverlayNumberInput({
   const [isFocused, setIsFocused] = React.useState(false);
 
   const isWeb = Platform.OS === 'web';
+  const webInputMode = getDefaultWebInputMode(maxDecimalPlaces);
   const typingInputRef = React.useRef<InputHandle | null>(null);
   const displayInputRef = React.useRef<InputHandle | null>(null);
 
@@ -147,8 +149,12 @@ export function OverlayNumberInput({
           onBlur?.(e);
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
-        inputMode={Platform.OS === 'web' ? 'numeric' : undefined}
-        style={[inputTextStyle, !isFocused && styles.typingInputHiddenText]}
+        inputMode={Platform.OS === 'web' ? webInputMode : undefined}
+        style={[
+          styles.typingInputFill,
+          inputTextStyle,
+          !isFocused && styles.typingInputHiddenText,
+        ]}
         caretHidden={!isFocused}
         {...rest}
       />
@@ -231,6 +237,10 @@ const styles = StyleSheet.create({
     // Ensures the overlay TextInput fills the overlay View.
     width: '100%',
     height: '100%',
+  },
+
+  typingInputFill: {
+    width: '100%',
   },
 
   typingInputHiddenText: {

@@ -21,6 +21,25 @@ export function defaultFormatDisplay(
   });
 }
 
+export function preserveEditingStateInFormattedText(
+  sanitizedText: string,
+  formattedNumberText: string
+) {
+  if (
+    sanitizedText === '-' ||
+    sanitizedText === '.' ||
+    sanitizedText === '-.'
+  ) {
+    return sanitizedText;
+  }
+
+  if (sanitizedText.endsWith('.')) {
+    return `${formattedNumberText}.`;
+  }
+
+  return formattedNumberText;
+}
+
 export function formattedIndexToRawIndex(
   formattedText: string,
   formattedIndex: number
