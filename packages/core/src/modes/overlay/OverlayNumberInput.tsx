@@ -150,7 +150,11 @@ export function OverlayNumberInput({
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
         inputMode={Platform.OS === 'web' ? webInputMode : undefined}
-        style={[inputTextStyle, !isFocused && styles.typingInputHiddenText]}
+        style={[
+          styles.typingInputFill,
+          inputTextStyle,
+          !isFocused && styles.typingInputHiddenText,
+        ]}
         caretHidden={!isFocused}
         {...rest}
       />
@@ -233,6 +237,10 @@ const styles = StyleSheet.create({
     // Ensures the overlay TextInput fills the overlay View.
     width: '100%',
     height: '100%',
+  },
+
+  typingInputFill: {
+    width: '100%',
   },
 
   typingInputHiddenText: {

@@ -8,7 +8,12 @@ export function safeGetSelectionStart(
   handle: InputHandle | null
 ): number | null {
   const v = handle?.getSelectionStart?.();
-  return typeof v === 'number' ? v : null;
+  if (typeof v === 'number') return v;
+
+  const selectionStart = (
+    handle as { selectionStart?: unknown } | null
+  )?.selectionStart;
+  return typeof selectionStart === 'number' ? selectionStart : null;
 }
 
 export function safeSetSelectionRange(

@@ -8,6 +8,7 @@ import {
   digitsToRightOfCursor,
   cursorPosForDigitsFromRight,
   findDigitToDelete,
+  preserveEditingStateInFormattedText,
 } from './numberFormatting';
 
 describe('numberFormatting', () => {
@@ -140,6 +141,30 @@ describe('numberFormatting', () => {
       // should not contain more than 2 digits after '.' when present
       const parts = s.split('.');
       if (parts.length === 2) expect(parts[1]!.length).toBeLessThanOrEqual(2);
+    });
+  });
+
+  describe('preserveEditingStateInFormattedText', () => {
+    it('preserves partial numeric editing states', () => {
+      expect(preserveEditingStateInFormattedText('-', '')).toBe('-');
+      expect(preserveEditingStateInFormattedText('.', '')).toBe('.');
+      expect(preserveEditingStateInFormattedText('-.', '')).toBe('-.');
+    });
+
+    it('keeps a trailing decimal point visible while editing', () => {
+      expect(preserveEditingStateInFormattedText('12.', '12')).toBe('12.');
+      expect(preserveEditingStateInFormattedText('-1,234.', '-1,234')).toBe(
+        '-1,234.'
+      );
+    });
+
+    it('leaves fully formatted numeric text unchanged', () => {
+      expect(preserveEditingStateInFormattedText('1234', '1,234')).toBe(
+        '1,234'
+      );
+      expect(preserveEditingStateInFormattedText('1234.5', '1,234.5')).toBe(
+        '1,234.5'
+      );
     });
   });
 });
