@@ -8,9 +8,9 @@ import {
 
 export default function PermutationsPage() {
   const initialChecked = useMemo(
-    () => parseCheckedFromParams(new URLSearchParams(window.location.search), 'web'),
-    // Only compute once on mount — URL params are the initial state
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () =>
+      parseCheckedFromParams(new URLSearchParams(window.location.search), 'web'),
+    // Only compute once on mount — URL params are the initial state.
     []
   );
 

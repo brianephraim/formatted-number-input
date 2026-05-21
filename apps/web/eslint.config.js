@@ -6,7 +6,33 @@ import tseslint from 'typescript-eslint';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'public/snack-src']),
+  {
+    files: ['**/*.{js,mjs,cjs,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: globals.browser,
+    },
+  },
+  {
+    files: ['snack/**/*.js'],
+    rules: {
+      // Core ESLint does not treat JSX component tags as variable usage here
+      // without an additional React plugin, which this workspace does not ship.
+      'no-unused-vars': 'off',
+    },
+  },
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -17,6 +43,12 @@ export default defineConfig([
     ],
     languageOptions: {
       ecmaVersion: 2020,
+      sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
       globals: globals.browser,
     },
     rules: {

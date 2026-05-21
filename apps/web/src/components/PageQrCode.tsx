@@ -3,14 +3,13 @@ import QRCode from 'qrcode';
 
 export default function PageQrCode() {
   const [qrSvg, setQrSvg] = useState('');
-  const [pageUrl, setPageUrl] = useState('');
+  const pageUrl = window.location.href;
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    const nextUrl = window.location.href;
-    setPageUrl(nextUrl);
+    let isCancelled = false;
 
-    QRCode.toString(nextUrl, {
+    QRCode.toString(pageUrl, {
       type: 'svg',
       errorCorrectionLevel: 'M',
       margin: 1,
@@ -21,12 +20,20 @@ export default function PageQrCode() {
       },
     })
       .then((svg: string) => {
-        setQrSvg(svg);
+        if (!isCancelled) {
+          setQrSvg(svg);
+        }
       })
       .catch(() => {
-        setHasError(true);
+        if (!isCancelled) {
+          setHasError(true);
+        }
       });
-  }, []);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [pageUrl]);
 
   return (
     <div className="page-qr-code">
@@ -50,7 +57,7 @@ export default function PageQrCode() {
           Scan this QR code from your desktop screen to open the same GitHub
           Pages web demo on mobile.
         </p>
-        {pageUrl ? <a href={pageUrl}>{pageUrl}</a> : null}
+        <a href={pageUrl}>{pageUrl}</a>
       </div>
     </div>
   );
