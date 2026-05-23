@@ -23,6 +23,7 @@ export type FormattedNumberInputProps = Omit<
    * the component also stores this number internally.
    */
   onChangeNumber?: (next: number) => void;
+  debugPrecision?: boolean;
 
   /**
    * When true, commas (group separators) remain visible while the input is focused

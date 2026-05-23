@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import {
   type CheckedState,
   type OptionKey,
@@ -14,6 +14,9 @@ import {
   translateRnStyleToCss,
 } from '../adapters/rnStyleToCss';
 import { FormattedNumberInput } from '../FormattedNumberInput';
+
+const E2E_SET_VALUE = '1234.987654321';
+const E2E_SET_LABEL = `Set ${E2E_SET_VALUE}`;
 
 /** Shared style for all inputs so FormattedNumberInput and base inputs render identically. */
 const sharedInputStyle = {
@@ -33,6 +36,86 @@ export type PermutationsDemoProps = {
   initialChecked?: CheckedState;
   onCheckedChange?: (checked: CheckedState) => void;
 };
+
+function ControlledHtmlTextInputExample({
+  platform,
+  inputStyle,
+}: {
+  platform: Platform;
+  inputStyle: typeof sharedInputStyle;
+}) {
+  const [canonValue, setCanonValue] = useState('1234567.89');
+  const [numberizedCanonValue, setNumberizedCanonValue] = useState(+canonValue);
+
+  const emitNumberChange = useCallback((nextValue: number) => {
+    setNumberizedCanonValue(nextValue);
+  }, []);
+
+  const setCanonValueAndEmitNumber = useCallback(
+    (nextCanonValue: string) => {
+      setCanonValue(nextCanonValue);
+      emitNumberChange(+nextCanonValue);
+    },
+    [emitNumberChange]
+  );
+
+  if (platform !== 'web') return null;
+
+  const htmlCssStyle = {
+    ...translateRnStyleToCss(flattenRnStyle(inputStyle)),
+    boxSizing: 'border-box' as const,
+    color: '#ff6fb1',
+  };
+  return (
+    <View style={styles.examplesContainer}>
+      <Text style={styles.examplesTitle}>Controlled HTML text input</Text>
+      <View style={styles.card}>
+        <Text style={styles.label}>
+          {'Basic controlled HTML <input type="text" />'}
+        </Text>
+        <input
+          type="text"
+          inputMode="decimal"
+          placeholder="Type here"
+          value={canonValue}
+          onChange={(event) =>
+            setCanonValueAndEmitNumber(event.currentTarget.value)
+          }
+          style={htmlCssStyle}
+          data-testid="controlled-html-text-input"
+        />
+        <View style={styles.actions}>
+          <Pressable
+            onPress={() => setCanonValueAndEmitNumber(E2E_SET_VALUE)}
+            style={styles.setButton}
+            testID="controlled-html-text-input__set"
+          >
+            <Text style={styles.setButtonText}>{E2E_SET_LABEL}</Text>
+          </Pressable>
+          <Text
+            style={styles.value}
+            testID="controlled-html-text-input__canonValue"
+          >
+            canonValue: {JSON.stringify(canonValue)}
+          </Text>
+          <Text
+            style={styles.value}
+            testID="controlled-html-text-input__number"
+          >
+            numberizedCanonValue: {JSON.stringify(numberizedCanonValue)}
+          </Text>
+          <Text
+            style={styles.value}
+            testID="controlled-html-text-input__roundtrip"
+          >
+            String(numberizedCanonValue):{' '}
+            {JSON.stringify(String(numberizedCanonValue))}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+}
 
 function BaseInputExamples({
   platform,
@@ -127,6 +210,7 @@ function UncontrolledFormattedNumberInputExamples({
           placeholder="Type here"
           style={inputStyle}
           testID="uncontrolled-live-rn"
+          debugPrecision
         />
         <Text style={styles.value} testID="uncontrolled-live-rn__value">
           emitted number: {JSON.stringify(liveEmittedNumber)}
@@ -147,6 +231,7 @@ function UncontrolledFormattedNumberInputExamples({
           placeholder="Type here"
           style={inputStyle}
           testID="uncontrolled-overlay-rn"
+          debugPrecision
         />
         <Text style={styles.value} testID="uncontrolled-overlay-rn__value">
           emitted number: {JSON.stringify(overlayEmittedNumber)}
@@ -189,6 +274,11 @@ export function PermutationsDemo({
       <Text style={styles.title} testID="permutations-title">
         Permutations
       </Text>
+
+      <ControlledHtmlTextInputExample
+        platform={platform}
+        inputStyle={sharedInputStyle}
+      />
 
       <PermutationControls
         platform={platform}
@@ -256,6 +346,24 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
     backgroundColor: '#181818',
+  },
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 6,
+  },
+  setButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    backgroundColor: '#4a90d9',
+  },
+  setButtonText: {
+    fontSize: 11,
+    fontFamily: 'monospace',
+    color: '#fff',
   },
   label: {
     fontSize: 11,

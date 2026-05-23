@@ -571,6 +571,7 @@ export function FormattedNumberInputHtmlLikeExhaustive() {
         decimalRoundingMode="displayAndOutput"
         formatDisplay={(n) => `$${n.toFixed(2)}`}
         showCommasWhileEditing
+        debugPrecision
       />
     </>
   );

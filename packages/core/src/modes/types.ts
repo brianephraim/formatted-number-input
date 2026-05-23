@@ -24,4 +24,5 @@ export type ModeProps = Omit<
   maxDecimalPlaces?: number;
   decimalRoundingMode?: 'displayAndOutput' | 'displayOnly';
   formatDisplay?: (value: number) => string;
+  debugPrecision?: boolean;
 };

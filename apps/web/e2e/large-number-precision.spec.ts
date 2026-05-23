@@ -52,6 +52,123 @@ test('overlay mode: large decimal text survives blur and refocus without scienti
   await expect(display).toHaveValue(exactDisplayText);
 });
 
+test('overlay mode: controlled number feedback keeps fractional zeros through blur and refocus', async ({
+  page,
+}) => {
+  await page.goto(
+    isolatedPermutationPath({
+      inputComponent: 'html',
+      wrapperComponent: 'html',
+      maxDecimalPlaces: 'none',
+      decimalRoundingMode: 'displayAndOutput',
+      formatDisplay: 'none',
+      showCommasWhileEditing: 'false',
+    })
+  );
+
+  const exactText = '12.3400';
+  const input = page.getByTestId('number-input-default-html');
+  const display = page.getByTestId('number-input-default-html__display');
+  const readout = page.getByTestId('number-input-default-html__value');
+
+  await expect(display).toBeVisible();
+  await display.click();
+  await expect(input).toBeFocused();
+
+  await input.press('Meta+A');
+  await input.type(exactText);
+  await expect(input).toHaveValue(exactText);
+  await expect(readout).toContainText('12.34');
+
+  await page.getByText('Notes', { exact: true }).click();
+  await expect(display).toBeVisible();
+  await expect(display).toHaveValue(exactText);
+
+  await display.click();
+  await expect(input).toBeFocused();
+  await expect(input).toHaveValue(exactText);
+
+  await page.getByText('Notes', { exact: true }).click();
+  await expect(display).toBeVisible();
+  await expect(display).toHaveValue(exactText);
+});
+
+test('overlay mode: max decimal places still preserves large text when typed decimals are within the limit', async ({
+  page,
+}) => {
+  await page.goto(
+    isolatedPermutationPath({
+      inputComponent: 'html',
+      wrapperComponent: 'html',
+      maxDecimalPlaces: '2',
+      decimalRoundingMode: 'displayAndOutput',
+      formatDisplay: 'none',
+      showCommasWhileEditing: 'false',
+    })
+  );
+
+  const exactText = '111111111111111111.22';
+  const exactDisplayText = '111,111,111,111,111,111.22';
+  const input = page.getByTestId('number-input-decimals-html');
+  const display = page.getByTestId('number-input-decimals-html__display');
+  const readout = page.getByTestId('number-input-decimals-html__value');
+
+  await expect(display).toBeVisible();
+  await display.click();
+  await expect(input).toBeFocused();
+
+  await input.press('Meta+A');
+  await input.type(exactText);
+  await expect(input).toHaveValue(exactText);
+  await expect(readout).toContainText('111111111111111100');
+
+  await page.getByText('Notes', { exact: true }).click();
+  await expect(display).toBeVisible();
+  await expect(display).toHaveValue(exactDisplayText);
+
+  await display.click();
+  await expect(input).toBeFocused();
+  await expect(input).toHaveValue(exactText);
+});
+
+test('overlay mode: custom separator format preserves large text when typed decimals are within the limit', async ({
+  page,
+}) => {
+  await page.goto(
+    isolatedPermutationPath({
+      inputComponent: 'html',
+      wrapperComponent: 'html',
+      maxDecimalPlaces: '2',
+      decimalRoundingMode: 'displayAndOutput',
+      formatDisplay: 'bananas',
+      showCommasWhileEditing: 'false',
+    })
+  );
+
+  const exactText = '111111111111111111.22';
+  const exactDisplayText = '111🍌111🍌111🍌111🍌111🍌111.22';
+  const input = page.getByTestId('number-input-emoji-html');
+  const display = page.getByTestId('number-input-emoji-html__display');
+  const readout = page.getByTestId('number-input-emoji-html__value');
+
+  await expect(display).toBeVisible();
+  await display.click();
+  await expect(input).toBeFocused();
+
+  await input.press('Meta+A');
+  await input.type(exactText);
+  await expect(input).toHaveValue(exactText);
+  await expect(readout).toContainText('111111111111111100');
+
+  await page.getByText('Notes', { exact: true }).click();
+  await expect(display).toBeVisible();
+  await expect(display).toHaveValue(exactDisplayText);
+
+  await display.click();
+  await expect(input).toBeFocused();
+  await expect(input).toHaveValue(exactText);
+});
+
 test('overlay mode: key-by-key large decimal editing survives blur and refocus', async ({
   page,
 }) => {

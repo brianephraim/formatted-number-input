@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  countFractionDigits,
   formattedIndexToRawIndex,
   formatSanitizedNumericTextWithCommas,
+  formatSanitizedNumericTextWithGroupSeparator,
+  getNumberRoundTripInfo,
   hasNumberRoundTripMismatch,
+  inferGroupingSeparatorFromFormattedNumber,
   normalizeNumericText,
   roundToPlaces,
   sanitizeNumericText,
@@ -156,6 +160,15 @@ describe('numberFormatting', () => {
     });
   });
 
+  describe('countFractionDigits', () => {
+    it('counts digits after the decimal point without normalizing the text', () => {
+      expect(countFractionDigits('12')).toBe(0);
+      expect(countFractionDigits('12.3400')).toBe(4);
+      expect(countFractionDigits('-0.22')).toBe(2);
+      expect(countFractionDigits('12.')).toBe(0);
+    });
+  });
+
   describe('hasNumberRoundTripMismatch', () => {
     it('returns false when Number can round-trip the text representation', () => {
       expect(hasNumberRoundTripMismatch('123.45')).toBe(false);
@@ -167,6 +180,19 @@ describe('numberFormatting', () => {
       expect(hasNumberRoundTripMismatch('1111111111111111.21')).toBe(true);
       expect(hasNumberRoundTripMismatch('111111111111111111.21')).toBe(true);
       expect(hasNumberRoundTripMismatch('999999999999999.25')).toBe(true);
+    });
+  });
+
+  describe('getNumberRoundTripInfo', () => {
+    it('exposes the normalized text, lossy number, and rounded string', () => {
+      expect(getNumberRoundTripInfo('123123123123435688')).toEqual({
+        normalized: '123123123123435688',
+        parsed: 123123123123435680,
+        roundTripped: '123123123123435680',
+        normalizedRoundTripped: '123123123123435680',
+        usesExponentialNotation: false,
+        roundTripMismatch: true,
+      });
     });
   });
 
@@ -184,6 +210,40 @@ describe('numberFormatting', () => {
       expect(formatSanitizedNumericTextWithCommas('12.')).toBe('12.');
       expect(formatSanitizedNumericTextWithCommas('00012.340')).toBe('12.340');
       expect(formatSanitizedNumericTextWithCommas('.25')).toBe('0.25');
+    });
+  });
+
+  describe('inferGroupingSeparatorFromFormattedNumber', () => {
+    it('detects a custom grouping separator from a normal grouped reference value', () => {
+      expect(inferGroupingSeparatorFromFormattedNumber('1🍌234🍌567.89')).toBe(
+        '🍌'
+      );
+      expect(inferGroupingSeparatorFromFormattedNumber('1,234,567.89')).toBe(
+        ','
+      );
+    });
+
+    it('returns null when the formatter shape is not a plain grouped number', () => {
+      expect(
+        inferGroupingSeparatorFromFormattedNumber('$1,234,567.89')
+      ).toBeNull();
+      expect(
+        inferGroupingSeparatorFromFormattedNumber('1,234 567.89')
+      ).toBeNull();
+      expect(
+        inferGroupingSeparatorFromFormattedNumber('1234567.89')
+      ).toBeNull();
+    });
+  });
+
+  describe('formatSanitizedNumericTextWithGroupSeparator', () => {
+    it('formats exact numeric text with a custom separator without converting to Number', () => {
+      expect(
+        formatSanitizedNumericTextWithGroupSeparator(
+          '111111111111111111.22',
+          '🍌'
+        )
+      ).toBe('111🍌111🍌111🍌111🍌111🍌111.22');
     });
   });
 

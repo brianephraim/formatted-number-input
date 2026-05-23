@@ -36,6 +36,7 @@ export function PermutationCard({
         placeholder="Type here"
         style={inputStyle}
         {...props}
+        debugPrecision
       />
       <View style={styles.actions}>
         <Pressable

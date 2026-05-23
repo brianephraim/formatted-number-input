@@ -60,20 +60,72 @@ export function normalizeNumericText(text: string) {
   return `${negative ? '-' : ''}${normalizedMagnitude}`;
 }
 
-export function hasNumberRoundTripMismatch(text: string) {
-  const normalized = normalizeNumericText(text);
-  if (normalized === '') return false;
-
-  const parsed = Number(normalized);
-  if (Number.isNaN(parsed)) return false;
-
-  const roundTripped = parsed.toString();
-  if (roundTripped.includes('e') || roundTripped.includes('E')) return true;
-
-  return normalizeNumericText(roundTripped) !== normalized;
+export function countFractionDigits(text: string) {
+  const unsigned = text.startsWith('-') ? text.slice(1) : text;
+  const decimalIndex = unsigned.indexOf('.');
+  return decimalIndex === -1 ? 0 : unsigned.length - decimalIndex - 1;
 }
 
-export function formatSanitizedNumericTextWithCommas(text: string) {
+export function getNumberRoundTripInfo(text: string) {
+  const normalized = normalizeNumericText(text);
+  if (normalized === '') {
+    return {
+      normalized,
+      parsed: Number.NaN,
+      roundTripped: '',
+      normalizedRoundTripped: '',
+      usesExponentialNotation: false,
+      roundTripMismatch: false,
+    };
+  }
+
+  const parsed = Number(normalized);
+  if (Number.isNaN(parsed)) {
+    return {
+      normalized,
+      parsed,
+      roundTripped: '',
+      normalizedRoundTripped: '',
+      usesExponentialNotation: false,
+      roundTripMismatch: false,
+    };
+  }
+
+  const roundTripped = parsed.toString();
+  const usesExponentialNotation =
+    roundTripped.includes('e') || roundTripped.includes('E');
+  const normalizedRoundTripped = usesExponentialNotation
+    ? roundTripped
+    : normalizeNumericText(roundTripped);
+
+  return {
+    normalized,
+    parsed,
+    roundTripped,
+    normalizedRoundTripped,
+    usesExponentialNotation,
+    roundTripMismatch:
+      usesExponentialNotation || normalizedRoundTripped !== normalized,
+  };
+}
+
+export function hasNumberRoundTripMismatch(text: string) {
+  return getNumberRoundTripInfo(text).roundTripMismatch;
+}
+
+export function inferGroupingSeparatorFromFormattedNumber(
+  formattedNumber: string
+) {
+  const match = /^1(.+)234(.+)567\.89$/.exec(formattedNumber);
+  if (!match) return null;
+  const [, firstSeparator, secondSeparator] = match;
+  return firstSeparator === secondSeparator ? firstSeparator : null;
+}
+
+export function formatSanitizedNumericTextWithGroupSeparator(
+  text: string,
+  groupSeparator: string
+) {
   const negative = text.startsWith('-');
   const unsigned = negative ? text.slice(1) : text;
   const hasDecimalPoint = unsigned.includes('.');
@@ -85,10 +137,14 @@ export function formatSanitizedNumericTextWithCommas(text: string) {
       : intPartRaw.replace(/^0+(?=\d)/, '') || '0';
   const groupedIntPart = normalizedIntPart.replace(
     /\B(?=(\d{3})+(?!\d))/g,
-    ','
+    () => groupSeparator
   );
 
   return `${negative ? '-' : ''}${groupedIntPart}${hasDecimalPoint ? '.' : ''}${fractionPart}`;
+}
+
+export function formatSanitizedNumericTextWithCommas(text: string) {
+  return formatSanitizedNumericTextWithGroupSeparator(text, ',');
 }
 
 export function formattedIndexToRawIndex(

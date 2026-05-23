@@ -33,6 +33,97 @@ test('live commas: typing a decimal point keeps the transient decimal state', as
   await expect(input).toHaveValue('12.3');
 });
 
+test('live commas: controlled number feedback keeps fractional zeros the user typed', async ({
+  page,
+}) => {
+  await page.goto(
+    isolatedPermutationPath({
+      inputComponent: 'html',
+      wrapperComponent: 'html',
+      maxDecimalPlaces: 'none',
+      decimalRoundingMode: 'displayAndOutput',
+      formatDisplay: 'none',
+      showCommasWhileEditing: 'true',
+    })
+  );
+
+  const input = page.getByTestId('number-input-livecommas-html');
+  const readout = page.getByTestId('number-input-livecommas-html__value');
+  await expect(input).toHaveCount(1);
+
+  await input.click();
+  await input.press('Meta+A');
+  await input.type('12.3400');
+
+  await expect(input).toHaveValue('12.3400');
+  await expect(readout).toContainText('12.34');
+
+  await page.getByText('Notes', { exact: true }).click();
+  await expect(input).toHaveValue('12.3400');
+
+  await input.click();
+  await expect(input).toHaveValue('12.3400');
+});
+
+test('live commas: max decimal places still preserves large text when typed decimals are within the limit', async ({
+  page,
+}) => {
+  await page.goto(
+    isolatedPermutationPath({
+      inputComponent: 'html',
+      wrapperComponent: 'html',
+      maxDecimalPlaces: '2',
+      decimalRoundingMode: 'displayAndOutput',
+      formatDisplay: 'none',
+      showCommasWhileEditing: 'true',
+    })
+  );
+
+  const exactText = '111111111111111111.22';
+  const input = page.getByTestId('number-input-livecommas-html');
+  const readout = page.getByTestId('number-input-livecommas-html__value');
+  await expect(input).toHaveCount(1);
+
+  await input.click();
+  await input.press('Meta+A');
+  await input.type(exactText);
+
+  await expect(input).toHaveValue('111,111,111,111,111,111.22');
+  await expect(readout).toContainText('111111111111111100');
+
+  await page.getByText('Notes', { exact: true }).click();
+  await expect(input).toHaveValue('111,111,111,111,111,111.22');
+});
+
+test('live commas: custom separator format preserves large text when typed decimals are within the limit', async ({
+  page,
+}) => {
+  await page.goto(
+    isolatedPermutationPath({
+      inputComponent: 'html',
+      wrapperComponent: 'html',
+      maxDecimalPlaces: '2',
+      decimalRoundingMode: 'displayAndOutput',
+      formatDisplay: 'bananas',
+      showCommasWhileEditing: 'true',
+    })
+  );
+
+  const input = page.getByTestId('number-input-livecommas-html');
+  const readout = page.getByTestId('number-input-livecommas-html__value');
+  await expect(input).toHaveCount(1);
+
+  await input.click();
+  await input.press('Meta+A');
+  await input.type('111111111111111111.22');
+
+  await expect(input).toHaveValue('111🍌111🍌111🍌111🍌111🍌111.22');
+  await expect(readout).toContainText('111111111111111100');
+
+  await page.getByText('Notes', { exact: true }).click();
+  await expect(input).toHaveValue('111🍌111🍌111🍌111🍌111🍌111.22');
+});
+
 test('live commas: RN web input keeps advancing the caret while typing', async ({
   page,
 }) => {

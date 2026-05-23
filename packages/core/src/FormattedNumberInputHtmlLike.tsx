@@ -20,6 +20,7 @@ export type FormattedNumberInputHtmlLikeProps = Omit<
   decimalRoundingMode?: 'displayAndOutput' | 'displayOnly';
   formatDisplay?: (value: number) => string;
   showCommasWhileEditing?: boolean;
+  debugPrecision?: boolean;
 };
 
 /**
@@ -43,6 +44,7 @@ export function FormattedNumberInputHtmlLike({
   decimalRoundingMode,
   formatDisplay,
   showCommasWhileEditing,
+  debugPrecision,
   // HTML props we explicitly map:
   disabled,
   placeholder,
@@ -67,6 +69,7 @@ export function FormattedNumberInputHtmlLike({
     decimalRoundingMode,
     formatDisplay,
     showCommasWhileEditing,
+    debugPrecision,
     editable: disabled != null ? !disabled : undefined,
     placeholder,
     style,
