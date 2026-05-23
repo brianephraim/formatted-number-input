@@ -40,6 +40,57 @@ export function preserveEditingStateInFormattedText(
   return formattedNumberText;
 }
 
+export function normalizeNumericText(text: string) {
+  if (text === '') return '';
+
+  const negative = text.startsWith('-');
+  const unsigned = negative ? text.slice(1) : text;
+  const hasDecimalPoint = unsigned.includes('.');
+  const [intPartRaw = '', fractionPartRaw = ''] = unsigned.split('.');
+  const normalizedIntPart = intPartRaw.replace(/^0+(?=\d)/, '') || '0';
+  const normalizedFractionPart = hasDecimalPoint
+    ? fractionPartRaw.replace(/0+$/, '')
+    : '';
+
+  const normalizedMagnitude = normalizedFractionPart
+    ? `${normalizedIntPart}.${normalizedFractionPart}`
+    : normalizedIntPart;
+
+  if (normalizedMagnitude === '0') return '0';
+  return `${negative ? '-' : ''}${normalizedMagnitude}`;
+}
+
+export function hasNumberRoundTripMismatch(text: string) {
+  const normalized = normalizeNumericText(text);
+  if (normalized === '') return false;
+
+  const parsed = Number(normalized);
+  if (Number.isNaN(parsed)) return false;
+
+  const roundTripped = parsed.toString();
+  if (roundTripped.includes('e') || roundTripped.includes('E')) return true;
+
+  return normalizeNumericText(roundTripped) !== normalized;
+}
+
+export function formatSanitizedNumericTextWithCommas(text: string) {
+  const negative = text.startsWith('-');
+  const unsigned = negative ? text.slice(1) : text;
+  const hasDecimalPoint = unsigned.includes('.');
+  const [intPartRaw = '', fractionPart = ''] = unsigned.split('.');
+
+  const normalizedIntPart =
+    intPartRaw === '' && hasDecimalPoint
+      ? '0'
+      : intPartRaw.replace(/^0+(?=\d)/, '') || '0';
+  const groupedIntPart = normalizedIntPart.replace(
+    /\B(?=(\d{3})+(?!\d))/g,
+    ','
+  );
+
+  return `${negative ? '-' : ''}${groupedIntPart}${hasDecimalPoint ? '.' : ''}${fractionPart}`;
+}
+
 export function formattedIndexToRawIndex(
   formattedText: string,
   formattedIndex: number

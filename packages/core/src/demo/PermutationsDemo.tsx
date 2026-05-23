@@ -13,6 +13,7 @@ import {
   flattenRnStyle,
   translateRnStyleToCss,
 } from '../adapters/rnStyleToCss';
+import { FormattedNumberInput } from '../FormattedNumberInput';
 
 /** Shared style for all inputs so FormattedNumberInput and base inputs render identically. */
 const sharedInputStyle = {
@@ -90,6 +91,71 @@ function BaseInputExamples({
   );
 }
 
+function UncontrolledFormattedNumberInputExamples({
+  platform,
+  inputStyle,
+}: {
+  platform: Platform;
+  inputStyle: typeof sharedInputStyle;
+}) {
+  const [liveEmittedNumber, setLiveEmittedNumber] = useState<number | null>(
+    null
+  );
+  const [overlayEmittedNumber, setOverlayEmittedNumber] = useState<
+    number | null
+  >(null);
+
+  if (platform !== 'web') return null;
+
+  return (
+    <View style={styles.examplesContainer}>
+      <Text style={styles.examplesTitle}>
+        Uncontrolled formatted-number-input examples
+      </Text>
+
+      <View style={styles.card}>
+        <Text style={styles.label}>
+          {'defaultValue only | RN TextInput | liveCommas: true'}
+        </Text>
+        <FormattedNumberInput
+          defaultValue={1234567.89}
+          onChangeNumber={setLiveEmittedNumber}
+          inputComponent={TextInput}
+          maxDecimalPlaces={undefined}
+          decimalRoundingMode="displayAndOutput"
+          showCommasWhileEditing
+          placeholder="Type here"
+          style={inputStyle}
+          testID="uncontrolled-live-rn"
+        />
+        <Text style={styles.value} testID="uncontrolled-live-rn__value">
+          emitted number: {JSON.stringify(liveEmittedNumber)}
+        </Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.label}>
+          {'defaultValue only | RN TextInput | liveCommas: false'}
+        </Text>
+        <FormattedNumberInput
+          defaultValue={1234567.89}
+          onChangeNumber={setOverlayEmittedNumber}
+          inputComponent={TextInput}
+          maxDecimalPlaces={undefined}
+          decimalRoundingMode="displayAndOutput"
+          showCommasWhileEditing={false}
+          placeholder="Type here"
+          style={inputStyle}
+          testID="uncontrolled-overlay-rn"
+        />
+        <Text style={styles.value} testID="uncontrolled-overlay-rn__value">
+          emitted number: {JSON.stringify(overlayEmittedNumber)}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
 export function PermutationsDemo({
   platform,
   initialChecked,
@@ -131,6 +197,11 @@ export function PermutationsDemo({
       />
 
       <BaseInputExamples platform={platform} inputStyle={sharedInputStyle} />
+
+      <UncontrolledFormattedNumberInputExamples
+        platform={platform}
+        inputStyle={sharedInputStyle}
+      />
 
       <Text style={styles.count}>
         Showing {permutations.length} permutation

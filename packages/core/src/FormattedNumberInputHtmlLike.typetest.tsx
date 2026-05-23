@@ -435,6 +435,12 @@ export function HtmlInputBaseline() {
         onAnimationIteration={onAnimationIteration}
         onTransitionEnd={onTransitionEnd}
       />
+      <FormattedNumberInputHtmlLike
+        defaultValue={42}
+        onChangeNumber={() => {}}
+        name={name}
+        placeholder={placeholder}
+      />
     </>
   );
 }

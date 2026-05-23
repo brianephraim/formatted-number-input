@@ -10,6 +10,8 @@ import {
 } from '../../safeSelection';
 import {
   defaultFormatDisplay,
+  formatSanitizedNumericTextWithCommas,
+  hasNumberRoundTripMismatch,
   roundToPlaces,
   sanitizeNumericText,
   digitsToRightOfCursor,
@@ -49,6 +51,7 @@ export function LiveNumberInput({
 
   const inputRef = React.useRef<InputHandle | null>(null);
   const lastSelectionStartRef = React.useRef<number | null>(null);
+  const rawNumericTextRef = React.useRef<string | null>(null);
 
   const displayValue =
     typeof maxDecimalPlaces === 'number'
@@ -72,12 +75,43 @@ export function LiveNumberInput({
   // Pending cursor position to apply after render.
   const pendingCursorRef = React.useRef<number | null>(null);
 
+  const shouldPreserveRawDisplay = React.useCallback(
+    (cleaned: string) =>
+      !formatDisplay &&
+      typeof maxDecimalPlaces !== 'number' &&
+      hasNumberRoundTripMismatch(cleaned),
+    [formatDisplay, maxDecimalPlaces]
+  );
+
+  const getPreservedEchoDisplayText = React.useCallback(
+    (nextValue: number) => {
+      const rawNumericText = rawNumericTextRef.current;
+      if (!rawNumericText || !shouldPreserveRawDisplay(rawNumericText)) {
+        return null;
+      }
+
+      const parsedRawNumericText = Number(rawNumericText);
+      if (Number.isNaN(parsedRawNumericText)) return null;
+      if (parsedRawNumericText !== nextValue) return null;
+
+      return formatSanitizedNumericTextWithCommas(rawNumericText);
+    },
+    [shouldPreserveRawDisplay]
+  );
+
   // Sync formatted text from external value changes while blurred.
   React.useEffect(() => {
     if (!isFocused) {
+      const preservedEchoDisplayText = getPreservedEchoDisplayText(value);
+      if (preservedEchoDisplayText != null) {
+        setFormattedText(preservedEchoDisplayText);
+        return;
+      }
+
+      rawNumericTextRef.current = null;
       setFormattedText(format(displayValue));
     }
-  }, [isFocused, displayValue, format]);
+  }, [isFocused, value, displayValue, format, getPreservedEchoDisplayText]);
 
   // Apply pending cursor position after React renders the new value.
   React.useEffect(() => {
@@ -92,6 +126,7 @@ export function LiveNumberInput({
   function applyChange(rawText: string, digitsRight: number) {
     const cleaned = sanitizeNumericText(rawText);
     if (cleaned === '') return;
+    rawNumericTextRef.current = cleaned;
 
     const next = Number(cleaned);
     if (Number.isNaN(next)) {
@@ -113,14 +148,16 @@ export function LiveNumberInput({
     onChangeNumber(outputValue);
 
     // Reformat and compute cursor.
-    const newFormatted = preserveEditingStateInFormattedText(
-      cleaned,
-      format(
-        typeof maxDecimalPlaces === 'number'
-          ? roundToPlaces(next, maxDecimalPlaces)
-          : next
-      )
-    );
+    const newFormatted = shouldPreserveRawDisplay(cleaned)
+      ? formatSanitizedNumericTextWithCommas(cleaned)
+      : preserveEditingStateInFormattedText(
+          cleaned,
+          format(
+            typeof maxDecimalPlaces === 'number'
+              ? roundToPlaces(next, maxDecimalPlaces)
+              : next
+          )
+        );
     setFormattedText(newFormatted);
     pendingCursorRef.current = cursorPosForDigitsFromRight(
       newFormatted,
@@ -199,7 +236,9 @@ export function LiveNumberInput({
         onCopy={handleCopy}
         onFocus={(e: unknown) => {
           setIsFocused(true);
-          setFormattedText(format(displayValue));
+          setFormattedText(
+            getPreservedEchoDisplayText(value) ?? format(displayValue)
+          );
           onFocus?.(e);
         }}
         onBlur={(e: unknown) => {

@@ -11,7 +11,9 @@ import {
 } from '../../safeSelection';
 import {
   defaultFormatDisplay,
+  formatSanitizedNumericTextWithCommas,
   formattedIndexToRawIndex,
+  hasNumberRoundTripMismatch,
   roundToPlaces,
   sanitizeNumericText,
 } from '../../numberFormatting';
@@ -47,6 +49,7 @@ export function OverlayNumberInput({
   const webInputMode = getDefaultWebInputMode(maxDecimalPlaces);
   const typingInputRef = React.useRef<InputHandle | null>(null);
   const displayInputRef = React.useRef<InputHandle | null>(null);
+  const rawNumericTextRef = React.useRef<string | null>(null);
 
   const displayValue =
     typeof maxDecimalPlaces === 'number'
@@ -62,26 +65,56 @@ export function OverlayNumberInput({
     React.useState(0);
   const lastSeedValueForTypingInputRef = React.useRef(seedValueForTypingInput);
 
+  const shouldPreserveRawDisplay = React.useCallback(
+    (cleaned: string) =>
+      !formatDisplay &&
+      typeof maxDecimalPlaces !== 'number' &&
+      hasNumberRoundTripMismatch(cleaned),
+    [formatDisplay, maxDecimalPlaces]
+  );
+
+  const getPreservedEchoRawText = React.useCallback(
+    (nextValue: number) => {
+      const rawNumericText = rawNumericTextRef.current;
+      if (!rawNumericText || !shouldPreserveRawDisplay(rawNumericText)) {
+        return null;
+      }
+
+      const parsedRawNumericText = Number(rawNumericText);
+      if (Number.isNaN(parsedRawNumericText)) return null;
+      if (parsedRawNumericText !== nextValue) return null;
+
+      return rawNumericText;
+    },
+    [shouldPreserveRawDisplay]
+  );
+
   // Only bump the remount key while blurred.
   // This preserves click-to-position caret behavior and prevents remounts while typing.
   React.useEffect(() => {
     if (isFocused) return;
+    if (getPreservedEchoRawText(seedValueForTypingInput) != null) return;
+
+    rawNumericTextRef.current = null;
     if (
       Object.is(lastSeedValueForTypingInputRef.current, seedValueForTypingInput)
     )
       return;
     lastSeedValueForTypingInputRef.current = seedValueForTypingInput;
     setRemountKeyForTypingInput((k) => k + 1);
-  }, [isFocused, seedValueForTypingInput]);
+  }, [isFocused, seedValueForTypingInput, getPreservedEchoRawText]);
 
-  const rawValueText = String(seedValueForTypingInput);
+  const preservedRawValueText = getPreservedEchoRawText(
+    seedValueForTypingInput
+  );
+  const rawValueText = preservedRawValueText ?? String(seedValueForTypingInput);
 
   // IMPORTANT: React Native TextInput may treat `defaultValue` as an updatable prop (not purely initial),
   // which can cause the typing text to "snap" to the controlled/rounded value while focused.
   // We freeze the defaultValue for the lifetime of each TypingInput mount, and only update it when we
   // intentionally remount via `remountKeyForTypingInput`.
   const defaultValueForTypingInput = React.useMemo(
-    () => String(seedValueForTypingInput),
+    () => rawValueText,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [remountKeyForTypingInput]
   );
@@ -95,9 +128,11 @@ export function OverlayNumberInput({
     lastParsedNumberRef.current = seedValueForTypingInput;
   }, [isFocused, seedValueForTypingInput]);
 
-  const formattedValueText = formatDisplay
-    ? formatDisplay(displayValue)
-    : defaultFormatDisplay(displayValue, maxDecimalPlaces);
+  const formattedValueText = preservedRawValueText
+    ? formatSanitizedNumericTextWithCommas(preservedRawValueText)
+    : formatDisplay
+      ? formatDisplay(displayValue)
+      : defaultFormatDisplay(displayValue, maxDecimalPlaces);
 
   return (
     <Wrapper style={[styles.overlayRoot, containerStyle]}>
@@ -114,6 +149,7 @@ export function OverlayNumberInput({
           // - allow decimals
           // - if multiple '.', keep the first and collapse the rest into the decimal portion
           const cleaned = sanitizeNumericText(String(text));
+          rawNumericTextRef.current = cleaned;
           const next = Number(cleaned);
           if (Number.isNaN(next)) return;
 

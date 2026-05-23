@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   formattedIndexToRawIndex,
+  formatSanitizedNumericTextWithCommas,
+  hasNumberRoundTripMismatch,
+  normalizeNumericText,
   roundToPlaces,
   sanitizeNumericText,
   defaultFormatDisplay,
@@ -141,6 +144,46 @@ describe('numberFormatting', () => {
       // should not contain more than 2 digits after '.' when present
       const parts = s.split('.');
       if (parts.length === 2) expect(parts[1]!.length).toBeLessThanOrEqual(2);
+    });
+  });
+
+  describe('normalizeNumericText', () => {
+    it('normalizes leading zeros and trailing decimal zeros', () => {
+      expect(normalizeNumericText('00123.4500')).toBe('123.45');
+      expect(normalizeNumericText('-000.500')).toBe('-0.5');
+      expect(normalizeNumericText('0.000')).toBe('0');
+      expect(normalizeNumericText('')).toBe('');
+    });
+  });
+
+  describe('hasNumberRoundTripMismatch', () => {
+    it('returns false when Number can round-trip the text representation', () => {
+      expect(hasNumberRoundTripMismatch('123.45')).toBe(false);
+      expect(hasNumberRoundTripMismatch('00123.450')).toBe(false);
+      expect(hasNumberRoundTripMismatch('111111111111111.22')).toBe(false);
+    });
+
+    it('returns true when Number round-tripping changes significant digits', () => {
+      expect(hasNumberRoundTripMismatch('1111111111111111.21')).toBe(true);
+      expect(hasNumberRoundTripMismatch('111111111111111111.21')).toBe(true);
+      expect(hasNumberRoundTripMismatch('999999999999999.25')).toBe(true);
+    });
+  });
+
+  describe('formatSanitizedNumericTextWithCommas', () => {
+    it('formats integer and decimal parts without converting to Number', () => {
+      expect(formatSanitizedNumericTextWithCommas('1111111111111111.22')).toBe(
+        '1,111,111,111,111,111.22'
+      );
+      expect(
+        formatSanitizedNumericTextWithCommas('111111111111111111.22')
+      ).toBe('111,111,111,111,111,111.22');
+    });
+
+    it('preserves trailing decimal points and fractional digits', () => {
+      expect(formatSanitizedNumericTextWithCommas('12.')).toBe('12.');
+      expect(formatSanitizedNumericTextWithCommas('00012.340')).toBe('12.340');
+      expect(formatSanitizedNumericTextWithCommas('.25')).toBe('0.25');
     });
   });
 
