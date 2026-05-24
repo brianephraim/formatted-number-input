@@ -95,6 +95,45 @@ test('live commas: max decimal places still preserves large text when typed deci
   await expect(input).toHaveValue('111,111,111,111,111,111.22');
 });
 
+test('live commas: max decimal places ignores an extra fractional digit typed at the end', async ({
+  page,
+}) => {
+  await page.goto(
+    isolatedPermutationPath({
+      inputComponent: 'html',
+      wrapperComponent: 'html',
+      maxDecimalPlaces: '2',
+      decimalRoundingMode: 'displayAndOutput',
+      formatDisplay: 'none',
+      showCommasWhileEditing: 'true',
+    })
+  );
+
+  const input = page.getByTestId('number-input-livecommas-html');
+  const readout = page.getByTestId('number-input-livecommas-html__value');
+  await expect(input).toHaveCount(1);
+
+  await input.click();
+  await input.press('Meta+A');
+  await input.type('12.34');
+  await expect(input).toHaveValue('12.34');
+  await expect(readout).toContainText('12.34');
+
+  await input.press('5');
+
+  await expect(input).toHaveValue('12.34');
+  await expect(readout).toContainText('12.34');
+
+  const selection = await input.evaluate((el) => ({
+    selectionStart: (el as HTMLInputElement).selectionStart,
+    selectionEnd: (el as HTMLInputElement).selectionEnd,
+    valueLength: (el as HTMLInputElement).value.length,
+  }));
+
+  expect(selection.selectionStart).toBe(selection.valueLength);
+  expect(selection.selectionEnd).toBe(selection.valueLength);
+});
+
 test('live commas: max decimal places rounds fractional text without rounding the large integer', async ({
   page,
 }) => {
@@ -115,12 +154,12 @@ test('live commas: max decimal places rounds fractional text without rounding th
 
   await input.click();
   await input.press('Meta+A');
-  await input.type('111111111111111111.223');
+  await input.fill('111111111111111111.223');
   await expect(input).toHaveValue('111,111,111,111,111,111.22');
   await expect(readout).toContainText('111111111111111100');
 
   await input.press('Meta+A');
-  await input.type('111111111111111111.226');
+  await input.fill('111111111111111111.226');
   await expect(input).toHaveValue('111,111,111,111,111,111.23');
   await expect(readout).toContainText('111111111111111100');
 });
@@ -144,7 +183,7 @@ test('live commas: custom separator max decimal rounding stays string based for 
 
   await input.click();
   await input.press('Meta+A');
-  await input.type('111111111111111111.226');
+  await input.fill('111111111111111111.226');
 
   await expect(input).toHaveValue('111🍌111🍌111🍌111🍌111🍌111.23');
 });

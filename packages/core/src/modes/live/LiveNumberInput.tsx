@@ -319,15 +319,42 @@ export function LiveNumberInput({
   const handleKeyDown = React.useCallback(
     (e: unknown) => {
       const event = e as KeyboardEvent;
-      if (event.key !== 'Backspace' && event.key !== 'Delete') return;
-
-      event.preventDefault();
-
       const currentText = formattedText;
       const cursorPos =
         safeGetSelectionStart(inputRef.current) ??
         lastSelectionStartRef.current ??
         currentText.length;
+
+      if (/^\d$/.test(event.key) && typeof maxDecimalPlaces === 'number') {
+        const target = event.target as
+          | { selectionStart?: number | null; selectionEnd?: number | null }
+          | undefined;
+        const selectionStart = target?.selectionStart ?? cursorPos;
+        const selectionEnd = target?.selectionEnd ?? selectionStart;
+        const cleanedCurrentText = sanitizeNumericText(currentText);
+        const isExtraFractionalDigitAtEnd =
+          cleanedCurrentText.includes('.') &&
+          countFractionDigits(cleanedCurrentText) >= maxDecimalPlaces &&
+          selectionStart === selectionEnd &&
+          selectionStart === currentText.length;
+
+        if (isExtraFractionalDigitAtEnd) {
+          event.preventDefault();
+          debugLog('ignore-extra-fractional-digit', {
+            key: event.key,
+            currentText,
+            cleanedCurrentText,
+            maxDecimalPlaces,
+            selectionStart,
+            selectionEnd,
+          });
+          return;
+        }
+      }
+
+      if (event.key !== 'Backspace' && event.key !== 'Delete') return;
+
+      event.preventDefault();
 
       const direction = event.key === 'Backspace' ? 'back' : 'forward';
       const deleteIdx = findDigitToDelete(currentText, cursorPos, direction);
@@ -343,7 +370,7 @@ export function LiveNumberInput({
       applyChange(rawText, digitsRight);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [formattedText]
+    [debugLog, formattedText, maxDecimalPlaces]
   );
 
   const handleCopy = React.useCallback((e: unknown) => {
