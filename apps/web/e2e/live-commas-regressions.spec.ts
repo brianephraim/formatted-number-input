@@ -134,6 +134,84 @@ test('live commas: max decimal places ignores an extra fractional digit typed at
   expect(selection.selectionEnd).toBe(selection.valueLength);
 });
 
+test('live commas: max decimal places moves the caret after replacing the last fractional digit', async ({
+  page,
+}) => {
+  await page.goto(
+    isolatedPermutationPath({
+      inputComponent: 'html',
+      wrapperComponent: 'html',
+      maxDecimalPlaces: '2',
+      decimalRoundingMode: 'displayAndOutput',
+      formatDisplay: 'none',
+      showCommasWhileEditing: 'true',
+    })
+  );
+
+  const input = page.getByTestId('number-input-livecommas-html');
+  await expect(input).toHaveCount(1);
+
+  await input.click();
+  await input.press('Meta+A');
+  await input.type('12.34');
+  await input.evaluate((el) => {
+    const node = el as HTMLInputElement;
+    const cursorPos = node.value.indexOf('4');
+    node.setSelectionRange(cursorPos, cursorPos);
+  });
+
+  await input.press('5');
+
+  await expect(input).toHaveValue('12.35');
+  const selection = await input.evaluate((el) => ({
+    selectionStart: (el as HTMLInputElement).selectionStart,
+    selectionEnd: (el as HTMLInputElement).selectionEnd,
+    valueLength: (el as HTMLInputElement).value.length,
+  }));
+
+  expect(selection.selectionStart).toBe(selection.valueLength);
+  expect(selection.selectionEnd).toBe(selection.valueLength);
+});
+
+test('live commas: max decimal places moves the caret after replacing the fifth fractional digit', async ({
+  page,
+}) => {
+  await page.goto(
+    isolatedPermutationPath({
+      inputComponent: 'html',
+      wrapperComponent: 'html',
+      maxDecimalPlaces: '5',
+      decimalRoundingMode: 'displayAndOutput',
+      formatDisplay: 'none',
+      showCommasWhileEditing: 'true',
+    })
+  );
+
+  const input = page.getByTestId('number-input-livecommas-html');
+  await expect(input).toHaveCount(1);
+
+  await input.click();
+  await input.press('Meta+A');
+  await input.type('12.34561');
+  await input.evaluate((el) => {
+    const node = el as HTMLInputElement;
+    const cursorPos = node.value.lastIndexOf('1');
+    node.setSelectionRange(cursorPos, cursorPos);
+  });
+
+  await input.press('8');
+
+  await expect(input).toHaveValue('12.34568');
+  const selection = await input.evaluate((el) => ({
+    selectionStart: (el as HTMLInputElement).selectionStart,
+    selectionEnd: (el as HTMLInputElement).selectionEnd,
+    valueLength: (el as HTMLInputElement).value.length,
+  }));
+
+  expect(selection.selectionStart).toBe(selection.valueLength);
+  expect(selection.selectionEnd).toBe(selection.valueLength);
+});
+
 test('live commas: max decimal places rounds fractional text without rounding the large integer', async ({
   page,
 }) => {

@@ -93,6 +93,7 @@ export function LiveNumberInput({
 
   // Pending cursor position to apply after render.
   const pendingCursorRef = React.useRef<number | null>(null);
+  const pendingDigitsRightOverrideRef = React.useRef<number | null>(null);
 
   const debugLog = React.useCallback(
     (event: string, details: Record<string, unknown>) => {
@@ -319,13 +320,21 @@ export function LiveNumberInput({
   const handleKeyDown = React.useCallback(
     (e: unknown) => {
       const event = e as KeyboardEvent;
+      pendingDigitsRightOverrideRef.current = null;
+
       const currentText = formattedText;
       const cursorPos =
         safeGetSelectionStart(inputRef.current) ??
         lastSelectionStartRef.current ??
         currentText.length;
 
-      if (/^\d$/.test(event.key) && typeof maxDecimalPlaces === 'number') {
+      if (
+        /^\d$/.test(event.key) &&
+        typeof maxDecimalPlaces === 'number' &&
+        !event.altKey &&
+        !event.ctrlKey &&
+        !event.metaKey
+      ) {
         const target = event.target as
           | { selectionStart?: number | null; selectionEnd?: number | null }
           | undefined;
@@ -349,6 +358,34 @@ export function LiveNumberInput({
             selectionEnd,
           });
           return;
+        }
+
+        const decimalIndex = currentText.indexOf('.');
+        const fractionDigitsBeforeCursor =
+          decimalIndex === -1 || selectionStart <= decimalIndex
+            ? 0
+            : countFractionDigits(
+                currentText.slice(decimalIndex, selectionStart)
+              );
+        const isReplacingFinalFractionalDigit =
+          maxDecimalPlaces > 0 &&
+          cleanedCurrentText.includes('.') &&
+          countFractionDigits(cleanedCurrentText) >= maxDecimalPlaces &&
+          selectionStart === selectionEnd &&
+          selectionStart < currentText.length &&
+          fractionDigitsBeforeCursor === maxDecimalPlaces - 1;
+
+        if (isReplacingFinalFractionalDigit) {
+          pendingDigitsRightOverrideRef.current = 0;
+          debugLog('replace-final-fractional-digit-cursor-override', {
+            key: event.key,
+            currentText,
+            cleanedCurrentText,
+            maxDecimalPlaces,
+            selectionStart,
+            selectionEnd,
+            fractionDigitsBeforeCursor,
+          });
         }
       }
 
@@ -395,7 +432,10 @@ export function LiveNumberInput({
         safeGetSelectionStart(inputRef.current) ??
         lastSelectionStartRef.current ??
         text.length;
-      const digitsRight = digitsToRightOfCursor(text, cursorPos);
+      const digitsRight =
+        pendingDigitsRightOverrideRef.current ??
+        digitsToRightOfCursor(text, cursorPos);
+      pendingDigitsRightOverrideRef.current = null;
 
       applyChange(text, digitsRight);
     },
