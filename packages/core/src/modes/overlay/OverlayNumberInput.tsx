@@ -18,6 +18,7 @@ import {
   inferGroupingSeparatorFromFormattedNumber,
   roundToPlaces,
   sanitizeNumericText,
+  stripLeadingIntegerZeros,
 } from '../../numberFormatting';
 import { splitFormattedNumberInputStyle } from '../../styleSplit';
 import type { ModeProps } from '../types';
@@ -307,10 +308,12 @@ export function OverlayNumberInput({
           // - allow decimals
           // - if multiple '.', keep the first and collapse the rest into the decimal portion
           const cleaned = sanitizeNumericText(String(text));
-          rawNumericTextRef.current = cleaned;
+          const canonicalText = stripLeadingIntegerZeros(cleaned);
+          rawNumericTextRef.current = canonicalText;
           debugLog('raw-text-captured', {
             text,
             cleaned,
+            canonicalText,
           });
           const next = Number(cleaned);
           if (Number.isNaN(next)) return;

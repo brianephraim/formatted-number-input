@@ -11,6 +11,7 @@ import {
   normalizeNumericText,
   roundToPlaces,
   sanitizeNumericText,
+  stripLeadingIntegerZeros,
   defaultFormatDisplay,
   digitsToRightOfCursor,
   cursorPosForDigitsFromRight,
@@ -166,6 +167,21 @@ describe('numberFormatting', () => {
       expect(countFractionDigits('12.3400')).toBe(4);
       expect(countFractionDigits('-0.22')).toBe(2);
       expect(countFractionDigits('12.')).toBe(0);
+    });
+  });
+
+  describe('stripLeadingIntegerZeros', () => {
+    it('removes leading integer zeros while preserving decimal editing text', () => {
+      expect(stripLeadingIntegerZeros('000123')).toBe('123');
+      expect(stripLeadingIntegerZeros('000123.4500')).toBe('123.4500');
+      expect(stripLeadingIntegerZeros('000.4500')).toBe('0.4500');
+      expect(stripLeadingIntegerZeros('00012.')).toBe('12.');
+      expect(stripLeadingIntegerZeros('-00012.3400')).toBe('-12.3400');
+    });
+
+    it('does not add a leading zero when the user started with a decimal point', () => {
+      expect(stripLeadingIntegerZeros('.25')).toBe('.25');
+      expect(stripLeadingIntegerZeros('-.25')).toBe('-.25');
     });
   });
 

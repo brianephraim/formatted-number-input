@@ -66,6 +66,19 @@ export function countFractionDigits(text: string) {
   return decimalIndex === -1 ? 0 : unsigned.length - decimalIndex - 1;
 }
 
+export function stripLeadingIntegerZeros(text: string) {
+  if (text === '') return '';
+
+  const negative = text.startsWith('-');
+  const unsigned = negative ? text.slice(1) : text;
+  const hasDecimalPoint = unsigned.includes('.');
+  const [intPartRaw = '', fractionPart = ''] = unsigned.split('.');
+  const strippedIntPart =
+    intPartRaw === '' ? '' : intPartRaw.replace(/^0+(?=\d)/, '') || '0';
+
+  return `${negative ? '-' : ''}${strippedIntPart}${hasDecimalPoint ? '.' : ''}${fractionPart}`;
+}
+
 export function getNumberRoundTripInfo(text: string) {
   const normalized = normalizeNumericText(text);
   if (normalized === '') {
