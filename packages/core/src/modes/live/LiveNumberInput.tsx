@@ -2,7 +2,15 @@ import * as React from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { DivWrapper } from '../../adapters/DivWrapper';
 import { HtmlInput } from '../../adapters/HtmlInput';
-import type { InputHandle } from '../../adapters/types';
+import type {
+  InputBlurEvent,
+  InputCopyEvent,
+  InputFocusEvent,
+  InputHandle,
+  InputKeyDownEvent,
+  InputSelectionChangeEvent,
+  SelectionRangeTarget,
+} from '../../adapters/types';
 import { getDefaultWebInputMode } from '../../inputMode';
 import {
   safeGetSelectionStart,
@@ -25,6 +33,65 @@ import {
 import { splitFormattedNumberInputStyle } from '../../styleSplit';
 import type { ModeProps } from '../types';
 
+type SelectionOwnerTarget = {
+  ownerDocument?: {
+    getSelection?: () => { toString: () => string } | null;
+  } | null;
+};
+
+type NativeSelectionPayload = {
+  selection?: {
+    start?: number;
+  };
+};
+
+function hasSelectionRangeTarget(
+  value: object | null | undefined
+): value is SelectionRangeTarget {
+  return value != null && 'selectionStart' in value;
+}
+
+function getSelectionStart(value: object | null | undefined) {
+  if (!hasSelectionRangeTarget(value)) return null;
+  return typeof value.selectionStart === 'number' ? value.selectionStart : null;
+}
+
+function getSelectionEnd(value: object | null | undefined) {
+  if (!hasSelectionRangeTarget(value)) return null;
+  return typeof value.selectionEnd === 'number' ? value.selectionEnd : null;
+}
+
+function hasSelectionOwnerTarget(
+  value: object | null | undefined
+): value is SelectionOwnerTarget {
+  return value != null && 'ownerDocument' in value;
+}
+
+function hasNativeSelectionPayload(
+  value: object | null | undefined
+): value is NativeSelectionPayload {
+  return value != null && 'selection' in value;
+}
+
+function getSelectionStartFromEvent(event: InputSelectionChangeEvent) {
+  const nativeEvent = event.nativeEvent;
+  if (hasNativeSelectionPayload(nativeEvent)) {
+    const nativeStart = nativeEvent.selection?.start;
+    if (typeof nativeStart === 'number') return nativeStart;
+  }
+
+  if ('currentTarget' in event) {
+    const currentTargetStart = getSelectionStart(event.currentTarget);
+    if (currentTargetStart != null) return currentTargetStart;
+  }
+
+  if ('target' in event) {
+    return getSelectionStart(event.target);
+  }
+
+  return null;
+}
+
 /**
  * Live-formatting mode: single controlled input with commas visible while typing.
  *
@@ -45,10 +112,8 @@ export function LiveNumberInput({
   onBlur,
   ...rest
 }: ModeProps) {
-  const externalOnSelectionChange = (
-    rest as { onSelectionChange?: (e: unknown) => void }
-  ).onSelectionChange;
-  const baseTestID = (rest as { testID?: string } | undefined)?.testID;
+  const { onSelectionChange: externalOnSelectionChange, ...inputRest } = rest;
+  const baseTestID = inputRest.testID;
   const { containerStyle, inputTextStyle } =
     splitFormattedNumberInputStyle(style);
   const [isFocused, setIsFocused] = React.useState(false);
@@ -318,8 +383,7 @@ export function LiveNumberInput({
   }
 
   const handleKeyDown = React.useCallback(
-    (e: unknown) => {
-      const event = e as KeyboardEvent;
+    (event: InputKeyDownEvent) => {
       pendingDigitsRightOverrideRef.current = null;
 
       const currentText = formattedText;
@@ -335,11 +399,9 @@ export function LiveNumberInput({
         !event.ctrlKey &&
         !event.metaKey
       ) {
-        const target = event.target as
-          | { selectionStart?: number | null; selectionEnd?: number | null }
-          | undefined;
-        const selectionStart = target?.selectionStart ?? cursorPos;
-        const selectionEnd = target?.selectionEnd ?? selectionStart;
+        const target = event.target;
+        const selectionStart = getSelectionStart(target) ?? cursorPos;
+        const selectionEnd = getSelectionEnd(target) ?? selectionStart;
         const cleanedCurrentText = sanitizeNumericText(currentText);
         const isExtraFractionalDigitAtEnd =
           cleanedCurrentText.includes('.') &&
@@ -410,11 +472,10 @@ export function LiveNumberInput({
     [debugLog, formattedText, maxDecimalPlaces]
   );
 
-  const handleCopy = React.useCallback((e: unknown) => {
-    const event = e as ClipboardEvent;
-    const selection = (
-      event.target as HTMLInputElement
-    )?.ownerDocument?.getSelection?.();
+  const handleCopy = React.useCallback((event: InputCopyEvent) => {
+    const selection = hasSelectionOwnerTarget(event.target)
+      ? event.target.ownerDocument?.getSelection?.()
+      : null;
     const text = selection?.toString() ?? '';
     if (text && event.clipboardData) {
       event.preventDefault();
@@ -452,7 +513,7 @@ export function LiveNumberInput({
         onChangeText={handleChangeText}
         onKeyDown={handleKeyDown}
         onCopy={handleCopy}
-        onFocus={(e: unknown) => {
+        onFocus={(e: InputFocusEvent) => {
           setIsFocused(true);
           const preservedEchoDisplayText = getPreservedEchoDisplayText(value);
           const formattedFromNumber = format(displayValue);
@@ -467,30 +528,22 @@ export function LiveNumberInput({
           setFormattedText(preservedEchoDisplayText ?? formattedFromNumber);
           onFocus?.(e);
         }}
-        onBlur={(e: unknown) => {
+        onBlur={(e: InputBlurEvent) => {
           setIsFocused(false);
           lastSelectionStartRef.current = null;
           onBlur?.(e);
         }}
-        onSelectionChange={(e: unknown) => {
-          const maybeNative = (
-            e as { nativeEvent?: { selection?: { start?: number } } }
-          ).nativeEvent;
-          const nativeStart = maybeNative?.selection?.start;
-          const domStart = (
-            e as { target?: { selectionStart?: number | null } }
-          ).target?.selectionStart;
-          if (typeof nativeStart === 'number') {
-            lastSelectionStartRef.current = nativeStart;
-          } else if (typeof domStart === 'number') {
-            lastSelectionStartRef.current = domStart;
+        onSelectionChange={(e: InputSelectionChangeEvent) => {
+          const nextSelectionStart = getSelectionStartFromEvent(e);
+          if (nextSelectionStart != null) {
+            lastSelectionStartRef.current = nextSelectionStart;
           }
           externalOnSelectionChange?.(e);
         }}
         keyboardType={Platform.OS === 'web' ? undefined : 'numeric'}
         inputMode={Platform.OS === 'web' ? webInputMode : undefined}
         style={[styles.inputFillWidth, inputTextStyle]}
-        {...rest}
+        {...inputRest}
       />
     </Wrapper>
   );

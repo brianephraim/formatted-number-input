@@ -2,7 +2,11 @@ import * as React from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { DivWrapper } from '../../adapters/DivWrapper';
 import { HtmlInput } from '../../adapters/HtmlInput';
-import type { InputHandle } from '../../adapters/types';
+import type {
+  InputBlurEvent,
+  InputFocusEvent,
+  InputHandle,
+} from '../../adapters/types';
 import { getDefaultWebInputMode } from '../../inputMode';
 import {
   safeFocus,
@@ -358,7 +362,7 @@ export function OverlayNumberInput({
           lastEmittedNumberRef.current = next;
           onChangeNumber(next);
         }}
-        onFocus={(e: unknown) => {
+        onFocus={(e: InputFocusEvent) => {
           debugLog('focus', {
             value,
             seedValueForTypingInput,
@@ -369,7 +373,7 @@ export function OverlayNumberInput({
           setIsFocused(true);
           onFocus?.(e);
         }}
-        onBlur={(e: unknown) => {
+        onBlur={(e: InputBlurEvent) => {
           debugLog('blur-remount', {
             seedValueForTypingInput,
             rawNumericText: rawNumericTextRef.current,
