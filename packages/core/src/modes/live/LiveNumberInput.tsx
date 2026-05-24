@@ -14,6 +14,7 @@ import {
   formatSanitizedNumericTextWithGroupSeparator,
   getNumberRoundTripInfo,
   inferGroupingSeparatorFromFormattedNumber,
+  roundNumericTextToDecimalPlaces,
   roundToPlaces,
   sanitizeNumericText,
   digitsToRightOfCursor,
@@ -249,10 +250,15 @@ export function LiveNumberInput({
   function applyChange(rawText: string, digitsRight: number) {
     const cleaned = sanitizeNumericText(rawText);
     if (cleaned === '') return;
-    rawNumericTextRef.current = cleaned;
+    const displayText =
+      typeof maxDecimalPlaces === 'number'
+        ? roundNumericTextToDecimalPlaces(cleaned, maxDecimalPlaces)
+        : cleaned;
+    rawNumericTextRef.current = displayText;
     debugLog('raw-text-captured', {
       rawText,
       cleaned,
+      displayText,
       digitsRight,
     });
 
@@ -270,11 +276,12 @@ export function LiveNumberInput({
     const outputValue =
       typeof maxDecimalPlaces === 'number' &&
       decimalRoundingMode === 'displayAndOutput'
-        ? roundToPlaces(next, maxDecimalPlaces)
+        ? Number(displayText)
         : next;
 
     debugLog('emit-number', {
       cleaned,
+      displayText,
       parsed: next,
       outputValue,
       decimalRoundingMode,
@@ -284,22 +291,21 @@ export function LiveNumberInput({
     onChangeNumber(outputValue);
 
     // Reformat and compute cursor.
-    const shouldPreserve = canPreserveRawDisplay(cleaned);
+    const shouldPreserve = canPreserveRawDisplay(displayText);
+    const numberForFallbackFormat =
+      typeof maxDecimalPlaces === 'number' ? Number(displayText) : next;
     const formattedFromNumber = preserveEditingStateInFormattedText(
-      cleaned,
-      format(
-        typeof maxDecimalPlaces === 'number'
-          ? roundToPlaces(next, maxDecimalPlaces)
-          : next
-      )
+      displayText,
+      format(numberForFallbackFormat)
     );
     const newFormatted = shouldPreserve
-      ? formatRawDisplayText(cleaned)
+      ? formatRawDisplayText(displayText)
       : formattedFromNumber;
     debugLog('format-after-change', {
       cleaned,
+      displayText,
       shouldPreserve,
-      formattedFromRawText: formatRawDisplayText(cleaned),
+      formattedFromRawText: formatRawDisplayText(displayText),
       formattedFromNumber,
       chosenFormattedText: newFormatted,
     });

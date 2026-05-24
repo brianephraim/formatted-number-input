@@ -9,6 +9,7 @@ import {
   hasNumberRoundTripMismatch,
   inferGroupingSeparatorFromFormattedNumber,
   normalizeNumericText,
+  roundNumericTextToDecimalPlaces,
   roundToPlaces,
   sanitizeNumericText,
   stripLeadingIntegerZeros,
@@ -34,6 +35,42 @@ describe('numberFormatting', () => {
     it('clamps places to a non-negative integer', () => {
       expect(roundToPlaces(1.29, -2)).toBe(1);
       expect(roundToPlaces(1.29, 0.9)).toBe(1);
+    });
+  });
+
+  describe('roundNumericTextToDecimalPlaces', () => {
+    it('rounds only the decimal text without converting the integer through Number', () => {
+      expect(roundNumericTextToDecimalPlaces('111111111111111111.223', 2)).toBe(
+        '111111111111111111.22'
+      );
+      expect(roundNumericTextToDecimalPlaces('111111111111111111.226', 2)).toBe(
+        '111111111111111111.23'
+      );
+    });
+
+    it('carries across very large integer text when the fraction rounds up', () => {
+      expect(roundNumericTextToDecimalPlaces('999999999999999999.999', 2)).toBe(
+        '1000000000000000000.00'
+      );
+      expect(roundNumericTextToDecimalPlaces('.999', 2)).toBe('1.00');
+    });
+
+    it('preserves normal editing shapes when no rounding is needed', () => {
+      expect(roundNumericTextToDecimalPlaces('12.3', 2)).toBe('12.3');
+      expect(roundNumericTextToDecimalPlaces('12.', 2)).toBe('12.');
+      expect(roundNumericTextToDecimalPlaces('.', 2)).toBe('.');
+      expect(roundNumericTextToDecimalPlaces('-', 2)).toBe('-');
+    });
+
+    it('strips leading integer zeros and keeps the requested decimal width after rounding', () => {
+      expect(roundNumericTextToDecimalPlaces('00012.3400', 2)).toBe('12.34');
+      expect(roundNumericTextToDecimalPlaces('12.300', 2)).toBe('12.30');
+      expect(roundNumericTextToDecimalPlaces('-00012.346', 2)).toBe('-12.35');
+    });
+
+    it('supports integer-only rounding when places is zero', () => {
+      expect(roundNumericTextToDecimalPlaces('999.5', 0)).toBe('1000');
+      expect(roundNumericTextToDecimalPlaces('999.4', 0)).toBe('999');
     });
   });
 

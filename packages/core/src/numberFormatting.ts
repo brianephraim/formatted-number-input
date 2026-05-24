@@ -79,6 +79,68 @@ export function stripLeadingIntegerZeros(text: string) {
   return `${negative ? '-' : ''}${strippedIntPart}${hasDecimalPoint ? '.' : ''}${fractionPart}`;
 }
 
+function incrementIntegerText(integerText: string) {
+  const digits = integerText === '' ? '0' : integerText;
+  let carry = 1;
+  let result = '';
+
+  for (let i = digits.length - 1; i >= 0; i--) {
+    const next = Number(digits[i]) + carry;
+    if (next === 10) {
+      result = `0${result}`;
+      carry = 1;
+    } else {
+      result = `${next}${result}`;
+      carry = 0;
+    }
+  }
+
+  return carry ? `1${result}` : result;
+}
+
+export function roundNumericTextToDecimalPlaces(text: string, places: number) {
+  if (text === '' || text === '-' || text === '.' || text === '-.') {
+    return text;
+  }
+
+  const decimalPlaces = Math.max(0, Math.floor(places));
+  const canonicalText = stripLeadingIntegerZeros(text);
+  const negative = canonicalText.startsWith('-');
+  const unsigned = negative ? canonicalText.slice(1) : canonicalText;
+  const hasDecimalPoint = unsigned.includes('.');
+  const [intPartRaw = '', fractionPart = ''] = unsigned.split('.');
+
+  if (!hasDecimalPoint || fractionPart.length <= decimalPlaces) {
+    return canonicalText;
+  }
+
+  const roundDigit = fractionPart[decimalPlaces] ?? '0';
+  const shouldRoundUp = roundDigit >= '5';
+  let integerPart = intPartRaw === '' ? '0' : intPartRaw;
+  let keptFraction =
+    decimalPlaces === 0 ? '' : fractionPart.slice(0, decimalPlaces);
+
+  if (shouldRoundUp) {
+    if (decimalPlaces === 0) {
+      integerPart = incrementIntegerText(integerPart);
+    } else {
+      const roundedFraction = incrementIntegerText(keptFraction);
+      if (roundedFraction.length > decimalPlaces) {
+        integerPart = incrementIntegerText(integerPart);
+        keptFraction = '0'.repeat(decimalPlaces);
+      } else {
+        keptFraction = roundedFraction.padStart(decimalPlaces, '0');
+      }
+    }
+  }
+
+  const roundedMagnitude =
+    decimalPlaces === 0 ? integerPart : `${integerPart}.${keptFraction}`;
+  const isZeroMagnitude = /^0(?:\.0*)?$/.test(roundedMagnitude);
+
+  return `${negative && !isZeroMagnitude ? '-' : ''}${roundedMagnitude}`;
+}
+
 export function getNumberRoundTripInfo(text: string) {
   const normalized = normalizeNumericText(text);
   if (normalized === '') {

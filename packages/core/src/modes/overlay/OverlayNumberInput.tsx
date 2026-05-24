@@ -16,6 +16,7 @@ import {
   formattedIndexToRawIndex,
   getNumberRoundTripInfo,
   inferGroupingSeparatorFromFormattedNumber,
+  roundNumericTextToDecimalPlaces,
   roundToPlaces,
   sanitizeNumericText,
   stripLeadingIntegerZeros,
@@ -308,12 +309,18 @@ export function OverlayNumberInput({
           // - allow decimals
           // - if multiple '.', keep the first and collapse the rest into the decimal portion
           const cleaned = sanitizeNumericText(String(text));
-          const canonicalText = stripLeadingIntegerZeros(cleaned);
-          rawNumericTextRef.current = canonicalText;
+          const strippedText = stripLeadingIntegerZeros(cleaned);
+          const displayText =
+            typeof maxDecimalPlaces === 'number'
+              ? roundNumericTextToDecimalPlaces(strippedText, maxDecimalPlaces)
+              : strippedText;
+          rawNumericTextRef.current = displayText;
           debugLog('raw-text-captured', {
             text,
             cleaned,
-            canonicalText,
+            strippedText,
+            displayText,
+            storedRawNumericText: rawNumericTextRef.current,
           });
           const next = Number(cleaned);
           if (Number.isNaN(next)) return;
@@ -326,9 +333,10 @@ export function OverlayNumberInput({
             typeof maxDecimalPlaces === 'number' &&
             decimalRoundingMode === 'displayAndOutput'
           ) {
-            const outputValue = roundToPlaces(next, maxDecimalPlaces);
+            const outputValue = Number(displayText);
             debugLog('emit-number', {
               cleaned,
+              displayText,
               parsed: next,
               outputValue,
               decimalRoundingMode,
@@ -341,6 +349,7 @@ export function OverlayNumberInput({
 
           debugLog('emit-number', {
             cleaned,
+            displayText,
             parsed: next,
             outputValue: next,
             decimalRoundingMode,

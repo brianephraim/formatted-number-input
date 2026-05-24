@@ -95,6 +95,60 @@ test('live commas: max decimal places still preserves large text when typed deci
   await expect(input).toHaveValue('111,111,111,111,111,111.22');
 });
 
+test('live commas: max decimal places rounds fractional text without rounding the large integer', async ({
+  page,
+}) => {
+  await page.goto(
+    isolatedPermutationPath({
+      inputComponent: 'html',
+      wrapperComponent: 'html',
+      maxDecimalPlaces: '2',
+      decimalRoundingMode: 'displayAndOutput',
+      formatDisplay: 'none',
+      showCommasWhileEditing: 'true',
+    })
+  );
+
+  const input = page.getByTestId('number-input-livecommas-html');
+  const readout = page.getByTestId('number-input-livecommas-html__value');
+  await expect(input).toHaveCount(1);
+
+  await input.click();
+  await input.press('Meta+A');
+  await input.type('111111111111111111.223');
+  await expect(input).toHaveValue('111,111,111,111,111,111.22');
+  await expect(readout).toContainText('111111111111111100');
+
+  await input.press('Meta+A');
+  await input.type('111111111111111111.226');
+  await expect(input).toHaveValue('111,111,111,111,111,111.23');
+  await expect(readout).toContainText('111111111111111100');
+});
+
+test('live commas: custom separator max decimal rounding stays string based for large integers', async ({
+  page,
+}) => {
+  await page.goto(
+    isolatedPermutationPath({
+      inputComponent: 'html',
+      wrapperComponent: 'html',
+      maxDecimalPlaces: '2',
+      decimalRoundingMode: 'displayAndOutput',
+      formatDisplay: 'bananas',
+      showCommasWhileEditing: 'true',
+    })
+  );
+
+  const input = page.getByTestId('number-input-livecommas-html');
+  await expect(input).toHaveCount(1);
+
+  await input.click();
+  await input.press('Meta+A');
+  await input.type('111111111111111111.226');
+
+  await expect(input).toHaveValue('111🍌111🍌111🍌111🍌111🍌111.23');
+});
+
 test('live commas: custom separator format preserves large text when typed decimals are within the limit', async ({
   page,
 }) => {
