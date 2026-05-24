@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  countFractionDigits,
   formattedIndexToRawIndex,
+  formatSanitizedNumericTextWithCommas,
+  formatSanitizedNumericTextWithGroupSeparator,
+  getNumberRoundTripInfo,
+  hasNumberRoundTripMismatch,
+  inferGroupingSeparatorFromFormattedNumber,
+  normalizeNumericText,
   roundToPlaces,
   sanitizeNumericText,
+  stripLeadingIntegerZeros,
   defaultFormatDisplay,
   digitsToRightOfCursor,
   cursorPosForDigitsFromRight,
@@ -141,6 +149,117 @@ describe('numberFormatting', () => {
       // should not contain more than 2 digits after '.' when present
       const parts = s.split('.');
       if (parts.length === 2) expect(parts[1]!.length).toBeLessThanOrEqual(2);
+    });
+  });
+
+  describe('normalizeNumericText', () => {
+    it('normalizes leading zeros and trailing decimal zeros', () => {
+      expect(normalizeNumericText('00123.4500')).toBe('123.45');
+      expect(normalizeNumericText('-000.500')).toBe('-0.5');
+      expect(normalizeNumericText('0.000')).toBe('0');
+      expect(normalizeNumericText('')).toBe('');
+    });
+  });
+
+  describe('countFractionDigits', () => {
+    it('counts digits after the decimal point without normalizing the text', () => {
+      expect(countFractionDigits('12')).toBe(0);
+      expect(countFractionDigits('12.3400')).toBe(4);
+      expect(countFractionDigits('-0.22')).toBe(2);
+      expect(countFractionDigits('12.')).toBe(0);
+    });
+  });
+
+  describe('stripLeadingIntegerZeros', () => {
+    it('removes leading integer zeros while preserving decimal editing text', () => {
+      expect(stripLeadingIntegerZeros('000123')).toBe('123');
+      expect(stripLeadingIntegerZeros('000123.4500')).toBe('123.4500');
+      expect(stripLeadingIntegerZeros('000.4500')).toBe('0.4500');
+      expect(stripLeadingIntegerZeros('00012.')).toBe('12.');
+      expect(stripLeadingIntegerZeros('-00012.3400')).toBe('-12.3400');
+    });
+
+    it('does not add a leading zero when the user started with a decimal point', () => {
+      expect(stripLeadingIntegerZeros('.25')).toBe('.25');
+      expect(stripLeadingIntegerZeros('-.25')).toBe('-.25');
+    });
+  });
+
+  describe('hasNumberRoundTripMismatch', () => {
+    it('returns false when Number can round-trip the text representation', () => {
+      expect(hasNumberRoundTripMismatch('123.45')).toBe(false);
+      expect(hasNumberRoundTripMismatch('00123.450')).toBe(false);
+      expect(hasNumberRoundTripMismatch('111111111111111.22')).toBe(false);
+    });
+
+    it('returns true when Number round-tripping changes significant digits', () => {
+      expect(hasNumberRoundTripMismatch('1111111111111111.21')).toBe(true);
+      expect(hasNumberRoundTripMismatch('111111111111111111.21')).toBe(true);
+      expect(hasNumberRoundTripMismatch('999999999999999.25')).toBe(true);
+    });
+  });
+
+  describe('getNumberRoundTripInfo', () => {
+    it('exposes the normalized text, lossy number, and rounded string', () => {
+      expect(getNumberRoundTripInfo('123123123123435688')).toEqual({
+        normalized: '123123123123435688',
+        parsed: 123123123123435680,
+        roundTripped: '123123123123435680',
+        normalizedRoundTripped: '123123123123435680',
+        usesExponentialNotation: false,
+        roundTripMismatch: true,
+      });
+    });
+  });
+
+  describe('formatSanitizedNumericTextWithCommas', () => {
+    it('formats integer and decimal parts without converting to Number', () => {
+      expect(formatSanitizedNumericTextWithCommas('1111111111111111.22')).toBe(
+        '1,111,111,111,111,111.22'
+      );
+      expect(
+        formatSanitizedNumericTextWithCommas('111111111111111111.22')
+      ).toBe('111,111,111,111,111,111.22');
+    });
+
+    it('preserves trailing decimal points and fractional digits', () => {
+      expect(formatSanitizedNumericTextWithCommas('12.')).toBe('12.');
+      expect(formatSanitizedNumericTextWithCommas('00012.340')).toBe('12.340');
+      expect(formatSanitizedNumericTextWithCommas('.25')).toBe('0.25');
+    });
+  });
+
+  describe('inferGroupingSeparatorFromFormattedNumber', () => {
+    it('detects a custom grouping separator from a normal grouped reference value', () => {
+      expect(inferGroupingSeparatorFromFormattedNumber('1🍌234🍌567.89')).toBe(
+        '🍌'
+      );
+      expect(inferGroupingSeparatorFromFormattedNumber('1,234,567.89')).toBe(
+        ','
+      );
+    });
+
+    it('returns null when the formatter shape is not a plain grouped number', () => {
+      expect(
+        inferGroupingSeparatorFromFormattedNumber('$1,234,567.89')
+      ).toBeNull();
+      expect(
+        inferGroupingSeparatorFromFormattedNumber('1,234 567.89')
+      ).toBeNull();
+      expect(
+        inferGroupingSeparatorFromFormattedNumber('1234567.89')
+      ).toBeNull();
+    });
+  });
+
+  describe('formatSanitizedNumericTextWithGroupSeparator', () => {
+    it('formats exact numeric text with a custom separator without converting to Number', () => {
+      expect(
+        formatSanitizedNumericTextWithGroupSeparator(
+          '111111111111111111.22',
+          '🍌'
+        )
+      ).toBe('111🍌111🍌111🍌111🍌111🍌111.22');
     });
   });
 

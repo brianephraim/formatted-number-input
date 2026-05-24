@@ -435,6 +435,12 @@ export function HtmlInputBaseline() {
         onAnimationIteration={onAnimationIteration}
         onTransitionEnd={onTransitionEnd}
       />
+      <FormattedNumberInputHtmlLike
+        defaultValue={42}
+        onChangeNumber={() => {}}
+        name={name}
+        placeholder={placeholder}
+      />
     </>
   );
 }
@@ -565,6 +571,7 @@ export function FormattedNumberInputHtmlLikeExhaustive() {
         decimalRoundingMode="displayAndOutput"
         formatDisplay={(n) => `$${n.toFixed(2)}`}
         showCommasWhileEditing
+        debugPrecision
       />
     </>
   );

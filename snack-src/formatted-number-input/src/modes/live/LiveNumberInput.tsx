@@ -9,7 +9,11 @@ import {
   safeSetSelectionRange,
 } from '../../safeSelection';
 import {
+  countFractionDigits,
   defaultFormatDisplay,
+  formatSanitizedNumericTextWithGroupSeparator,
+  getNumberRoundTripInfo,
+  inferGroupingSeparatorFromFormattedNumber,
   roundToPlaces,
   sanitizeNumericText,
   digitsToRightOfCursor,
@@ -34,6 +38,7 @@ export function LiveNumberInput({
   maxDecimalPlaces,
   decimalRoundingMode = 'displayAndOutput',
   formatDisplay,
+  debugPrecision,
   style,
   onFocus,
   onBlur,
@@ -49,6 +54,8 @@ export function LiveNumberInput({
 
   const inputRef = React.useRef<InputHandle | null>(null);
   const lastSelectionStartRef = React.useRef<number | null>(null);
+  const rawNumericTextRef = React.useRef<string | null>(null);
+  const lastEmittedNumberRef = React.useRef<number | undefined>(value);
 
   const displayValue =
     typeof maxDecimalPlaces === 'number'
@@ -64,6 +71,20 @@ export function LiveNumberInput({
     [formatDisplay, maxDecimalPlaces]
   );
 
+  const rawDisplayGroupSeparator = React.useMemo(() => {
+    if (!formatDisplay) return ',';
+    return inferGroupingSeparatorFromFormattedNumber(formatDisplay(1234567.89));
+  }, [formatDisplay]);
+
+  const formatRawDisplayText = React.useCallback(
+    (text: string) =>
+      formatSanitizedNumericTextWithGroupSeparator(
+        text,
+        rawDisplayGroupSeparator ?? ','
+      ),
+    [rawDisplayGroupSeparator]
+  );
+
   // Internal formatted text state — only used while focused.
   const [formattedText, setFormattedText] = React.useState(() =>
     format(displayValue)
@@ -72,12 +93,148 @@ export function LiveNumberInput({
   // Pending cursor position to apply after render.
   const pendingCursorRef = React.useRef<number | null>(null);
 
+  const debugLog = React.useCallback(
+    (event: string, details: Record<string, unknown>) => {
+      if (!debugPrecision) return;
+      console.log(`[FormattedNumberInput precision][live] ${event}`, details);
+    },
+    [debugPrecision]
+  );
+
+  const canPreserveRawDisplay = React.useCallback(
+    (cleaned: string) => {
+      const roundTripInfo = getNumberRoundTripInfo(cleaned);
+      const hasCustomFormat = !!formatDisplay;
+      const canFormatRawCustomDisplay = rawDisplayGroupSeparator != null;
+      const fractionDigitCount = countFractionDigits(cleaned);
+      const isWithinMaxDecimalPlaces =
+        typeof maxDecimalPlaces !== 'number' ||
+        fractionDigitCount <= maxDecimalPlaces;
+      const canPreserve =
+        cleaned !== '' && canFormatRawCustomDisplay && isWithinMaxDecimalPlaces;
+
+      debugLog('raw-display-preserve-check', {
+        cleaned,
+        ...roundTripInfo,
+        hasCustomFormat,
+        rawDisplayGroupSeparator,
+        canFormatRawCustomDisplay,
+        maxDecimalPlaces,
+        fractionDigitCount,
+        isWithinMaxDecimalPlaces,
+        canPreserve,
+        stringFormattedCleaned: formatRawDisplayText(cleaned),
+        stringFormattedNormalized: roundTripInfo.normalized
+          ? formatRawDisplayText(roundTripInfo.normalized)
+          : '',
+      });
+
+      return canPreserve;
+    },
+    [
+      debugLog,
+      formatDisplay,
+      formatRawDisplayText,
+      maxDecimalPlaces,
+      rawDisplayGroupSeparator,
+    ]
+  );
+
+  const getPreservedEchoDisplayText = React.useCallback(
+    (nextValue: number) => {
+      const rawNumericText = rawNumericTextRef.current;
+      const lastEmittedNumber = lastEmittedNumberRef.current;
+
+      if (lastEmittedNumber === undefined || nextValue !== lastEmittedNumber) {
+        debugLog('preserved-echo-skip', {
+          reason: 'incoming-value-not-last-emitted-number',
+          rawNumericText,
+          incomingValue: nextValue,
+          lastEmittedNumber,
+        });
+        return null;
+      }
+
+      if (!rawNumericText || !canPreserveRawDisplay(rawNumericText)) {
+        debugLog('preserved-echo-skip', {
+          reason: rawNumericText ? 'raw-text-not-preserved' : 'no-raw-text',
+          rawNumericText,
+          incomingValue: nextValue,
+          lastEmittedNumber,
+        });
+        return null;
+      }
+
+      const roundTripInfo = getNumberRoundTripInfo(rawNumericText);
+      const parsedRawNumericText = roundTripInfo.parsed;
+      if (Number.isNaN(parsedRawNumericText)) {
+        debugLog('preserved-echo-skip', {
+          reason: 'parsed-raw-is-nan',
+          rawNumericText,
+          incomingValue: nextValue,
+          lastEmittedNumber,
+        });
+        return null;
+      }
+      if (parsedRawNumericText !== lastEmittedNumber) {
+        debugLog('preserved-echo-skip', {
+          reason: 'last-emitted-number-differs-from-raw-text',
+          rawNumericText,
+          ...roundTripInfo,
+          parsedRawNumericText,
+          incomingValue: nextValue,
+          lastEmittedNumber,
+        });
+        return null;
+      }
+
+      const preservedDisplayText = formatRawDisplayText(rawNumericText);
+      debugLog('preserved-echo-use', {
+        rawNumericText,
+        ...roundTripInfo,
+        parsedRawNumericText,
+        incomingValue: nextValue,
+        lastEmittedNumber,
+        preservedDisplayText,
+        reason:
+          'incoming value equals the number this input just emitted, so keep rendering the string-formatted raw text',
+      });
+      return preservedDisplayText;
+    },
+    [canPreserveRawDisplay, debugLog, formatRawDisplayText]
+  );
+
   // Sync formatted text from external value changes while blurred.
   React.useEffect(() => {
     if (!isFocused) {
+      const preservedEchoDisplayText = getPreservedEchoDisplayText(value);
+      if (preservedEchoDisplayText != null) {
+        debugLog('blurred-sync-preserve-display', {
+          incomingValue: value,
+          preservedEchoDisplayText,
+        });
+        setFormattedText(preservedEchoDisplayText);
+        return;
+      }
+
+      debugLog('blurred-sync-from-number', {
+        incomingValue: value,
+        displayValue,
+        formattedText: format(displayValue),
+        rawNumericText: rawNumericTextRef.current,
+      });
+      rawNumericTextRef.current = null;
+      lastEmittedNumberRef.current = value;
       setFormattedText(format(displayValue));
     }
-  }, [isFocused, displayValue, format]);
+  }, [
+    debugLog,
+    isFocused,
+    value,
+    displayValue,
+    format,
+    getPreservedEchoDisplayText,
+  ]);
 
   // Apply pending cursor position after React renders the new value.
   React.useEffect(() => {
@@ -92,6 +249,12 @@ export function LiveNumberInput({
   function applyChange(rawText: string, digitsRight: number) {
     const cleaned = sanitizeNumericText(rawText);
     if (cleaned === '') return;
+    rawNumericTextRef.current = cleaned;
+    debugLog('raw-text-captured', {
+      rawText,
+      cleaned,
+      digitsRight,
+    });
 
     const next = Number(cleaned);
     if (Number.isNaN(next)) {
@@ -110,10 +273,19 @@ export function LiveNumberInput({
         ? roundToPlaces(next, maxDecimalPlaces)
         : next;
 
+    debugLog('emit-number', {
+      cleaned,
+      parsed: next,
+      outputValue,
+      decimalRoundingMode,
+      maxDecimalPlaces,
+    });
+    lastEmittedNumberRef.current = outputValue;
     onChangeNumber(outputValue);
 
     // Reformat and compute cursor.
-    const newFormatted = preserveEditingStateInFormattedText(
+    const shouldPreserve = canPreserveRawDisplay(cleaned);
+    const formattedFromNumber = preserveEditingStateInFormattedText(
       cleaned,
       format(
         typeof maxDecimalPlaces === 'number'
@@ -121,6 +293,16 @@ export function LiveNumberInput({
           : next
       )
     );
+    const newFormatted = shouldPreserve
+      ? formatRawDisplayText(cleaned)
+      : formattedFromNumber;
+    debugLog('format-after-change', {
+      cleaned,
+      shouldPreserve,
+      formattedFromRawText: formatRawDisplayText(cleaned),
+      formattedFromNumber,
+      chosenFormattedText: newFormatted,
+    });
     setFormattedText(newFormatted);
     pendingCursorRef.current = cursorPosForDigitsFromRight(
       newFormatted,
@@ -199,7 +381,17 @@ export function LiveNumberInput({
         onCopy={handleCopy}
         onFocus={(e: unknown) => {
           setIsFocused(true);
-          setFormattedText(format(displayValue));
+          const preservedEchoDisplayText = getPreservedEchoDisplayText(value);
+          const formattedFromNumber = format(displayValue);
+          debugLog('focus-reseed', {
+            incomingValue: value,
+            displayValue,
+            preservedEchoDisplayText,
+            formattedFromNumber,
+            chosenFormattedText:
+              preservedEchoDisplayText ?? formattedFromNumber,
+          });
+          setFormattedText(preservedEchoDisplayText ?? formattedFromNumber);
           onFocus?.(e);
         }}
         onBlur={(e: unknown) => {

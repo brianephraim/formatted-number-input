@@ -13,12 +13,14 @@ export type FormattedNumberInputHtmlLikeProps = Omit<
   // Remove HTML props that conflict with our numeric API or are managed internally.
   'value' | 'defaultValue' | 'type' | 'onChange'
 > & {
-  value: number;
-  onChangeNumber: (next: number) => void;
+  value?: number;
+  defaultValue?: number;
+  onChangeNumber?: (next: number) => void;
   maxDecimalPlaces?: number;
   decimalRoundingMode?: 'displayAndOutput' | 'displayOnly';
   formatDisplay?: (value: number) => string;
   showCommasWhileEditing?: boolean;
+  debugPrecision?: boolean;
 };
 
 /**
@@ -31,16 +33,18 @@ export type FormattedNumberInputHtmlLikeProps = Omit<
  * - `style` (CSSProperties) → passed through as-is (HtmlInput handles CSS objects)
  * - `className`, `name`, `id`, `aria-*`, `data-*`, `tabIndex`, etc. → forwarded
  *   to the underlying `<input>` element via HtmlInput's prop passthrough.
- * - `value` is `number` (not string) — same as FormattedNumberInput.
+ * - `value`/`defaultValue` are `number` (not string) — same as FormattedNumberInput.
  * - `onChangeNumber` is the primary change handler (not `onChange`).
  */
 export function FormattedNumberInputHtmlLike({
   value,
+  defaultValue,
   onChangeNumber,
   maxDecimalPlaces,
   decimalRoundingMode,
   formatDisplay,
   showCommasWhileEditing,
+  debugPrecision,
   // HTML props we explicitly map:
   disabled,
   placeholder,
@@ -59,11 +63,13 @@ export function FormattedNumberInputHtmlLike({
   // component's `...rest` and into HtmlInput's DOM passthrough.
   const formattedNumberInputProps = {
     value,
+    defaultValue,
     onChangeNumber,
     maxDecimalPlaces,
     decimalRoundingMode,
     formatDisplay,
     showCommasWhileEditing,
+    debugPrecision,
     editable: disabled != null ? !disabled : undefined,
     placeholder,
     style,

@@ -10,10 +10,15 @@ import {
   safeSetSelectionRange,
 } from '../../safeSelection';
 import {
+  countFractionDigits,
   defaultFormatDisplay,
+  formatSanitizedNumericTextWithGroupSeparator,
   formattedIndexToRawIndex,
+  getNumberRoundTripInfo,
+  inferGroupingSeparatorFromFormattedNumber,
   roundToPlaces,
   sanitizeNumericText,
+  stripLeadingIntegerZeros,
 } from '../../numberFormatting';
 import { splitFormattedNumberInputStyle } from '../../styleSplit';
 import type { ModeProps } from '../types';
@@ -33,6 +38,7 @@ export function OverlayNumberInput({
   maxDecimalPlaces,
   decimalRoundingMode = 'displayAndOutput',
   formatDisplay,
+  debugPrecision,
   style,
   onFocus,
   onBlur,
@@ -47,6 +53,8 @@ export function OverlayNumberInput({
   const webInputMode = getDefaultWebInputMode(maxDecimalPlaces);
   const typingInputRef = React.useRef<InputHandle | null>(null);
   const displayInputRef = React.useRef<InputHandle | null>(null);
+  const rawNumericTextRef = React.useRef<string | null>(null);
+  const lastEmittedNumberRef = React.useRef<number | undefined>(value);
 
   const displayValue =
     typeof maxDecimalPlaces === 'number'
@@ -62,26 +70,185 @@ export function OverlayNumberInput({
     React.useState(0);
   const lastSeedValueForTypingInputRef = React.useRef(seedValueForTypingInput);
 
+  const rawDisplayGroupSeparator = React.useMemo(() => {
+    if (!formatDisplay) return ',';
+    return inferGroupingSeparatorFromFormattedNumber(formatDisplay(1234567.89));
+  }, [formatDisplay]);
+
+  const formatRawDisplayText = React.useCallback(
+    (text: string) =>
+      formatSanitizedNumericTextWithGroupSeparator(
+        text,
+        rawDisplayGroupSeparator ?? ','
+      ),
+    [rawDisplayGroupSeparator]
+  );
+
+  const debugLog = React.useCallback(
+    (event: string, details: Record<string, unknown>) => {
+      if (!debugPrecision) return;
+      console.log(
+        `[FormattedNumberInput precision][overlay] ${event}`,
+        details
+      );
+    },
+    [debugPrecision]
+  );
+
+  const canPreserveRawDisplay = React.useCallback(
+    (cleaned: string) => {
+      const roundTripInfo = getNumberRoundTripInfo(cleaned);
+      const hasCustomFormat = !!formatDisplay;
+      const canFormatRawCustomDisplay = rawDisplayGroupSeparator != null;
+      const fractionDigitCount = countFractionDigits(cleaned);
+      const isWithinMaxDecimalPlaces =
+        typeof maxDecimalPlaces !== 'number' ||
+        fractionDigitCount <= maxDecimalPlaces;
+      const canPreserve =
+        cleaned !== '' && canFormatRawCustomDisplay && isWithinMaxDecimalPlaces;
+
+      debugLog('raw-display-preserve-check', {
+        cleaned,
+        ...roundTripInfo,
+        hasCustomFormat,
+        rawDisplayGroupSeparator,
+        canFormatRawCustomDisplay,
+        maxDecimalPlaces,
+        fractionDigitCount,
+        isWithinMaxDecimalPlaces,
+        canPreserve,
+        stringFormattedCleaned: formatRawDisplayText(cleaned),
+        stringFormattedNormalized: roundTripInfo.normalized
+          ? formatRawDisplayText(roundTripInfo.normalized)
+          : '',
+      });
+
+      return canPreserve;
+    },
+    [
+      debugLog,
+      formatDisplay,
+      formatRawDisplayText,
+      maxDecimalPlaces,
+      rawDisplayGroupSeparator,
+    ]
+  );
+
+  const getPreservedEchoRawText = React.useCallback(
+    (nextValue: number) => {
+      const rawNumericText = rawNumericTextRef.current;
+      const lastEmittedNumber = lastEmittedNumberRef.current;
+
+      if (lastEmittedNumber === undefined || nextValue !== lastEmittedNumber) {
+        debugLog('preserved-echo-skip', {
+          reason: 'incoming-value-not-last-emitted-number',
+          rawNumericText,
+          incomingValue: nextValue,
+          lastEmittedNumber,
+        });
+        return null;
+      }
+
+      if (!rawNumericText || !canPreserveRawDisplay(rawNumericText)) {
+        debugLog('preserved-echo-skip', {
+          reason: rawNumericText ? 'raw-text-not-preserved' : 'no-raw-text',
+          rawNumericText,
+          incomingValue: nextValue,
+          lastEmittedNumber,
+        });
+        return null;
+      }
+
+      const roundTripInfo = getNumberRoundTripInfo(rawNumericText);
+      const parsedRawNumericText = roundTripInfo.parsed;
+      if (Number.isNaN(parsedRawNumericText)) {
+        debugLog('preserved-echo-skip', {
+          reason: 'parsed-raw-is-nan',
+          rawNumericText,
+          incomingValue: nextValue,
+          lastEmittedNumber,
+        });
+        return null;
+      }
+      if (parsedRawNumericText !== lastEmittedNumber) {
+        debugLog('preserved-echo-skip', {
+          reason: 'last-emitted-number-differs-from-raw-text',
+          rawNumericText,
+          ...roundTripInfo,
+          parsedRawNumericText,
+          incomingValue: nextValue,
+          lastEmittedNumber,
+        });
+        return null;
+      }
+
+      debugLog('preserved-echo-use', {
+        rawNumericText,
+        ...roundTripInfo,
+        parsedRawNumericText,
+        incomingValue: nextValue,
+        lastEmittedNumber,
+        stringFormattedRawText: formatRawDisplayText(rawNumericText),
+        reason:
+          'incoming value equals the number this input just emitted, so keep rendering the string-formatted raw text',
+      });
+      return rawNumericText;
+    },
+    [canPreserveRawDisplay, debugLog, formatRawDisplayText]
+  );
+
   // Only bump the remount key while blurred.
   // This preserves click-to-position caret behavior and prevents remounts while typing.
   React.useEffect(() => {
     if (isFocused) return;
+    const preservedEchoRawText = getPreservedEchoRawText(
+      seedValueForTypingInput
+    );
+    if (preservedEchoRawText != null) {
+      debugLog('blurred-sync-preserve-default-value', {
+        seedValueForTypingInput,
+        preservedEchoRawText,
+        remountKeyForTypingInput,
+      });
+      return;
+    }
+
+    debugLog('blurred-sync-from-number', {
+      seedValueForTypingInput,
+      rawNumericText: rawNumericTextRef.current,
+      lastSeedValueForTypingInput: lastSeedValueForTypingInputRef.current,
+      willRemount: !Object.is(
+        lastSeedValueForTypingInputRef.current,
+        seedValueForTypingInput
+      ),
+    });
+    rawNumericTextRef.current = null;
+    lastEmittedNumberRef.current = seedValueForTypingInput;
     if (
       Object.is(lastSeedValueForTypingInputRef.current, seedValueForTypingInput)
     )
       return;
     lastSeedValueForTypingInputRef.current = seedValueForTypingInput;
     setRemountKeyForTypingInput((k) => k + 1);
-  }, [isFocused, seedValueForTypingInput]);
+  }, [
+    debugLog,
+    isFocused,
+    seedValueForTypingInput,
+    getPreservedEchoRawText,
+    remountKeyForTypingInput,
+  ]);
 
-  const rawValueText = String(seedValueForTypingInput);
+  const preservedRawValueText = getPreservedEchoRawText(
+    seedValueForTypingInput
+  );
+  const rawValueText = preservedRawValueText ?? String(seedValueForTypingInput);
 
   // IMPORTANT: React Native TextInput may treat `defaultValue` as an updatable prop (not purely initial),
   // which can cause the typing text to "snap" to the controlled/rounded value while focused.
   // We freeze the defaultValue for the lifetime of each TypingInput mount, and only update it when we
   // intentionally remount via `remountKeyForTypingInput`.
   const defaultValueForTypingInput = React.useMemo(
-    () => String(seedValueForTypingInput),
+    () => rawValueText,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [remountKeyForTypingInput]
   );
@@ -95,9 +262,36 @@ export function OverlayNumberInput({
     lastParsedNumberRef.current = seedValueForTypingInput;
   }, [isFocused, seedValueForTypingInput]);
 
-  const formattedValueText = formatDisplay
-    ? formatDisplay(displayValue)
-    : defaultFormatDisplay(displayValue, maxDecimalPlaces);
+  const formattedValueText = preservedRawValueText
+    ? formatRawDisplayText(preservedRawValueText)
+    : formatDisplay
+      ? formatDisplay(displayValue)
+      : defaultFormatDisplay(displayValue, maxDecimalPlaces);
+
+  React.useEffect(() => {
+    debugLog('render-display-text-choice', {
+      isFocused,
+      value,
+      displayValue,
+      seedValueForTypingInput,
+      preservedRawValueText,
+      rawValueText,
+      formattedValueText,
+      defaultValueForTypingInput,
+      remountKeyForTypingInput,
+    });
+  }, [
+    debugLog,
+    isFocused,
+    value,
+    displayValue,
+    seedValueForTypingInput,
+    preservedRawValueText,
+    rawValueText,
+    formattedValueText,
+    defaultValueForTypingInput,
+    remountKeyForTypingInput,
+  ]);
 
   return (
     <Wrapper style={[styles.overlayRoot, containerStyle]}>
@@ -114,6 +308,13 @@ export function OverlayNumberInput({
           // - allow decimals
           // - if multiple '.', keep the first and collapse the rest into the decimal portion
           const cleaned = sanitizeNumericText(String(text));
+          const canonicalText = stripLeadingIntegerZeros(cleaned);
+          rawNumericTextRef.current = canonicalText;
+          debugLog('raw-text-captured', {
+            text,
+            cleaned,
+            canonicalText,
+          });
           const next = Number(cleaned);
           if (Number.isNaN(next)) return;
 
@@ -125,17 +326,46 @@ export function OverlayNumberInput({
             typeof maxDecimalPlaces === 'number' &&
             decimalRoundingMode === 'displayAndOutput'
           ) {
-            onChangeNumber(roundToPlaces(next, maxDecimalPlaces));
+            const outputValue = roundToPlaces(next, maxDecimalPlaces);
+            debugLog('emit-number', {
+              cleaned,
+              parsed: next,
+              outputValue,
+              decimalRoundingMode,
+              maxDecimalPlaces,
+            });
+            lastEmittedNumberRef.current = outputValue;
+            onChangeNumber(outputValue);
             return;
           }
 
+          debugLog('emit-number', {
+            cleaned,
+            parsed: next,
+            outputValue: next,
+            decimalRoundingMode,
+            maxDecimalPlaces,
+          });
+          lastEmittedNumberRef.current = next;
           onChangeNumber(next);
         }}
         onFocus={(e: unknown) => {
+          debugLog('focus', {
+            value,
+            seedValueForTypingInput,
+            defaultValueForTypingInput,
+            rawValueText,
+            preservedRawValueText,
+          });
           setIsFocused(true);
           onFocus?.(e);
         }}
         onBlur={(e: unknown) => {
+          debugLog('blur-remount', {
+            seedValueForTypingInput,
+            rawNumericText: rawNumericTextRef.current,
+            remountKeyForTypingInput,
+          });
           setIsFocused(false);
 
           // No-op for rounding here: in displayAndOutput mode we already emit rounded values as the user types.
@@ -177,6 +407,11 @@ export function OverlayNumberInput({
             editable={isWeb}
             onFocus={() => {
               if (!isWeb) return;
+              debugLog('display-overlay-focus-forward', {
+                formattedValueText,
+                rawValueText,
+                preservedRawValueText,
+              });
 
               // Let the browser compute the caret position in the formatted string,
               // then transfer focus + mapped caret to the real TypingInput.
