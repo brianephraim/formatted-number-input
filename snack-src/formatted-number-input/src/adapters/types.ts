@@ -31,6 +31,47 @@ export type AutoCompleteProp = TextInputProps extends { autoComplete?: infer T }
   ? T
   : string;
 
+export type InputFocusEvent =
+  | React.FocusEvent<HTMLInputElement>
+  | Parameters<NonNullable<TextInputProps['onFocus']>>[0];
+
+export type InputBlurEvent =
+  | React.FocusEvent<HTMLInputElement>
+  | Parameters<NonNullable<TextInputProps['onBlur']>>[0];
+
+export type SelectionRangeTarget = {
+  selectionStart?: number | null;
+  selectionEnd?: number | null;
+};
+
+export type InputSelectionChangeEvent =
+  | React.SyntheticEvent<HTMLInputElement>
+  | Parameters<NonNullable<TextInputProps['onSelectionChange']>>[0];
+
+export type InputKeyDownEvent = {
+  key: string;
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  target?: EventTarget | SelectionRangeTarget | null;
+  preventDefault: () => void;
+};
+
+export type InputCopyEvent = {
+  target?:
+    | EventTarget
+    | {
+        ownerDocument?: {
+          getSelection?: () => { toString: () => string } | null;
+        } | null;
+      }
+    | null;
+  clipboardData?: {
+    setData: (format: string, data: string) => void;
+  } | null;
+  preventDefault: () => void;
+};
+
 export type RNishInputProps = Pick<
   TextInputProps,
   | 'value'
@@ -43,10 +84,9 @@ export type RNishInputProps = Pick<
 > & {
   onChangeText?: (text: string) => void;
 
-  // Cross-platform focus/blur events are not type-compatible (DOM vs RN).
-  // We accept unknown and forward it through.
-  onFocus?: (e: unknown) => void;
-  onBlur?: (e: unknown) => void;
+  onFocus?: (e: InputFocusEvent) => void;
+  onBlur?: (e: InputBlurEvent) => void;
+  onSelectionChange?: (e: InputSelectionChangeEvent) => void;
 
   // react-native-web supports this; RN native ignores.
   caretHidden?: boolean;
@@ -58,8 +98,8 @@ export type RNishInputProps = Pick<
   autoComplete?: AutoCompleteProp;
 
   // Key event handler for live-formatting mode (comma-skipping backspace/delete).
-  onKeyDown?: (e: unknown) => void;
+  onKeyDown?: (e: InputKeyDownEvent) => void;
 
   // Copy event handler for live-formatting mode (strip commas from clipboard).
-  onCopy?: (e: unknown) => void;
+  onCopy?: (e: InputCopyEvent) => void;
 };

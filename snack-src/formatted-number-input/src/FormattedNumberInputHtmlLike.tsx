@@ -23,6 +23,28 @@ export type FormattedNumberInputHtmlLikeProps = Omit<
   debugPrecision?: boolean;
 };
 
+type HtmlPassthroughProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  | 'value'
+  | 'defaultValue'
+  | 'type'
+  | 'onChange'
+  | 'style'
+  | 'onFocus'
+  | 'onBlur'
+  | 'autoComplete'
+>;
+
+type FormattedNumberInputHtmlLikeForwardProps = Omit<
+  FormattedNumberInputProps,
+  'style' | 'onFocus' | 'onBlur' | 'autoComplete'
+> &
+  Pick<
+    FormattedNumberInputHtmlLikeProps,
+    'style' | 'onFocus' | 'onBlur' | 'autoComplete'
+  > &
+  HtmlPassthroughProps;
+
 /**
  * HTML-like wrapper around FormattedNumberInput.
  *
@@ -76,17 +98,14 @@ export function FormattedNumberInputHtmlLike({
     autoComplete,
     onFocus,
     onBlur,
+    ...(id != null ? { id } : {}),
     // HTML-specific props flow through to the <input> element.
     ...htmlPassthrough,
-  };
-
-  if (id != null) {
-    (formattedNumberInputProps as Record<string, unknown>).id = id;
-  }
+  } as FormattedNumberInputHtmlLikeForwardProps;
 
   return (
     <FormattedNumberInput
-      {...(formattedNumberInputProps as unknown as FormattedNumberInputProps)}
+      {...(formattedNumberInputProps as FormattedNumberInputProps)}
     />
   );
 }

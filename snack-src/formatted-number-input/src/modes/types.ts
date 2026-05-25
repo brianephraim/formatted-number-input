@@ -1,5 +1,11 @@
 import type { TextInputProps } from 'react-native';
-import type { InputComponent, WrapperComponent } from '../adapters/types';
+import type {
+  InputBlurEvent,
+  InputComponent,
+  InputFocusEvent,
+  InputSelectionChangeEvent,
+  WrapperComponent,
+} from '../adapters/types';
 
 /**
  * Props shared by both mode components (overlay and live).
@@ -14,13 +20,15 @@ export type ModeProps = Omit<
   | 'inputMode'
   | 'onFocus'
   | 'onBlur'
+  | 'onSelectionChange'
 > & {
   value: number;
   onChangeNumber: (next: number) => void;
   inputComponent?: InputComponent;
   wrapperComponent?: WrapperComponent;
-  onFocus?: (e: unknown) => void;
-  onBlur?: (e: unknown) => void;
+  onFocus?: (e: InputFocusEvent) => void;
+  onBlur?: (e: InputBlurEvent) => void;
+  onSelectionChange?: (e: InputSelectionChangeEvent) => void;
   maxDecimalPlaces?: number;
   decimalRoundingMode?: 'displayAndOutput' | 'displayOnly';
   formatDisplay?: (value: number) => string;

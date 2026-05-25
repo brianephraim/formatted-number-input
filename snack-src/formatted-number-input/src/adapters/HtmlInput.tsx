@@ -59,12 +59,9 @@ export const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(
       testID,
       onFocus,
       onBlur,
+      onSelectionChange,
       autoComplete,
     } = props;
-
-    // onSelectionChange comes from TextInputProps via ModeProps, not RNishInputProps.
-    const onSelectionChange = (props as Record<string, unknown>)
-      .onSelectionChange as ((e: unknown) => void) | undefined;
 
     // Collect any extra props not in RNishInputProps (e.g. name, id, className,
     // aria-*, data-*) so they pass through to the underlying <input> element.
@@ -119,8 +116,8 @@ export const HtmlInput = React.forwardRef<InputHandle, RNishInputProps>(
         onInput={(e: React.FormEvent<HTMLInputElement>) =>
           onChangeText?.(e.currentTarget.value)
         }
-        onKeyDown={onKeyDown as React.KeyboardEventHandler<HTMLInputElement>}
-        onCopy={onCopy as React.ClipboardEventHandler<HTMLInputElement>}
+        onKeyDown={onKeyDown}
+        onCopy={onCopy}
         onFocus={(e: React.FocusEvent<HTMLInputElement>) => onFocus?.(e)}
         onBlur={(e: React.FocusEvent<HTMLInputElement>) => onBlur?.(e)}
         onSelect={(e: React.SyntheticEvent<HTMLInputElement>) =>

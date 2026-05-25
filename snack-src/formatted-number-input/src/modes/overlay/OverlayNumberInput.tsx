@@ -2,7 +2,11 @@ import * as React from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { DivWrapper } from '../../adapters/DivWrapper';
 import { HtmlInput } from '../../adapters/HtmlInput';
-import type { InputHandle } from '../../adapters/types';
+import type {
+  InputBlurEvent,
+  InputFocusEvent,
+  InputHandle,
+} from '../../adapters/types';
 import { getDefaultWebInputMode } from '../../inputMode';
 import {
   safeFocus,
@@ -16,6 +20,7 @@ import {
   formattedIndexToRawIndex,
   getNumberRoundTripInfo,
   inferGroupingSeparatorFromFormattedNumber,
+  roundNumericTextToDecimalPlaces,
   roundToPlaces,
   sanitizeNumericText,
   stripLeadingIntegerZeros,
@@ -308,12 +313,18 @@ export function OverlayNumberInput({
           // - allow decimals
           // - if multiple '.', keep the first and collapse the rest into the decimal portion
           const cleaned = sanitizeNumericText(String(text));
-          const canonicalText = stripLeadingIntegerZeros(cleaned);
-          rawNumericTextRef.current = canonicalText;
+          const strippedText = stripLeadingIntegerZeros(cleaned);
+          const displayText =
+            typeof maxDecimalPlaces === 'number'
+              ? roundNumericTextToDecimalPlaces(strippedText, maxDecimalPlaces)
+              : strippedText;
+          rawNumericTextRef.current = displayText;
           debugLog('raw-text-captured', {
             text,
             cleaned,
-            canonicalText,
+            strippedText,
+            displayText,
+            storedRawNumericText: rawNumericTextRef.current,
           });
           const next = Number(cleaned);
           if (Number.isNaN(next)) return;
@@ -326,9 +337,10 @@ export function OverlayNumberInput({
             typeof maxDecimalPlaces === 'number' &&
             decimalRoundingMode === 'displayAndOutput'
           ) {
-            const outputValue = roundToPlaces(next, maxDecimalPlaces);
+            const outputValue = Number(displayText);
             debugLog('emit-number', {
               cleaned,
+              displayText,
               parsed: next,
               outputValue,
               decimalRoundingMode,
@@ -341,6 +353,7 @@ export function OverlayNumberInput({
 
           debugLog('emit-number', {
             cleaned,
+            displayText,
             parsed: next,
             outputValue: next,
             decimalRoundingMode,
@@ -349,7 +362,7 @@ export function OverlayNumberInput({
           lastEmittedNumberRef.current = next;
           onChangeNumber(next);
         }}
-        onFocus={(e: unknown) => {
+        onFocus={(e: InputFocusEvent) => {
           debugLog('focus', {
             value,
             seedValueForTypingInput,
@@ -360,7 +373,7 @@ export function OverlayNumberInput({
           setIsFocused(true);
           onFocus?.(e);
         }}
-        onBlur={(e: unknown) => {
+        onBlur={(e: InputBlurEvent) => {
           debugLog('blur-remount', {
             seedValueForTypingInput,
             rawNumericText: rawNumericTextRef.current,
